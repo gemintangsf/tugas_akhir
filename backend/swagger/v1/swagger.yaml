@@ -1,0 +1,105 @@
+---
+swagger: '2.0'
+info:
+  title: JTK BERBAGI API V1
+  version: v1
+paths:
+  "/admins/create":
+    post:
+      summary: Create User
+      tags:
+      - Registrasi
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            nama:
+              type: string
+              example: Admin JTK Berbagi
+            role:
+              type: string
+              example: AdminJTKBerbagi
+            username:
+              type: string
+              example: AdminJTKBerbagi
+            password:
+              type: string
+              example: '12345678'
+            password_confirmation:
+              type: string
+              example: '12345678'
+            nomor_telepon:
+              type: string
+              example: '081232132318'
+          required: []
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Email is Already Taken
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/login":
+    post:
+      summary: Login
+      tags:
+      - Authentication
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: AdminJTKBerbagi
+            password:
+              type: string
+              example: '12345678'
+          required: []
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '401':
+          description: Error
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Username salah
+              response_code:
+                type: integer
+                example: 401
