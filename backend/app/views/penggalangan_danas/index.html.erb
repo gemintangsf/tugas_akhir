@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Penggalangan Danas</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Body</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @penggalangan_danas.each do |penggalangan_dana| %>
+      <tr>
+        <td><%= penggalangan_dana.title %></td>
+        <td><%= penggalangan_dana.body %></td>
+        <td><%= link_to 'Show', penggalangan_dana %></td>
+        <td><%= link_to 'Edit', edit_penggalangan_dana_path(penggalangan_dana) %></td>
+        <td><%= link_to 'Destroy', penggalangan_dana, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Penggalangan Dana', new_penggalangan_dana_path %>

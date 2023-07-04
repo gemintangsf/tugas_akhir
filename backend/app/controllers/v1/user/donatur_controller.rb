@@ -1,34 +1,34 @@
-class AdminsController < ApplicationController
+class V1::User::DonaturController < ApplicationController
   # before_action :
-  # GET /admins or /admins.json
+  # GET /donatur or /donatur.json
   def index
-    @admins = Admin.all
+    @donatur = User::Donatur.all
   end
 
-  def createAdmin
-    @admin = Admin.new(admin_params)
-    if @admin.save
+  def createDonatur
+    @donatur = User::Donatur.new(donatur_params)
+    if @donatur.save
       render json: {
           response_code: 201, 
           response_message: "Success", 
-          data: @admin
+          data: @donatur
           }, status: :created
     else
       render json: {
           response_code: 422,
-          response_message: @admin.errors.full_messages
+          response_message: @Donatur.errors.full_messages
           }, status: :unprocessable_entity
     end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_admin
-      @admin = Admin.find(params[:id])
+    def set_donatur
+      @Donatur = User::Donatur.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
-    def admin_params
+    def donatur_params
       params.permit(:nama, :role, :username, :password, :password_confirmation, :nomor_telepon)
     end
 end
