@@ -244,6 +244,42 @@ describe 'Pengajuan Bantuan API' do
     end
   end
 
+  path '/v1/pengajuan/pengajuan_bantuan/createPenilaianEsai' do
+    post 'Create Penilaian Esai Pengajuan Beasiswa' do
+      tags 'Pengajuan Bantuan'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+          id: {type: :string, example: "638235b0e21fac0354b16976"},
+          penilaian_esai: {type: :string, example: "Baik"},
+        },
+        required: []
+      }
+      response '200', 'Successfull' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Pengajuan Beasiswa tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+        properties: {
+          response_message: {type: :string, example: "Tidak memiliki akses!"},
+          response_code: {type: :integer, example: 401}
+        }
+        run_test!
+      end
+    end
+  end
+
   path '/v1/pengajuan/pengajuan_bantuan/selectPengajuanBeasiswa' do
     post 'Approval Pengajuan Beasiswa' do
       tags 'Pengajuan Bantuan'

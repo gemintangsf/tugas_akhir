@@ -29,4 +29,5 @@ class Pengajuan::Beasiswa
   field :biaya_kos, type: String
   field :total_pengeluaran_keluarga, type: Integer
   field :rincian_pengeluaran_keluarga, type: String
+  field :penilaian_esai, type: Integer
 end

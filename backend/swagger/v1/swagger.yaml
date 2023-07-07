@@ -782,6 +782,55 @@ paths:
               response_code:
                 type: integer
                 example: 401
+  "/v1/pengajuan/pengajuan_bantuan/createPenilaianEsai":
+    post:
+      summary: Create Penilaian Esai Pengajuan Beasiswa
+      tags:
+      - Pengajuan Bantuan
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 638235b0e21fac0354b16976
+            penilaian_esai:
+              type: string
+              example: Baik
+          required: []
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Pengajuan Beasiswa tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
   "/v1/pengajuan/pengajuan_bantuan/selectPengajuanBeasiswa":
     post:
       summary: Approval Pengajuan Beasiswa

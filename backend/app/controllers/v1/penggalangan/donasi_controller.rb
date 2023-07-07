@@ -4,14 +4,19 @@ class V1::Penggalangan::DonasiController < ApplicationController
     penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
     if not penggalangan_dana.present?
       render json: {
-        response_code: 422,
+        response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Data Penggalangan Dana tidak ada!"
         }, status: :unprocessable_entity
     else
-      pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:_id.in => penggalangan_dana.pluck(id))
+      if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+        id_pengajuan = penggalangan_dana.pengajuan_bantuan_id[0]
+      else
+        id_pengajuan = penggalangan_dana.pengajuan_bantuan_id
+      end
+      pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: id_pengajuan).first
       if not pengajuan_bantuan.present?
         render json: {
-          response_code: 422,
+          response_code: Constants::ERROR_CODE_VALIDATION,
           response_message: "Penggalangan Dana tidak ada"
           }, status: :unprocessable_entity
       else
@@ -23,7 +28,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
           donatur = User::Donatur.new(
             nama: params[:nama],
             nomor_telepon: params[:nomor_telepon],
-            status: 0,
+            status: Enums::StatusDonatur::CANDIDATE,
           )
         end
         random_number = 6.times.map{ 10 + Random.rand(11) }
@@ -35,17 +40,17 @@ class V1::Penggalangan::DonasiController < ApplicationController
           donatur: donatur,
           waktu_berakhir: waktu_berakhir,
           nomor_referensi: nomor_referensi, 
-          status: "new",
+          status: Enums::StatusDonasi::NEW,
         })
         if donatur.save!(:validate => false) and donasi.save
           render json: {
-            response_code: 201, 
+            response_code: Constants::RESPONSE_CREATED, 
             response_message: "Success", 
             data: {donasi: donasi, donatur: donatur, penggalangan_dana: penggalangan_dana},
             }, status: :created
         else
           render json: {
-            response_code: 422,
+            response_code: Constants::ERROR_CODE_VALIDATION,
             response_message: donasi.errors.full_messages
             }, status: :unprocessable_entity
         end
@@ -57,7 +62,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
     donasi = Penggalangan::Donasi.new_donation.where(id: params[:id]).first
     if not donasi.present?
       render json: {
-        response_code: 422,
+        response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Data Donasi baru tidak ditemukan!"
         }, status: :unprocessable_entity
     else
@@ -71,11 +76,11 @@ class V1::Penggalangan::DonasiController < ApplicationController
   
       seconds = seconds_diff
       if seconds_diff < 1
-        donasi.assign_attributes(status: "expired")
+        donasi.assign_attributes(status: Enums::StatusDonasi::EXPIRED)
         donasi.save!(:validate => false)
       end
       render json: {
-        response_code: 200, 
+        response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
         data: "#{hours.to_s.rjust(2, '0')}:#{minutes.to_s.rjust(2, '0')}:#{seconds.to_s.rjust(2, '0')}",
         }, status: :ok
@@ -86,7 +91,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
     donasi = Penggalangan::Donasi.new_donation.where(id: params[:id]).first
     if not donasi.present?
       render json: {
-        response_code: 422,
+        response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Data Donasi baru tidak ditemukan!"
         }, status: :unprocessable_entity
     else
@@ -96,13 +101,13 @@ class V1::Penggalangan::DonasiController < ApplicationController
       extension = file_upload_split[file_upload_split.length - 1].downcase
       if extension != "pdf" and extension != "jpg" and extension != "jpeg" and extension != "png" 
         render json: {
-          response_code: 422,
+          response_code: Constants::ERROR_CODE_VALIDATION,
           response_message: "Format file hanya bisa PDF/JPG/JPEG/PNG"
           }, status: :unprocessable_entity
       #menghitung limit dari file jika lebih dari 1 MB dan file sesuai dengan format
       elsif size_file > 1000000  
         render json: {
-          response_code: 422,
+          response_code: Constants::ERROR_CODE_VALIDATION,
           response_message: "File lebih besar dari limit"
           }, status: :unprocessable_entity
       end
@@ -115,7 +120,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
       donasi.assign_attributes(struk_pembayaran: new_filename)
       if donasi.save!(:validate => false)
         render json: {
-          response_code: 201, 
+          response_code: Constants::RESPONSE_CREATED, 
           response_message: "Success", 
           data: "Berhasil melakukan upload struk pembayaran!",
           }, status: :created
@@ -127,19 +132,19 @@ class V1::Penggalangan::DonasiController < ApplicationController
     donasi = Penggalangan::Donasi.new_donation.where(id: params[:id]).first
     if not donasi.present?
       render json: {
-        response_code: 422,
+        response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Data Donasi baru tidak ditemukan!"
         }, status: :unprocessable_entity
     else
       penggalangan_dana = Penggalangan::PenggalanganDana.where(:_id => donasi.penggalangan_dana_id).first
       if params[:is_approve] == "true"
-        status_donasi = "approved"
+        status_donasi = Enums::StatusDonasi::APPROVED
         total_nominal_awal = penggalangan_dana.total_nominal_terkumpul
         nominal_donasi = donasi.nominal
         total_nominal_terkumpul = penggalangan_dana.total_nominal_terkumpul + donasi.nominal
         penggalangan_dana.assign_attributes({total_nominal_terkumpul: total_nominal_terkumpul})
       else
-        status_donasi = "rejected"
+        status_donasi = Enums::StatusDonasi::REJECTED
       end
       donasi.assign_attributes(status: status_donasi)
       #check donatur
@@ -149,7 +154,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
         donatur.assign_attributes(
           password: password_candidate,
           password_confirmation: password_candidate,
-          status: 1,
+          status: Enums::StatusDonatur::REGISTERED,
         )
         donatur.save!
       else
@@ -157,13 +162,13 @@ class V1::Penggalangan::DonasiController < ApplicationController
       end
       if donasi.save and penggalangan_dana.save
         render json: {
-          response_code: 200, 
+          response_code: Constants::RESPONSE_SUCCESS, 
           response_message: "Success", 
           data: {penggalangan_dana: penggalangan_dana, donatur: donatur, donasi: donasi, password_donatur: password_candidate},
           }, status: :ok
       else
         render json: {
-          response_code: 422,
+          response_code: Constants::ERROR_CODE_VALIDATION,
           response_message: {donasi: donasi.errors.full_messages, penggalangan_dana: penggalangan_dana.errors.full_messages}
           }, status: :unprocessable_entity
       end
@@ -174,14 +179,14 @@ class V1::Penggalangan::DonasiController < ApplicationController
     donasi = Penggalangan::Donasi.new_donation.reverse
     if not donasi.present?
       render json: {
-        response_code: 422,
+        response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Tidak ada data donasi!"
         }, status: :unprocessable_entity
     else
       penggalangan_dana = Penggalangan::PenggalanganDana.where(:_id.in => donasi.pluck(:penggalangan_dana_id)).reverse
       donatur = User::Donatur.where(:_id.in => donasi.pluck(:donatur_id)).reverse
       render json: {
-        response_code: 200, 
+        response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
         data: {donasi: donasi, donatur: donatur, penggalangan_dana: penggalangan_dana},
         }, status: :ok
@@ -192,13 +197,13 @@ class V1::Penggalangan::DonasiController < ApplicationController
     donasi = Penggalangan::Donasi.new_donation
     if not donasi.present?
       render json: {
-        response_code: 200, 
+        response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
         data: 0
         }, status: :ok
     else
       render json: {
-        response_code: 200, 
+        response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
         data: donasi.length
         }, status: :ok
@@ -209,13 +214,14 @@ class V1::Penggalangan::DonasiController < ApplicationController
     donasi = Penggalangan::Donasi.approved
     if not donasi.present?
       render json: {
-        response_code: 422,
-        response_message: "Tidak ada donasi yang sudah dilakukan Approval!"
+        response_code: Constants::RESPONSE_SUCCESS,
+        response_message: "Success",
+        data: 0
         }, status: :unprocessable_entity
     else
       donasi_terkumpul = donasi.pluck(:nominal).inject(0, :+)
       render json: {
-        response_code: 200, 
+        response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
         data: donasi_terkumpul
         }, status: :ok

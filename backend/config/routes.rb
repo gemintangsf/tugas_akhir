@@ -24,6 +24,7 @@ Rails.application.routes.draw do
         post "/createPengajuanNonBeasiswa" => "pengajuan_bantuan#createPengajuanNonBeasiswa"
         post "/selectPengajuanBeasiswa" => "pengajuan_bantuan#selectPengajuanBeasiswa"
         post "/selectPengajuanNonBeasiswa" => "pengajuan_bantuan#selectPengajuanNonBeasiswa"
+        post "/createPenilaianEsai" => "pengajuan_bantuan#createPenilaianEsai"
       end
     end
     namespace :penggalangan do
