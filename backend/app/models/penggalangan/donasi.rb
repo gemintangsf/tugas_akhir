@@ -15,9 +15,10 @@ class Penggalangan::Donasi
   field :struk_pembayaran, type: String
   field :nomor_referensi, type: String
   field :waktu_berakhir, type: Time
-  field :status, type: String
+  field :status, type: Integer
 
-  scope :new_donation, -> { where(status: "new")}
-  scope :approved, -> { where(status: "approved")}
+  scope :new_donation, -> { where(status: Enums::StatusDonasi::NEW)}
+  scope :expired, -> { where(status: Enums::StatusDonasi::EXPIRED)}
+  scope :approved, -> { where(status: Enums::StatusDonasi::APPROVED)}
 end
   
