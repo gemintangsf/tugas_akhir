@@ -16,6 +16,11 @@ import { useState } from 'react';
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -45,6 +50,11 @@ function LaporanRekapitulasiBeasiswa() {
 	};
 	const handleClose = () => {
 		setOpen(false);
+	};
+	const [batch, setBatch] = useState('');
+
+	const handleChange = (event) => {
+		setBatch(event.target.value);
 	};
 	const headers = [
 		{ title: 'No', id: 'no' },
@@ -79,6 +89,62 @@ function LaporanRekapitulasiBeasiswa() {
 			nominal_donasi: '1000000',
 			nama_penerima: '08120912312',
 			nominal_pengeluaran: '1000000'
+		},
+		{
+			no: '3',
+			nama_donatur: 'Hasbi',
+			no_telepon: '082121445524',
+			nominal_donasi: '1000000',
+			nama_penerima: '08120912312',
+			nominal_pengeluaran: '1000000'
+		},
+		{
+			no: '3',
+			nama_donatur: 'Hasbi',
+			no_telepon: '082121445524',
+			nominal_donasi: '1000000',
+			nama_penerima: '08120912312',
+			nominal_pengeluaran: '1000000'
+		},
+		{
+			no: '3',
+			nama_donatur: 'Hasbi',
+			no_telepon: '082121445524',
+			nominal_donasi: '1000000',
+			nama_penerima: '08120912312',
+			nominal_pengeluaran: '1000000'
+		},
+		{
+			no: '3',
+			nama_donatur: 'Hasbi',
+			no_telepon: '082121445524',
+			nominal_donasi: '1000000',
+			nama_penerima: '08120912312',
+			nominal_pengeluaran: '1000000'
+		},
+		{
+			no: '3',
+			nama_donatur: 'Hasbi',
+			no_telepon: '082121445524',
+			nominal_donasi: '1000000',
+			nama_penerima: '08120912312',
+			nominal_pengeluaran: '1000000'
+		},
+		{
+			no: '3',
+			nama_donatur: 'Hasbi',
+			no_telepon: '082121445524',
+			nominal_donasi: '1000000',
+			nama_penerima: '08120912312',
+			nominal_pengeluaran: '1000000'
+		},
+		{
+			no: '3',
+			nama_donatur: 'Hasbi',
+			no_telepon: '082121445524',
+			nominal_donasi: '1000000',
+			nama_penerima: '08120912312',
+			nominal_pengeluaran: '1000000'
 		}
 	]
 	return (
@@ -95,14 +161,25 @@ function LaporanRekapitulasiBeasiswa() {
 				<DescriptionIcon />
 				<Typography variant='h4' sx={{ ml: 1 }}>Laporan Rekapitulasi Dana Beasiswa</Typography>
 			</Box>
-			<Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
-				<div style={{ display: 'flex', alignItems: 'center' }}>
+			<Box sx={{ mt: 2, display: 'flex' }}>
+				<Box sx={{ minWidth: 120 }}>
+					<FormControl fullWidth size='small'>
+						<InputLabel>Batch</InputLabel>
+						<Select
+							value={batch}
+							label='batch'
+							onChange={handleChange}
+						>
+							<MenuItem value={10}>Batch 1</MenuItem>
+						</Select>
+					</FormControl>
+				</Box>
+				<Box sx={{ minWidth: 350, ml: 1 }}>
 					<TextField search
 						size='small'
 						label="Search" type='search'
-						sx={{ minWidth: 350 }}
 					></TextField>
-				</div>
+				</Box>
 			</Box>
 			<Box sx={{ mt: 2 }}>
 				<TableContainer component={Paper}>
@@ -133,6 +210,7 @@ function LaporanRekapitulasiBeasiswa() {
 						</TableBody>
 					</Table>
 				</TableContainer>
+				<Typography>asd</Typography>
 			</Box>
 		</Container>
 	);
