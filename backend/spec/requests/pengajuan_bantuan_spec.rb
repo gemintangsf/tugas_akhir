@@ -1,41 +1,6 @@
 require 'swagger_helper'
 
 describe 'Pengajuan Bantuan API' do
-  path '/v1/pengajuan/pengajuan_bantuan/getDurasiPengajuanBeasiswa' do
-    post 'Get Durasi Pendaftaran Beasiswa' do
-      tags 'Pengajuan Bantuan'
-      consumes 'application/json'
-      produces 'application/json'
-      parameter name: :body, in: :body, schema: {
-        type: :object,
-        properties: {
-            id: {type: :string, example: "649982e0e21fac364c2d0d54"},
-        },
-        required: []
-      }
-      response '201', 'Created' do
-        schema type: :object
-        run_test!
-      end
-      response '422', 'Unprocessable Entity' do
-        schema type: :object,
-              properties: {
-                response_message: {type: :string, example: "Data tidak ditemukan!"},
-                response_code: {type: :integer, example: 422}
-              }
-        run_test!
-      end
-      response '401', 'Unauthorized' do
-        schema type: :object,
-              properties: {
-                response_message: {type: :string, example: "Tidak memiliki akses!"},
-                response_code: {type: :integer, example: 401}
-              }
-        run_test!
-      end
-    end
-  end
-
   path '/v1/pengajuan/pengajuan_bantuan/createPengajuanBeasiswa' do
     post 'Create Pengajuan Beasiswa' do
       tags 'Pengajuan Bantuan'
@@ -44,7 +9,6 @@ describe 'Pengajuan Bantuan API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            id: {type: :string, example: "649982e0e21fac364c2d0d54"},
             jenis: {type: :string, example: "Beasiswa"},
             nama: {type: :string, example: "Gemintang"},
             no_identitas_pengaju: {type: :string, example: "191524009"},
@@ -140,6 +104,146 @@ describe 'Pengajuan Bantuan API' do
     end
   end
 
+  path '/v1/pengajuan/pengajuan_bantuan/getPengajuan' do
+    post 'Get Pengajuan Bantuan Dana' do
+      tags 'Pengajuan Bantuan'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            jenis: {type: :string, example: "Beasiswa"},
+        },
+        required: []
+      }
+      response '200', 'Successfull' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Pengajuan Non Beasiswa tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+        properties: {
+          response_message: {type: :string, example: "Tidak memiliki akses!"},
+          response_code: {type: :integer, example: 401}
+        }
+        run_test!
+      end
+    end
+  end
+
+  path '/v1/pengajuan/pengajuan_bantuan/getPengajuanNonBeasiswaByKategori' do
+    post 'Get Pengajuan Non Beasiswa By Kategori' do
+      tags 'Pengajuan Bantuan'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            kategori: {type: :string, example: "Medis"},
+        },
+        required: []
+      }
+      response '200', 'Successfull' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Pengajuan Non Beasiswa tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+        properties: {
+          response_message: {type: :string, example: "Tidak memiliki akses!"},
+          response_code: {type: :integer, example: 401}
+        }
+        run_test!
+      end
+    end
+  end
+
+  path '/v1/pengajuan/pengajuan_bantuan/getPenerimaBantuanDana' do
+    post 'Get Penerima Bantuan Dana' do
+      tags 'Pengajuan Bantuan'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            jenis: {type: :string, example: "Beasiswa"},
+        },
+        required: []
+      }
+      response '200', 'Successfull' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Pengajuan Non Beasiswa tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+        properties: {
+          response_message: {type: :string, example: "Tidak memiliki akses!"},
+          response_code: {type: :integer, example: 401}
+        }
+        run_test!
+      end
+    end
+  end
+  
+  path '/v1/pengajuan/pengajuan_bantuan/getPenerimaNonBeasiswaByKategori' do
+    post 'Get Penerima Bantuan Dana' do
+      tags 'Pengajuan Bantuan'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            kategori: {type: :string, example: "Medis"},
+        },
+        required: []
+      }
+      response '200', 'Successfull' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Pengajuan Non Beasiswa tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+        properties: {
+          response_message: {type: :string, example: "Tidak memiliki akses!"},
+          response_code: {type: :integer, example: 401}
+        }
+        run_test!
+      end
+    end
+  end
+
   path '/v1/pengajuan/pengajuan_bantuan/selectPengajuanBeasiswa' do
     post 'Approval Pengajuan Beasiswa' do
       tags 'Pengajuan Bantuan'
@@ -148,8 +252,7 @@ describe 'Pengajuan Bantuan API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-          penggalangan_dana_id: {type: :string, example: "638235b0e21fac0354b16976"},
-          pengajuan_bantuan_id: {type: :string, example: "638235b0e21fac0354b16976"},
+          id: {type: :string, example: "638235b0e21fac0354b16976"},
           is_approve: {type: :string, example: "true"},
         },
         required: []
@@ -248,41 +351,6 @@ describe 'Pengajuan Bantuan API' do
     end
   end
 
-  path '/v1/pengajuan/pengajuan_bantuan/getPengajuanNonBeasiswaByKategori' do
-    post 'Get Pengajuan Non Beasiswa By Kategori' do
-      tags 'Pengajuan Bantuan'
-      consumes 'application/json'
-      produces 'application/json'
-      parameter name: :body, in: :body, schema: {
-        type: :object,
-        properties: {
-            kategori: {type: :string, example: "Medis"},
-        },
-        required: []
-      }
-      response '200', 'Successfull' do
-        schema type: :object
-        run_test!
-      end
-      response '422', 'Unprocessable Entity' do
-        schema type: :object,
-              properties: {
-                response_message: {type: :string, example: "Pengajuan Non Beasiswa tidak dapat ditemukan!"},
-                response_code: {type: :integer, example: 422}
-              }
-        run_test!
-      end
-      response '401', 'Unauthorized' do
-        schema type: :object,
-        properties: {
-          response_message: {type: :string, example: "Tidak memiliki akses!"},
-          response_code: {type: :integer, example: 401}
-        }
-        run_test!
-      end
-    end
-  end
-
   path '/v1/pengajuan/pengajuan_bantuan/getTotalCalonPengajuan' do
     post 'Get Pengajuan Non Beasiswa By Kategori' do
       tags 'Pengajuan Bantuan'
@@ -318,43 +386,9 @@ describe 'Pengajuan Bantuan API' do
     end
   end
 
-  path '/v1/pengajuan/pengajuan_bantuan/getPengajuan' do
-    post 'Get Pengajuan Bantuan Dana' do
-      tags 'Pengajuan Bantuan'
-      consumes 'application/json'
-      produces 'application/json'
-      parameter name: :body, in: :body, schema: {
-        type: :object,
-        properties: {
-            jenis: {type: :string, example: "Beasiswa"},
-        },
-        required: []
-      }
-      response '200', 'Successfull' do
-        schema type: :object
-        run_test!
-      end
-      response '422', 'Unprocessable Entity' do
-        schema type: :object,
-              properties: {
-                response_message: {type: :string, example: "Pengajuan Non Beasiswa tidak dapat ditemukan!"},
-                response_code: {type: :integer, example: 422}
-              }
-        run_test!
-      end
-      response '401', 'Unauthorized' do
-        schema type: :object,
-        properties: {
-          response_message: {type: :string, example: "Tidak memiliki akses!"},
-          response_code: {type: :integer, example: 401}
-        }
-        run_test!
-      end
-    end
-  end
 
-  path '/v1/pengajuan/pengajuan_bantuan/getPenerimaBeasiswa' do
-    get 'Get Penerima Bantuan Dana Beasiswa' do
+  path '/v1/pengajuan/pengajuan_bantuan/getDurasiPengajuanBeasiswa' do
+    get 'Get Durasi Pengajuan Beasiswa' do
       tags 'Pengajuan Bantuan'
       consumes 'application/json'
       produces 'application/json'

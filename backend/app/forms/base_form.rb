@@ -1,0 +1,3 @@
+class BaseForm
+
+end

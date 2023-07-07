@@ -31,14 +31,14 @@ class Pengajuan::PengajuanBantuan
     field :deskripsi, type: String
     field :dana_yang_dibutuhkan, type: Integer
     field :jenis, type: String
-    field :status_pengajuan, type: String
+    field :status_pengajuan, type: Integer
+    field :status_penyaluran, type: Integer
 
-    scope :pengajuan_baru, -> { where(status_pengajuan: "new")}
-    scope :penggalangan_dana, -> { where(status_pengajuan: "approved")}
-    scope :pengajuan, -> { where(status_pengajuan: "new") and where(status_pengajuan: "approved")}
-    scope :penerima, -> { where(status_pengajuan: "approved") and where(status_pengajuan: "penyaluran") and where(status_pengajuan: "done")}
-    scope :penyaluran, -> { where(status_pengajuan: "penyaluran")}
-    scope :done, -> { where(status_pengajuan: "done")}
-    scope :continue, -> { where(status_pengajuan: "continue")}
+    scope :pengajuan_baru, -> { where(status_pengajuan: Enums::StatusPengajuan::NEW).union.in(status_penyaluran: Enums::StatusPenyaluran::NULL)}
+    scope :penggalangan_dana, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED)}
+    scope :pengajuan_baru_admin, -> { where(status_pengajuan: Enums::StatusPengajuan::ADMIN).union.in(status_penyaluran: Enums::StatusPenyaluran::NULL)}
+    scope :penggalangan_dana_beasiswa, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(status_penyaluran: Enums::StatusPenyaluran::NEW)}
+    scope :penggalangan_dana_non_beasiswa, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(status_penyaluran: Enums::StatusPenyaluran::Enums::StatusPenyaluran::NULL)}
+    scope :penyaluran_beasiswa, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(status_penyaluran: Enums::StatusPenyaluran::NEW)}
   end
   
