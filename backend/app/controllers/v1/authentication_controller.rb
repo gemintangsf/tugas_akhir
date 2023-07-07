@@ -13,13 +13,13 @@ class V1::AuthenticationController < ApplicationController
                 token = JsonWebToken.encode(admin_id: admin._id)
                 time = Time.now + 24.hours.to_i
                 render json: { 
-                  response_code: 200, 
+                  response_code: Constants::RESPONSE_SUCCESS, 
                   response_message:'Success!', 
                   data: {admin: admin, token_access: token, exp: time.strftime("%m-%d-%Y %H:%M")} 
                   }, status: :ok
             else
                 render json: { 
-                  response_code: 401, 
+                  response_code: Constants::ERROR_CODE_HEADER_INVALID, 
                   response_message: 'Password salah!, silahkan periksa kembali'
                   }, status: :unauthorized
             end

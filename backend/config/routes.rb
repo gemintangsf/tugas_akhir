@@ -12,9 +12,10 @@ Rails.application.routes.draw do
     end
     namespace :pengajuan do
       resource :pengajuan_bantuan do
-        post "getDurasiPengajuanBeasiswa" => "pengajuan_bantuan#getDurasiPengajuanBeasiswa"
+        get "getDurasiPengajuanBeasiswa" => "pengajuan_bantuan#getDurasiPengajuanBeasiswa"
         post "getPengajuan" => "pengajuan_bantuan#getPengajuan"
-        get "getPenerimaBeasiswa" => "pengajuan_bantuan#getPenerimaBeasiswa"
+        post "getPenerimaBantuanDana" => "pengajuan_bantuan#getPenerimaBantuanDana"
+        post "getPenerimaNonBeasiswaByKategori" => "pengajuan_bantuan#getPenerimaNonBeasiswaByKategori"
         get "getLanjutBeasiswa" => "pengajuan_bantuan#getLanjutBeasiswa"
         post "getTotalCalonPengajuan" => "pengajuan_bantuan#getTotalCalonPengajuan"
         post "selectLanjutBeasiswa" => "pengajuan_bantuan#selectLanjutBeasiswa"
