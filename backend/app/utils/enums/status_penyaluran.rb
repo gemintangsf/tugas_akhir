@@ -3,8 +3,7 @@ module Enums
     NEW = 0
     PENDING = 1
     DELIVERED = 2
-    DONE = 3
-    NULL = 4
+    NULL = 3
   end
 end
   
