@@ -120,7 +120,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     else
       array_of_pengajuan_bantuan_id = []
       if pengajuan_bantuan_penggalangan_dana.length > 1
-        penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan_penggalangan_dana.pluck(:id))
+        penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan_penggalangan_dana.pluck(:id)).reverse
         penggalangan_dana.each_with_index do |data, index|
           if data.pengajuan_bantuan_id.kind_of?(Array)
             array_of_pengajuan_bantuan_id << data.pengajuan_bantuan_id[0]
@@ -128,13 +128,13 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
             array_of_pengajuan_bantuan_id << data.pengajuan_bantuan_id
           end
         end
-        pengajuan_bantuan = pengajuan_bantuan_penggalangan_dana.where(:_id.in => array_of_pengajuan_bantuan_id)
+        pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(:_id.in => array_of_pengajuan_bantuan_id).reverse
       else
         penggalangan_dana = Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: pengajuan_bantuan_penggalangan_dana.first.id).first
         if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
-          pengajuan_bantuan = pengajuan_bantuan_penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id[0]).first
+          pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: penggalangan_dana.pengajuan_bantuan_id[0]).first
         else
-          pengajuan_bantuan = pengajuan_bantuan_penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
+          pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: penggalangan_dana.pengajuan_bantuan_id).first
         end
       end
       render json: {
@@ -154,20 +154,37 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         }, status: :unprocessable_entity
     else
       if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id[0]).first
+        pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.where(id: penggalangan_dana.pengajuan_bantuan_id[0]).first
       else
         pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
       end
       end_date = pengajuan_bantuan.waktu_galang_dana.to_datetime
       durasi = (end_date - DateTime.now).to_i + 1
       if durasi < 1
-        pengajuan_bantuan.assign_attributes(status_pengajuan: "penyaluran")
-        pengajuan_bantuan.save!
+        if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+          penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
+            if index > 0
+              pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
+            end
+            pengajuan_bantuan.assign_attributes(
+              status_pengajuan: Enums::StatusPengajuan::DONE,
+              status_penyaluran: Enums::StatusPenyaluran::PENDING
+            )
+            pengajuan_bantuan.save!
+          end
+        else
+          pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
+          pengajuan_bantuan.assign_attributes(
+            status_pengajuan: Enums::StatusPengajuan::DONE,
+            status_penyaluran: Enums::StatusPenyaluran::PENDING
+          )
+          pengajuan_bantuan.save!
+        end
       end
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
-        data: {durasi: durasi.to_s + " Hari Lagi" }
+        data: durasi.to_s + " Hari Lagi"
       }, status: :ok
     end
   end
@@ -197,18 +214,16 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         response_message: "Kategori #{params[:kategori]} tidak ada!, Kategori hanya Medis atau Bencana"
         }, status: :unprocessable_entity
     else
-      penggalangan_dana = Penggalangan::PenggalanganDana.all
-      if not penggalangan_dana.present?
+      pengajuan_penggalangan_dana = Pengajuan::PengajuanBantuan.penggalangan_dana.where(jenis: "NonBeasiswa").reverse
+      if not pengajuan_penggalangan_dana.present?
         render json: {
           response_code: Constants::ERROR_CODE_VALIDATION,
-          response_message: "Tidak ada Penggalangan Dana yang berlangsung"
+          response_message: "Tidak ada Penggalangan Dana Non Beasiswa yang berlangsung"
           }, status: :unprocessable_entity
       else
-        pengajuan_penggalangan_dana = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:_id.in => penggalangan_dana.pluck(:pengajuan_bantuan_id)).where(jenis: "NonBeasiswa")
-        penggalangan_dana_by_jenis = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_penggalangan_dana.pluck(:id)).reverse
-        category_non_beasiswa = Pengajuan::NonBeasiswa.where(:pengajuan_bantuan_id.in => pengajuan_penggalangan_dana.pluck(:id)).where(kategori: params[:kategori])
-        pengajuan_by_kategori = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id.in => category_non_beasiswa.pluck(:pengajuan_bantuan_id)).reverse
-        if not category_non_beasiswa.present?
+        penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_penggalangan_dana.pluck(:id)).reverse
+        non_beasiswa = Pengajuan::NonBeasiswa.where(:pengajuan_bantuan_id.in => pengajuan_penggalangan_dana.pluck(:id)).where(kategori: params[:kategori])
+        if not non_beasiswa.present?
           render json: {
             response_code: Constants::ERROR_CODE_VALIDATION,
             response_message: "Penggalangan Dana Non Beasiswa berdasarkan Kategori #{params[:kategori]} tidak ada!"
@@ -217,7 +232,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           render json: {
             response_code: Constants::RESPONSE_SUCCESS, 
             response_message: "Success", 
-            data: {penggalangan_dana: penggalangan_dana_by_jenis, pengajuan: pengajuan_by_kategori}
+            data: {penggalangan_dana: penggalangan_dana, pengajuan: pengajuan_penggalangan_dana}
           }, status: :ok
         end
       end

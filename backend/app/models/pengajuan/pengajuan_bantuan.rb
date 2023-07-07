@@ -36,9 +36,20 @@ class Pengajuan::PengajuanBantuan
 
     scope :pengajuan_baru, -> { where(status_pengajuan: Enums::StatusPengajuan::NEW).union.in(status_penyaluran: Enums::StatusPenyaluran::NULL)}
     scope :penggalangan_dana, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED)}
+    scope :rekapitulasi_beasiswa, -> { 
+      where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(
+        status_penyaluran: Enums::StatusPenyaluran::NEW).union.in(
+          status_penyaluran: Enums::StatusPenyaluran::PENDING).union.in(
+            status_penyaluran: Enums::StatusPenyaluran::DELIVERED
+          )
+    }
+    scope :rekapitulasi_non_beasiswa, -> { 
+      where(status_pengajuan: Enums::StatusPengajuan::DONE).union.in(
+        status_penyaluran: Enums::StatusPenyaluran::PENDING).union.in(
+            status_penyaluran: Enums::StatusPenyaluran::DELIVERED
+          )
+    }
+    scope :done, -> { where(status_pengajuan: Enums::StatusPengajuan::DONE).union.in(status_penyaluran: Enums::StatusPenyaluran::DELIVERED) }
     scope :pengajuan_baru_admin, -> { where(status_pengajuan: Enums::StatusPengajuan::ADMIN).union.in(status_penyaluran: Enums::StatusPenyaluran::NULL)}
-    scope :penggalangan_dana_beasiswa, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(status_penyaluran: Enums::StatusPenyaluran::NEW)}
-    scope :penggalangan_dana_non_beasiswa, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(status_penyaluran: Enums::StatusPenyaluran::Enums::StatusPenyaluran::NULL)}
-    scope :penyaluran_beasiswa, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(status_penyaluran: Enums::StatusPenyaluran::NEW)}
   end
   
