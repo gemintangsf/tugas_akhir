@@ -15,6 +15,8 @@ import { Box, Container, Typography } from '@mui/material'
 import { useState } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
+import TablePagination from '@mui/material/TablePagination';
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -38,6 +40,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function LaporanRekapitulasiNonBeasiswa() {
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
+
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 	const [open, setOpen] = useState(false);
 	const handleOpen = () => {
 		setOpen(true);
@@ -124,24 +137,26 @@ function LaporanRekapitulasiNonBeasiswa() {
 							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
 						</TableHead>
 						<TableBody>
-							{rows.map((row) => (
-								<StyledTableRow key={row.no}>
-									{Object.entries(headers).map(([key, val]) => (
-										<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
-											<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
-												<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
+							{rows
+								.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+								.map((row) => (
+									<StyledTableRow key={row.no}>
+										{Object.entries(headers).map(([key, val]) => (
+											<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
+												<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+													<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
+												</Button>
+												: row[val.id]}</StyledTableCell>
+										))}
+										<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
+											<Button size='small' color='primary' onClick={handleOpen} >
+												<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
 											</Button>
-											: row[val.id]}</StyledTableCell>
-									))}
-									<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
-										<Button size='small' color='primary' onClick={handleOpen} >
-											<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
-										</Button>
-										<DeleteOutlineIcon sx={{ color: red[500], ml: 1 }} />
-									</StyledTableCell>
-								</StyledTableRow>
-							)
-							)}
+											<DeleteOutlineIcon sx={{ color: red[500], ml: 1 }} />
+										</StyledTableCell>
+									</StyledTableRow>
+								)
+								)}
 						</TableBody>
 					</Table>
 				</TableContainer>

@@ -17,6 +17,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
 import Modal from '@mui/material/Modal'
 import ImgContoh from '../assets/image_beranda/carousel_img.jpg'
+import TablePagination from '@mui/material/TablePagination';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -40,6 +41,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function LaporanRekapitulasiDonasi() {
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
+
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 	const [open, setOpen] = useState(false);
 	const handleOpen = () => {
 		setOpen(true);
@@ -137,41 +149,52 @@ function LaporanRekapitulasiDonasi() {
 							<StyledTableCell sx={{ textAlign: 'center' }}>Struk Pembayaran</StyledTableCell>
 						</TableHead>
 						<TableBody>
-							{rows.map((row) => (
-								<StyledTableRow key={row.no}>
-									{Object.entries(headers).map(([key, val]) => (
-										<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
-											<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
-												<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approved</Typography>
+							{rows
+								.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+								.map((row) => (
+									<StyledTableRow key={row.no}>
+										{Object.entries(headers).map(([key, val]) => (
+											<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
+												<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+													<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approved</Typography>
+												</Button>
+												: row[val.id]}</StyledTableCell>
+										))}
+										<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
+											<Button size='small' color='primary' onClick={handleOpenModal} >
+												<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
 											</Button>
-											: row[val.id]}</StyledTableCell>
-									))}
-									<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
-										<Button size='small' color='primary' onClick={handleOpenModal} >
-											<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
-										</Button>
-										<Modal
-											open={openModal}
-											onClose={handleCloseModal}
-											aria-labelledby="modal-modal-title"
-											aria-describedby="modal-modal-description"
-										>
-											<Box sx={styleBox}>
-												<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
-													<Typography variant='h3' color={'white'}>Bukti Struk Pembayaran</Typography>
+											<Modal
+												open={openModal}
+												onClose={handleCloseModal}
+												aria-labelledby="modal-modal-title"
+												aria-describedby="modal-modal-description"
+											>
+												<Box sx={styleBox}>
+													<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
+														<Typography variant='h3' color={'white'}>Bukti Struk Pembayaran</Typography>
+													</Box>
+													<Box>
+														<img src={ImgContoh} alt="" style={{ width: '500px' }} />
+													</Box>
 												</Box>
-												<Box>
-													<img src={ImgContoh} alt="" style={{ width: '500px' }} />
-												</Box>
-											</Box>
-										</Modal>
-									</StyledTableCell>
-								</StyledTableRow>
-							)
-							)}
+											</Modal>
+										</StyledTableCell>
+									</StyledTableRow>
+								)
+								)}
 						</TableBody>
 					</Table>
 				</TableContainer>
+				<TablePagination
+					component="div"
+					count={rows.length}
+					page={page}
+					onPageChange={handleChangePage}
+					rowsPerPage={rowsPerPage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+				>
+				</TablePagination>
 			</Box>
 		</Container>
 	);

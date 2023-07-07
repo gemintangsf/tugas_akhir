@@ -20,6 +20,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import TablePagination from '@mui/material/TablePagination';
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -44,6 +45,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function LaporanRekapitulasiBeasiswa() {
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
+
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 	const [open, setOpen] = useState(false);
 	const handleOpen = () => {
 		setOpen(true);
@@ -91,7 +103,7 @@ function LaporanRekapitulasiBeasiswa() {
 			nominal_pengeluaran: '1000000'
 		},
 		{
-			no: '3',
+			no: '4',
 			nama_donatur: 'Hasbi',
 			no_telepon: '082121445524',
 			nominal_donasi: '1000000',
@@ -99,7 +111,7 @@ function LaporanRekapitulasiBeasiswa() {
 			nominal_pengeluaran: '1000000'
 		},
 		{
-			no: '3',
+			no: '5',
 			nama_donatur: 'Hasbi',
 			no_telepon: '082121445524',
 			nominal_donasi: '1000000',
@@ -107,7 +119,7 @@ function LaporanRekapitulasiBeasiswa() {
 			nominal_pengeluaran: '1000000'
 		},
 		{
-			no: '3',
+			no: '6',
 			nama_donatur: 'Hasbi',
 			no_telepon: '082121445524',
 			nominal_donasi: '1000000',
@@ -115,7 +127,7 @@ function LaporanRekapitulasiBeasiswa() {
 			nominal_pengeluaran: '1000000'
 		},
 		{
-			no: '3',
+			no: '7',
 			nama_donatur: 'Hasbi',
 			no_telepon: '082121445524',
 			nominal_donasi: '1000000',
@@ -123,7 +135,7 @@ function LaporanRekapitulasiBeasiswa() {
 			nominal_pengeluaran: '1000000'
 		},
 		{
-			no: '3',
+			no: '8',
 			nama_donatur: 'Hasbi',
 			no_telepon: '082121445524',
 			nominal_donasi: '1000000',
@@ -131,7 +143,7 @@ function LaporanRekapitulasiBeasiswa() {
 			nominal_pengeluaran: '1000000'
 		},
 		{
-			no: '3',
+			no: '9',
 			nama_donatur: 'Hasbi',
 			no_telepon: '082121445524',
 			nominal_donasi: '1000000',
@@ -139,7 +151,15 @@ function LaporanRekapitulasiBeasiswa() {
 			nominal_pengeluaran: '1000000'
 		},
 		{
-			no: '3',
+			no: '10',
+			nama_donatur: 'Hasbi',
+			no_telepon: '082121445524',
+			nominal_donasi: '1000000',
+			nama_penerima: '08120912312',
+			nominal_pengeluaran: '1000000'
+		},
+		{
+			no: '11',
 			nama_donatur: 'Hasbi',
 			no_telepon: '082121445524',
 			nominal_donasi: '1000000',
@@ -191,25 +211,37 @@ function LaporanRekapitulasiBeasiswa() {
 							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
 						</TableHead>
 						<TableBody>
-							{rows.map((row) => (
-								<StyledTableRow key={row.no}>
-									{Object.entries(headers).map(([key, val]) => (
-										<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
-											<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
-												<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
-											</Button>
-											: row[val.id]}</StyledTableCell>
-									))}
-									<StyledTableCell sx={{ display: 'flex' }}>
-										<TaskAltIcon sx={{ mr: 2 }} color='primary' />
-										<DeleteOutlineIcon sx={{ color: red[500] }} />
-									</StyledTableCell>
-								</StyledTableRow>
-							)
-							)}
+							{
+								rows
+									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+									.map((row) => (
+										<StyledTableRow key={row.no}>
+											{Object.entries(headers).map(([key, val]) => (
+												<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
+													<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+														<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
+													</Button>
+													: row[val.id]}</StyledTableCell>
+											))}
+											<StyledTableCell sx={{ display: 'flex' }}>
+												<TaskAltIcon sx={{ mr: 2 }} color='primary' />
+												<DeleteOutlineIcon sx={{ color: red[500] }} />
+											</StyledTableCell>
+										</StyledTableRow>
+									)
+									)}
 						</TableBody>
 					</Table>
 				</TableContainer>
+				<TablePagination
+					component="div"
+					count={rows.length}
+					page={page}
+					onPageChange={handleChangePage}
+					rowsPerPage={rowsPerPage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+				>
+				</TablePagination>
 				<Typography>asd</Typography>
 			</Box>
 		</Container>
