@@ -160,6 +160,15 @@ function LaporanRekapitulasiNonBeasiswa() {
 						</TableBody>
 					</Table>
 				</TableContainer>
+				<TablePagination
+					component="div"
+					count={rows.length}
+					page={page}
+					onPageChange={handleChangePage}
+					rowsPerPage={rowsPerPage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+				>
+				</TablePagination>
 			</Box>
 		</Container>
 	);

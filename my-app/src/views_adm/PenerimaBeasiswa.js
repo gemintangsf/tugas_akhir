@@ -19,6 +19,7 @@ import ButtonBase from '../components/base/Button';
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
+import TablePagination from '@mui/material/TablePagination';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
