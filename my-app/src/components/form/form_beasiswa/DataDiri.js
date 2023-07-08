@@ -49,7 +49,7 @@ function IdentitasDiri() {
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Nomor Telepon</Typography>
 					<TextField variant="outlined" size="small" label='cth: 082121445524'></TextField>
 					<div>
-						<Button href='http://localhost:3000/form-beasiswa/persyaratan' size="medium" variant="contained" sx={{ mt: 4, textTransform: 'capitalize' }}>Selanjutnya</Button>
+						<Button href='/form-beasiswa/persyaratan' size="medium" variant="contained" sx={{ mt: 4, textTransform: 'capitalize' }}>Selanjutnya</Button>
 					</div>
 				</Box>
 			</Box>

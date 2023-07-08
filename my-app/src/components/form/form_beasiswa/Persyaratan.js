@@ -59,7 +59,7 @@ function Persyaratan() {
 					<TextField variant="outlined" size="small" label='Biaya Kos (optional)' sx={{ mt: 1 }}></TextField>
 					<div>
 						<Button size="medium" variant="contained" sx={{ mt: 4, textTransform: 'capitalize' }}>Submit</Button>
-						<Button href="http://localhost:3000/form-beasiswa" size="medium" variant="outlined" sx={{ mt: 4, ml: 1, textTransform: 'capitalize' }}>Sebelumnya</Button>
+						<Button href="/form-beasiswa" size="medium" variant="outlined" sx={{ mt: 4, ml: 1, textTransform: 'capitalize' }}>Sebelumnya</Button>
 					</div>
 				</Box>
 			</Box>
