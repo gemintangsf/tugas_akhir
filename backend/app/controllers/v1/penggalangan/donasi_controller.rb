@@ -217,7 +217,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
         response_code: Constants::RESPONSE_SUCCESS,
         response_message: "Success",
         data: 0
-        }, status: :unprocessable_entity
+        }, status: :ok
     else
       donasi_terkumpul = donasi.pluck(:nominal).inject(0, :+)
       render json: {

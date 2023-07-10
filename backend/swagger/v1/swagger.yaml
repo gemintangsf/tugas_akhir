@@ -419,9 +419,6 @@ paths:
         schema:
           type: object
           properties:
-            jenis:
-              type: string
-              example: Beasiswa
             nama:
               type: string
               example: Gemintang
@@ -476,9 +473,6 @@ paths:
             total_pengeluaran_keluarga:
               type: integer
               example: 5000000
-            rincian_pengeluaran_keluarga:
-              type: string
-              example: path
           required: []
       responses:
         '201':
@@ -522,9 +516,6 @@ paths:
         schema:
           type: object
           properties:
-            jenis:
-              type: string
-              example: NonBeasiswa
             nama:
               type: string
               example: Gemintang
@@ -1111,9 +1102,6 @@ paths:
             id:
               type: string
               example: 64997232e21fac364c2d0d51
-            jenis:
-              type: string
-              example: Beasiswa
             judul_galang_dana:
               type: string
               example: Penggalangan Dana untuk Beasiswa
@@ -1169,9 +1157,6 @@ paths:
         schema:
           type: object
           properties:
-            jenis:
-              type: string
-              example: NonBeasiswa
             nama:
               type: string
               example: Gemintang

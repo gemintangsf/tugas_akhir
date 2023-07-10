@@ -10,7 +10,7 @@ class Pengajuan::NonBeasiswa
   validates :no_telepon_penerima, presence: true
   validates :bukti_butuh_bantuan, presence: true
   validates :kategori, presence: true
-  validates_inclusion_of :kategori, in: %w(Medis Bencana), message: "harus Medis/Bencana!"
+  validates_inclusion_of :kategori, in: %w(Medis Bencana Duka), message: "harus Medis/Bencana/Duka!"
 
   field :nama_penerima, type: String
   field :no_identitas_penerima, type: String

@@ -15,7 +15,6 @@ class Pengajuan::Beasiswa
   validates :biaya_konsumsi, presence: true
   validates :biaya_internet, presence: true
   validates :total_pengeluaran_keluarga, presence: true
-  validates :rincian_pengeluaran_keluarga, presence: true
 
   field :golongan_ukt, type: Integer
   field :kuitansi_pembayaran_ukt, type: String
@@ -28,6 +27,5 @@ class Pengajuan::Beasiswa
   field :biaya_internet, type: String
   field :biaya_kos, type: String
   field :total_pengeluaran_keluarga, type: Integer
-  field :rincian_pengeluaran_keluarga, type: String
   field :penilaian_esai, type: Integer
 end

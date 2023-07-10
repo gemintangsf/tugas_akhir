@@ -9,7 +9,6 @@ describe 'Pengajuan Bantuan API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            jenis: {type: :string, example: "Beasiswa"},
             nama: {type: :string, example: "Gemintang"},
             no_identitas_pengaju: {type: :string, example: "191524009"},
             no_telepon: {type: :string, example: "082118397901"},
@@ -28,7 +27,6 @@ describe 'Pengajuan Bantuan API' do
             biaya_internet: {type: :string, example: "1000000"},
             biaya_kos: {type: :string, example: "1000000"},
             total_pengeluaran_keluarga: {type: :integer, example: 5000000},
-            rincian_pengeluaran_keluarga: {type: :string, example: "path"},
         },
         required: []
       }
@@ -62,7 +60,6 @@ describe 'Pengajuan Bantuan API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            jenis: {type: :string, example: "NonBeasiswa"},
             nama: {type: :string, example: "Gemintang"},
             no_identitas_pengaju: {type: :string, example: "191524009"},
             no_telepon: {type: :string, example: "082118397901"},
