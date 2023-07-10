@@ -105,6 +105,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
           }, status: :unprocessable_entity
       else
         pengajuanNonBeasiswa.assign_attributes({ 
+          jenis: "NonBeasiswa",
           waktu_galang_dana: waktu_galang_dana,                                    
           status_pengajuan: Enums::StatusPengajuan::NEW,
           status_penyaluran: Enums::StatusPenyaluran::NULL             
@@ -555,7 +556,6 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       :waktu_galang_dana,
       :deskripsi,
       :dana_yang_dibutuhkan,
-      :jenis
     )
   end
 
@@ -582,7 +582,6 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       :biaya_internet, 
       :biaya_kos, 
       :total_pengeluaran_keluarga,
-      :rincian_pengeluaran_keluarga,
     )
   end
   #form non beasiswa

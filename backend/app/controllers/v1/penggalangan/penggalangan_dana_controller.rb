@@ -27,7 +27,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           }, status: :unprocessable_entity
       else
         pengajuan_bantuan = Pengajuan::PengajuanBantuan.new(
-          jenis: params[:jenis],
+          jenis: "Beasiswa"
           nama: nama, 
           no_identitas_pengaju: no_identitas_pengaju, 
           no_telepon: nomor_telepon, 
@@ -84,6 +84,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     else
       pengajuan_bantuan = Pengajuan::PengajuanBantuan.new(pengajuan_bantuan_params)
       pengajuan_bantuan.assign_attributes({
+        jenis: "NonBeasiswa",
         no_identitas_pengaju: no_identitas_pengaju,
         waktu_galang_dana: waktu_galang_dana,
         status_pengajuan: status_pengajuan,
@@ -165,6 +166,12 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
             if index > 0
               pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
+            else
+              pengajuan_bantuan_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.where(id: penggalangan_dana.pengajuan_bantuan_id).first
+              pengajuan_bantuan_admin.assign_attributes(
+                status_pengajuan: Enums::StatusPengajuan::DONE,
+              )
+              pengajuan_bantuan_admin.save!
             end
             pengajuan_bantuan.assign_attributes(
               status_pengajuan: Enums::StatusPengajuan::DONE,
@@ -382,7 +389,6 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       :waktu_galang_dana,
       :deskripsi,
       :dana_yang_dibutuhkan,
-      :jenis
     )
   end
   #form non_beasiswa
