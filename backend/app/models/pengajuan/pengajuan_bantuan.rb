@@ -4,8 +4,8 @@ class Pengajuan::PengajuanBantuan
     include Mongoid::Attributes::Dynamic
 
     has_many :penggalangan_dana, class_name: "Penggalangan::PenggalanganDana"
-    has_one :beasiswa, class_name: "Pengajuan::Beasiswa"
-    has_one :non_beasiswa, class_name: "Pengajuan::NonBeasiswa"
+    belongs_to :beasiswa, class_name: "Pengajuan::Beasiswa", optional: true
+    belongs_to :non_beasiswa, class_name: "Pengajuan::NonBeasiswa", optional: true
 
     validates :nama, presence: true
     validates :no_identitas_pengaju, presence: true

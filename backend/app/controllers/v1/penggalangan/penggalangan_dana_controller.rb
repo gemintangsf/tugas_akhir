@@ -82,6 +82,10 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         response_message: "Tanggal harus lebih dari hari sekarang!"
         }, status: :unprocessable_entity
     else
+      non_beasiswa = Pengajuan::NonBeasiswa.new(non_beasiswa_params)
+      non_beasiswa.assign_attributes({
+        no_identitas_penerima: no_identitas_penerima,
+        bukti_butuh_bantuan: bukti_butuh_bantuan})
       pengajuan_bantuan = Pengajuan::PengajuanBantuan.new(pengajuan_bantuan_params)
       pengajuan_bantuan.assign_attributes({
         jenis: "NonBeasiswa",
@@ -89,13 +93,9 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         waktu_galang_dana: waktu_galang_dana,
         status_pengajuan: status_pengajuan,
         status_penyaluran: status_penyaluran,
+        non_beasiswa: non_beasiswa,
         penggalangan_dana: [penggalangan_dana]
       })
-      non_beasiswa = Pengajuan::NonBeasiswa.new(non_beasiswa_params)
-      non_beasiswa.assign_attributes({
-        no_identitas_penerima: no_identitas_penerima,
-        bukti_butuh_bantuan: bukti_butuh_bantuan,
-        pengajuan_bantuan: pengajuan_bantuan})
       if penggalangan_dana.save and pengajuan_bantuan.save and non_beasiswa.save
           render json: {
               response_code: Constants::RESPONSE_CREATED, 
@@ -229,7 +229,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           }, status: :unprocessable_entity
       else
         penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_penggalangan_dana.pluck(:id)).reverse
-        non_beasiswa = Pengajuan::NonBeasiswa.where(:pengajuan_bantuan_id.in => pengajuan_penggalangan_dana.pluck(:id)).where(kategori: params[:kategori])
+        non_beasiswa = Pengajuan::NonBeasiswa.where(:id.in => pengajuan_penggalangan_dana.pluck(:non_beasiswa_id)).where(kategori: params[:kategori])
         if not non_beasiswa.present?
           render json: {
             response_code: Constants::ERROR_CODE_VALIDATION,
@@ -261,7 +261,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       if not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
         pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
         if pengajuan_bantuan.jenis == "NonBeasiswa"
-          non_beasiswa = Pengajuan::NonBeasiswa.where(pengajuan_bantuan_id: pengajuan_bantuan.id).first
+          non_beasiswa = Pengajuan::NonBeasiswa.where(id: pengajuan_bantuan.non_beasiswa_id).first
         end
       else
         penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
