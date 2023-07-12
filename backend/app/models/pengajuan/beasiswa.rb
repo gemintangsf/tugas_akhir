@@ -3,7 +3,7 @@ class Pengajuan::Beasiswa
   include Mongoid::Timestamps
   include Mongoid::Attributes::Dynamic
   
-  belongs_to :pengajuan_bantuan, class_name: "Pengajuan::PengajuanBantuan"
+  has_one :pengajuan_bantuan, class_name: "Pengajuan::PengajuanBantuan"
 
   validates :golongan_ukt, presence: true
   validates :kuitansi_pembayaran_ukt, presence: true
