@@ -239,10 +239,10 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   end
 
   def getPenggalanganDanaNonBeasiswaByKategori
-    if params[:kategori] != "Medis" and params[:kategori] != "Bencana"
+    if params[:kategori] != "Medis" and params[:kategori] != "Bencana" and params[:kategori] != "Duka"
       render json: {
         response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Kategori #{params[:kategori]} tidak ada!, Kategori hanya Medis atau Bencana"
+        response_message: "Kategori #{params[:kategori]} tidak ada!, Kategori hanya Medis/Bencana/Duka"
         }, status: :unprocessable_entity
     else
       pengajuan_penggalangan_dana = Pengajuan::PengajuanBantuan.penggalangan_dana.where(jenis: "NonBeasiswa").reverse
@@ -279,26 +279,30 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         response_message: "Penggalangan dana tidak ditemukan!"
         }, status: :unprocessable_entity
     else
-      array_of_pengajuan_bantuan_id = []
-      non_beasiswa = []
-      pengajuan_bantuan = []
       if not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
         pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
         if pengajuan_bantuan.jenis == "NonBeasiswa"
           non_beasiswa = Pengajuan::NonBeasiswa.where(id: pengajuan_bantuan.non_beasiswa_id).first
+          selected_penggalangan_dana = penggalangan_dana.attributes.merge(:pengajuan_bantuan_id => pengajuan_bantuan.attributes.merge(:non_beasiswa_id => non_beasiswa))
+        else
+          selected_penggalangan_dana = penggalangan_dana.attributes.merge(:pengajuan_bantuan_id => pengajuan_bantuan)
         end
       else
-        penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
-          if index > 0
-            array_of_pengajuan_bantuan_id << data
-            pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(:_id.in => array_of_pengajuan_bantuan_id)
-          end
+        array_of_pengajuan_bantuan_id = []
+        data_pengajuan_beasiswa = []
+        penggalangan_dana.pengajuan_bantuan_id.each do |data_penggalangan_dana|
+          array_of_pengajuan_bantuan_id << data_penggalangan_dana
         end
+        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id.in => array_of_pengajuan_bantuan_id)
+        pengajuan_bantuan.each_with_index do |data, index|
+          penggalangan_dana.pengajuan_bantuan_id[index] = data
+        end
+        selected_penggalangan_dana = penggalangan_dana
       end
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
-        data: {penggalangan_dana: penggalangan_dana, pengajuan_bantuan: pengajuan_bantuan, detail: non_beasiswa}
+        data: selected_penggalangan_dana
       }, status: :ok
     end
   end
