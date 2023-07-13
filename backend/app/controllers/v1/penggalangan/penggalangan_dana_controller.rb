@@ -27,7 +27,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           }, status: :unprocessable_entity
       else
         pengajuan_bantuan = Pengajuan::PengajuanBantuan.new(
-          jenis: "Beasiswa"
+          jenis: "Beasiswa",
           nama: nama, 
           no_identitas_pengaju: no_identitas_pengaju, 
           no_telepon: nomor_telepon, 
@@ -112,37 +112,61 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   end
 
   def getAllPenggalanganDana
-    pengajuan_bantuan_penggalangan_dana = Pengajuan::PengajuanBantuan.penggalangan_dana
-    if not pengajuan_bantuan_penggalangan_dana.present?
+    penggalangan_dana_new = Penggalangan::PenggalanganDana.all
+    if not penggalangan_dana_new.present?
       render json: {
         response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Tidak ada Penggalangan Dana yang berlangsung"
         }, status: :unprocessable_entity
     else
-      array_of_pengajuan_bantuan_id = []
-      if pengajuan_bantuan_penggalangan_dana.length > 1
-        penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan_penggalangan_dana.pluck(:id)).reverse
-        penggalangan_dana.each_with_index do |data, index|
+      if penggalangan_dana_new.length > 1
+        id_pengajuan_bantuan = []
+        penggalangan_dana_new.each do |data|
           if data.pengajuan_bantuan_id.kind_of?(Array)
-            array_of_pengajuan_bantuan_id << data.pengajuan_bantuan_id[0]
+            id_pengajuan_bantuan << data.pengajuan_bantuan_id[0]
           else
-            array_of_pengajuan_bantuan_id << data.pengajuan_bantuan_id
+            id_pengajuan_bantuan << data.pengajuan_bantuan_id
           end
         end
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(:_id.in => array_of_pengajuan_bantuan_id).reverse
-      else
-        penggalangan_dana = Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: pengajuan_bantuan_penggalangan_dana.first.id).first
-        if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
-          pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: penggalangan_dana.pengajuan_bantuan_id[0]).first
+        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id.in => id_pengajuan_bantuan)
+        if not pengajuan_bantuan.present?
+          render json: {
+            response_code: Constants::ERROR_CODE_VALIDATION,
+            response_message: "Tidak ada Penggalangan Dana yang berlangsung"
+            }, status: :unprocessable_entity
         else
-          pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: penggalangan_dana.pengajuan_bantuan_id).first
+          list_data_penggalangan_dana = []
+          penggalangan_dana_by_pengajuan = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan.pluck(:id))
+          penggalangan_dana_by_pengajuan.each_with_index do |data_penggalangan_dana, index_penggalangan_dana|
+            pengajuan_bantuan.each_with_index do |data_pengajuan, index_pengajuan_bantuan|
+              if index_pengajuan_bantuan == index_penggalangan_dana
+                list_data_penggalangan_dana << data_penggalangan_dana.attributes.merge(:pengajuan_bantuan_id => data_pengajuan)
+              end
+            end
+          end
+          new_data_pengajuan = list_data_penggalangan_dana.reverse
+          render json: {
+            response_code: Constants::RESPONSE_SUCCESS, 
+            response_message: "Success", 
+            data: new_data_pengajuan
+          }, status: :ok
+        end
+      else
+        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id => penggalangan_dana_new.first.pengajuan_bantuan_id).first
+        new_data_penggalangan = penggalangan_dana_new.first.attributes.merge(pengajuan_bantuan_id: pengajuan_bantuan)
+        if not pengajuan_bantuan.present?
+          render json: {
+            response_code: Constants::ERROR_CODE_VALIDATION,
+            response_message: "Tidak ada Penggalangan Dana yang berlangsung"
+            }, status: :unprocessable_entity
+        else
+          render json: {
+            response_code: Constants::RESPONSE_SUCCESS, 
+            response_message: "Success", 
+            data: new_data_penggalangan
+          }, status: :ok
         end
       end
-      render json: {
-        response_code: Constants::RESPONSE_SUCCESS, 
-        response_message: "Success", 
-        data: {penggalangan_dana: penggalangan_dana, pengajuan_bantuan: pengajuan_bantuan}
-      }, status: :ok
     end
   end
 
