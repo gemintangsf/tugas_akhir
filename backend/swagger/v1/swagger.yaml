@@ -181,10 +181,10 @@ paths:
           properties:
             id:
               type: string
-              example: 649982e0e21fac364c2d0d54
-      - in: formData
-        name: file
-        type: file
+              example: 64afa051e21fac273c87bf2c
+            struk_pembayaran:
+              type: string
+              example: path
       responses:
         '200':
           description: Successfull

@@ -48,10 +48,10 @@ describe 'Donasi API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            id: {type: :string, example: "649982e0e21fac364c2d0d54"},
+          id: {type: :string, example: "64afa051e21fac273c87bf2c"},
+          struk_pembayaran: {type: :string, example: "path"},
         }
       }
-      parameter in: :formData, name: :file, type: :file
       response '200', 'Successfull' do
         schema type: :object
         run_test!

@@ -3,8 +3,8 @@ class Penggalangan::Donasi
   include Mongoid::Timestamps
   include Mongoid::Attributes::Dynamic
   
-  belongs_to :penggalangan_dana, class_name: "Penggalangan::PenggalanganDana"
-  belongs_to :donatur, class_name: "User::Donatur"
+  has_many :penggalangan_dana, class_name: "Penggalangan::PenggalanganDana"
+  has_many :donatur, class_name: "User::Donatur"
 
   validates :nominal, presence: true
   validates :nama_pemilik_rekening, presence: true

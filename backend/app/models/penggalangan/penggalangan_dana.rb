@@ -4,7 +4,7 @@ class Penggalangan::PenggalanganDana
   include Mongoid::Attributes::Dynamic
   
   belongs_to :pengajuan_bantuan, class_name: "Pengajuan::PengajuanBantuan"
-  has_many :donasi, class_name: "Penggalangan::Donasi"
+  belongs_to :donasi, class_name: "Penggalangan::Donasi", optional: true
 
   validates :total_pengajuan, presence: true
   validates :total_nominal_terkumpul, presence: true
