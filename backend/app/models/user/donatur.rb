@@ -4,7 +4,7 @@ class User::Donatur
     include Mongoid::Attributes::Dynamic
     include ActiveModel::SecurePassword
 
-    belongs_to :donasi, class_name: "Penggalangan::Donasi"
+    belongs_to :donasi, class_name: "Penggalangan::Donasi", optional: true
   
     validates :nama, presence: true
     validates :nomor_telepon, presence: true

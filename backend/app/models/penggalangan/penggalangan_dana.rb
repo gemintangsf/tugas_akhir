@@ -3,7 +3,7 @@ class Penggalangan::PenggalanganDana
   include Mongoid::Timestamps
   include Mongoid::Attributes::Dynamic
   
-  belongs_to :pengajuan_bantuan, class_name: "Pengajuan::PengajuanBantuan"
+  belongs_to :pengajuan_bantuan, class_name: "Pengajuan::PengajuanBantuan", optional: true
   belongs_to :donasi, class_name: "Penggalangan::Donasi", optional: true
 
   validates :total_pengajuan, presence: true

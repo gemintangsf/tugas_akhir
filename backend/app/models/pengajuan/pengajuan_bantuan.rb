@@ -36,7 +36,11 @@ class Pengajuan::PengajuanBantuan
 
     scope :pengajuan_baru, -> { where(status_pengajuan: Enums::StatusPengajuan::NEW).union.in(status_penyaluran: Enums::StatusPenyaluran::NULL)}
     scope :pengajuan_approved, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED)}
-    scope :penggalangan_dana, -> { where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(status_pengajuan: Enums::StatusPengajuan::ADMIN)}
+    scope :penggalangan_dana, -> { 
+      where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(
+        status_pengajuan: Enums::StatusPengajuan::ADMIN
+        )
+      }
     scope :rekapitulasi_beasiswa, -> { 
       where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(
         status_penyaluran: Enums::StatusPenyaluran::NEW).union.in(
