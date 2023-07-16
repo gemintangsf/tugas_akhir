@@ -246,7 +246,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         response_message: "Penggalangan Dana tidak ditemukan!"
         }, status: :unprocessable_entity
     else
-      donasi = Penggalangan::Donasi.approved.where(penggalangan_dana_id: penggalangan_dana.id)
+      donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
       total_donasi = donasi.pluck(:nominal).inject(0, :+)
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
@@ -270,7 +270,6 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           response_message: "Tidak ada Penggalangan Dana Non Beasiswa yang berlangsung"
           }, status: :unprocessable_entity
       else
-        penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_penggalangan_dana.pluck(:id)).reverse
         non_beasiswa = Pengajuan::NonBeasiswa.where(:id.in => pengajuan_penggalangan_dana.pluck(:non_beasiswa_id)).where(kategori: params[:kategori])
         if not non_beasiswa.present?
           render json: {
@@ -278,10 +277,12 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
             response_message: "Penggalangan Dana Non Beasiswa berdasarkan Kategori #{params[:kategori]} tidak ada!"
             }, status: :unprocessable_entity
         else
+          pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:non_beasiswa_id.in => non_beasiswa.pluck(:id))
+          penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan.pluck(:id)).reverse
           render json: {
             response_code: Constants::RESPONSE_SUCCESS, 
             response_message: "Success", 
-            data: {penggalangan_dana: penggalangan_dana, pengajuan: pengajuan_penggalangan_dana}
+            data: {penggalangan_dana: penggalangan_dana, pengajuan_bantuan: pengajuan_bantuan}
           }, status: :ok
         end
       end
@@ -326,14 +327,14 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   end
 
   def getTotalDonaturInPenggalanganDana
-    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id])
     if not penggalangan_dana.present?
       render json: {
         response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Penggalangan dana tidak ditemukan!"
         }, status: :unprocessable_entity
     else
-      donasi = Penggalangan::Donasi.approved.where(id: penggalangan_dana.donasi_id)
+      donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.pluck(:donasi_id)[0])
       if not donasi.present?
         render json: {
           response_code: Constants::RESPONSE_SUCCESS, 
@@ -341,7 +342,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           data: "0 Donatur"
         }, status: :ok
       else
-        donatur = donasi.pluck(:donatur_id)
+        donatur = User::Donatur.where(:donasi_id.in => donasi.pluck(:id))
         total_donatur = donatur.group_by(&:itself).transform_values(&:count).length
         render json: {
           response_code: Constants::RESPONSE_SUCCESS, 
@@ -389,7 +390,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   end
 
   def getTotalDonatur
-    donatur = User::Donatur.where(status: true)
+    donatur = User::Donatur.donatur_registered
     if not donatur.present?
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 

@@ -296,6 +296,52 @@ paths:
               response_code:
                 type: integer
                 example: 401
+  "/v1/penggalangan/donasi/getApprovedDonasiByPenggalanganDana":
+    post:
+      summary: Get All Approved Donasi by Penggalangan Dana
+      tags:
+      - Donasi
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 649dd899e21fac1f60f56d45
+          required: []
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Data tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
   "/v1/penggalangan/donasi/getAllNewDonasi":
     get:
       summary: Get All New Donasi

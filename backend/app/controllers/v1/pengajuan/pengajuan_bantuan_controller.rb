@@ -49,7 +49,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
             response_message: "NIM tidak dapat ditemukan!"
             }, status: :unprocessable_entity
         else
-          is_pengajuan = Pengajuan::PengajuanBantuan.not.where(status_pengajuan: Enums::StatusPengajuan::DONE).where(no_identitas_pengaju: params[:no_identitas_pengaju]).first
+          is_pengajuan = Pengajuan::PengajuanBantuan.not.where(status_pengajuan: Enums::StatusPengajuan::DONE).where(no_identitas_pengaju: params[:no_identitas_pengaju]).where(jenis: "Beasiswa").first
           if is_pengajuan.present?
             render json: {
               response_code: Constants::ERROR_CODE_VALIDATION,
