@@ -278,11 +278,23 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
             }, status: :unprocessable_entity
         else
           pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:non_beasiswa_id.in => non_beasiswa.pluck(:id))
-          penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan.pluck(:id)).reverse
+          penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan.pluck(:id))
+          pengajuan_penggalangan = []
+          if penggalangan_dana.length > 1
+            penggalangan_dana.each do |data|
+              pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data.pengajuan_bantuan_id)
+              pengajuan_penggalangan << data.attributes.merge(:pengajuan_bantuan_id => pengajuan_bantuan)
+            end
+            pengajuan_penggalangan_dana = pengajuan_penggalangan.reverse
+          else
+            new_penggalangan_dana = penggalangan_dana.first
+            pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: new_penggalangan_dana.pengajuan_bantuan_id)
+            pengajuan_penggalangan_dana = new_penggalangan_dana.attributes.merge(:pengajuan_bantuan_id => pengajuan_bantuan)
+          end
           render json: {
             response_code: Constants::RESPONSE_SUCCESS, 
             response_message: "Success", 
-            data: {penggalangan_dana: penggalangan_dana, pengajuan_bantuan: pengajuan_bantuan}
+            data: pengajuan_penggalangan_dana
           }, status: :ok
         end
       end
