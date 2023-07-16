@@ -32,6 +32,7 @@ Rails.application.routes.draw do
         post "/getDonasiByPenggalanganDana" => "donasi#getDonasiByPenggalanganDana"
         get "/getAllApprovedDonasi" => "donasi#getAllApprovedDonasi"
         get "/getAllNewDonasi" => "donasi#getAllNewDonasi"
+        post "/getApprovedDonasiByPenggalanganDana" => "donasi#getApprovedDonasiByPenggalanganDana"
         get "/getAllDonasiTotal" => "donasi#getAllDonasiTotal"
         get "/getTotalNewDonasi" => "donasi#getTotalNewDonasi"
         post "/createDonasi" => "donasi#createDonasi"
