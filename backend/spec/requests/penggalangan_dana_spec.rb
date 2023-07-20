@@ -260,6 +260,41 @@ describe 'Penggalangan Dana API' do
     end
   end
 
+  path '/v1/penggalangan/penggalangan_dana/getDataDonaturByPenggalanganDana' do
+    post 'Get Data Donatur By Penggalangan Dana' do
+      tags 'Penggalangan Dana'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            id: {type: :string, example: "64b29f45e21fac00f0642fac"},
+        },
+        required: []
+      }
+      response '201', 'Created' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Penggalangan Dana tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Tidak memiliki akses!"},
+                response_code: {type: :integer, example: 401}
+              }
+        run_test!
+      end
+    end
+  end 
+
   path '/v1/penggalangan/penggalangan_dana/getAllPenggalanganDana' do
     get 'Get All Penggalangan Dana' do
       tags 'Penggalangan Dana'
@@ -315,20 +350,62 @@ describe 'Penggalangan Dana API' do
       end
     end
   end
-
-  path '/v1/penggalangan/penggalangan_dana/getTotalDonatur' do
-    get 'Get Total All Penggalangan Dana' do
+  
+  path '/v1/penggalangan/penggalangan_dana/getSaldoAwal' do
+    post 'Get Saldo Awal in Batch Beasiswa' do
       tags 'Penggalangan Dana'
       consumes 'application/json'
       produces 'application/json'
-      response '200', 'Success' do
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            id: {type: :string, example: "64b29f82e21fac00f0642fb1"},
+        },
+        required: []
+      }
+      response '201', 'Created' do
         schema type: :object
         run_test!
       end
       response '422', 'Unprocessable Entity' do
         schema type: :object,
               properties: {
-                response_message: {type: :string, example: "Data tidak Ditemukan"},
+                response_message: {type: :string, example: "Penggalangan Dana tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Tidak memiliki akses!"},
+                response_code: {type: :integer, example: 401}
+              }
+        run_test!
+      end
+    end
+  end  
+
+  path '/v1/penggalangan/penggalangan_dana/getTotalPengeluaran' do
+    post 'Get Total Pengeluaran in Batch Beasiswa' do
+      tags 'Penggalangan Dana'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            id: {type: :string, example: "64b29f82e21fac00f0642fb1"},
+        },
+        required: []
+      }
+      response '201', 'Created' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Penggalangan Dana tidak dapat ditemukan!"},
                 response_code: {type: :integer, example: 422}
               }
         run_test!
@@ -344,19 +421,26 @@ describe 'Penggalangan Dana API' do
     end
   end
 
-  path '/v1/penggalangan/penggalangan_dana/getTotalPenerimaBantuan' do
-    get 'Get Total All Penggalangan Dana' do
+  path '/v1/penggalangan/penggalangan_dana/getSaldoAkhir' do
+    post 'Get Saldo Akhir in Batch Beasiswa' do
       tags 'Penggalangan Dana'
       consumes 'application/json'
       produces 'application/json'
-      response '200', 'Success' do
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            id: {type: :string, example: "64b29f82e21fac00f0642fb1"},
+        },
+        required: []
+      }
+      response '201', 'Created' do
         schema type: :object
         run_test!
       end
       response '422', 'Unprocessable Entity' do
         schema type: :object,
               properties: {
-                response_message: {type: :string, example: "Data tidak Ditemukan"},
+                response_message: {type: :string, example: "Penggalangan Dana tidak dapat ditemukan!"},
                 response_code: {type: :integer, example: 422}
               }
         run_test!
@@ -370,5 +454,5 @@ describe 'Penggalangan Dana API' do
         run_test!
       end
     end
-  end
+  end  
 end

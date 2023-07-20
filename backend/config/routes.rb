@@ -9,6 +9,9 @@ Rails.application.routes.draw do
       resource :admin do
         post "/createAdmin" => "admin#createAdmin"
       end
+      resource :donatur do
+        get "/getTotalDonatur" => "donatur#getTotalDonatur"
+      end
     end
     namespace :pengajuan do
       resource :pengajuan_bantuan do
@@ -25,6 +28,11 @@ Rails.application.routes.draw do
         post "/selectPengajuanBeasiswa" => "pengajuan_bantuan#selectPengajuanBeasiswa"
         post "/selectPengajuanNonBeasiswa" => "pengajuan_bantuan#selectPengajuanNonBeasiswa"
         post "/createPenilaianEsai" => "pengajuan_bantuan#createPenilaianEsai"
+        post "/getRekapitulasiBeasiswa" => "pengajuan_bantuan#getRekapitulasiBeasiswa"
+        get "/getRekapitulasiNonBeasiswa" => "pengajuan_bantuan#getRekapitulasiNonBeasiswa"
+        post "/selectPenyaluranNonBeasiswa" => "pengajuan_bantuan#selectPenyaluranNonBeasiswa"
+        post "/selectPenyaluranBeasiswa" => "pengajuan_bantuan#selectPenyaluranBeasiswa"
+        get "/getTotalPenerimaBantuan" => "pengajuan_bantuan#getTotalPenerimaBantuan"
       end
     end
     namespace :penggalangan do
@@ -33,13 +41,12 @@ Rails.application.routes.draw do
         get "/getAllApprovedDonasi" => "donasi#getAllApprovedDonasi"
         get "/getAllNewDonasi" => "donasi#getAllNewDonasi"
         post "/getApprovedDonasiByPenggalanganDana" => "donasi#getApprovedDonasiByPenggalanganDana"
-        get "/getAllDonasiTotal" => "donasi#getAllDonasiTotal"
+        get "/getTotalAllDonasi" => "donasi#getTotalAllDonasi"
         get "/getTotalNewDonasi" => "donasi#getTotalNewDonasi"
         post "/createDonasi" => "donasi#createDonasi"
         post "/getDurasiDonasi" => "donasi#getDurasiDonasi"
         post "/uploadStrukPembayaran" => "donasi#uploadStrukPembayaran"
         post "/approvalDonasi" => "donasi#approvalDonasi"
-        post "/approvalPenyaluran" => "donasi#approvalPenyaluran"
       end
       resource :penggalangan_dana do
         post "/createPenggalanganDanaBeasiswa" => "penggalangan_dana#createPenggalanganDanaBeasiswa"
@@ -52,7 +59,10 @@ Rails.application.routes.draw do
         post "/getNominalTerkumpulPenggalanganDana" => "penggalangan_dana#getNominalTerkumpulPenggalanganDana"
         post "/getTotalDonaturInPenggalanganDana" => "penggalangan_dana#getTotalDonaturInPenggalanganDana"
         get "/getTotalDonatur" => "penggalangan_dana#getTotalDonatur"
-        get "/getTotalPenerimaBantuan" => "penggalangan_dana#getTotalPenerimaBantuan"
+        post "/getDataDonaturByPenggalanganDana" => "penggalangan_dana#getDataDonaturByPenggalanganDana"
+        post "/getSaldoAwal" => "penggalangan_dana#getSaldoAwal"
+        post "getTotalPengeluaran" => "penggalangan_dana#getTotalPengeluaran"
+        post "getSaldoAkhir" => "penggalangan_dana#getSaldoAkhir"
       end
     end
     namespace :rekapitulasi do

@@ -5,6 +5,23 @@ class V1::User::DonaturController < ApplicationController
     @donatur = User::Donatur.all
   end
 
+  def getTotalDonatur
+    donatur = User::Donatur.donatur_registered
+    if not donatur.present?
+      render json: {
+        response_code: Constants::RESPONSE_SUCCESS, 
+        response_message: "Success", 
+        data: "0 Donatur"
+      }, status: :ok
+    else
+      render json: {
+        response_code: Constants::RESPONSE_SUCCESS, 
+        response_message: "Success", 
+        data: donatur.length.to_s + " Donatur"
+      }, status: :ok
+    end
+  end
+
   def createDonatur
     @donatur = User::Donatur.new(donatur_params)
     if @donatur.save
