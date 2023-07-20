@@ -229,8 +229,8 @@ describe 'Donasi API' do
     end
   end
   
-  path '/v1/penggalangan/donasi/getAllDonasiTotal' do
-    get 'Get All Donasi Total' do
+  path '/v1/penggalangan/donasi/getTotalAllDonasi' do
+    get 'Get Total All Donasi' do
       tags 'Donasi'
       consumes 'application/json'
       produces 'application/json'

@@ -224,7 +224,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
           if params[:penilaian_esai] != "Kurang" and params[:penilaian_esai] != "Cukup" and params[:penilaian_esai] != "Baik" and params[:penilaian_esai] != "SangatBaik"
             render json: {
               response_code: Constants::ERROR_CODE_VALIDATION,
-              response_message: "Penilaian Esai #{param[:penilaian_esai]} tidak ada!, hanya ada Kurang/Cukup/Baik/SangatBaik"
+              response_message: "Penilaian Esai #{params[:penilaian_esai]} tidak ada!, hanya ada Kurang/Cukup/Baik/SangatBaik"
               }, status: :unprocessable_entity
           else
             if params[:penilaian_esai] == "Kurang"
@@ -635,6 +635,150 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
         response_message: "Success", 
         data: total_calon_pengajuan
         }, status: :ok
+    end
+  end
+
+  def getRekapitulasiBeasiswa
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
+    if not penggalangan_dana.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Data Batch Beasiswa Tidak ada" 
+        }, status: :unprocessable_entity
+    elsif not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Data Batch Beasiswa Tidak ada" 
+        }, status: :unprocessable_entity
+    else
+      pengajuan_bantuan = Pengajuan::PengajuanBantuan.rekapitulasi_beasiswa.where(:id.in => penggalangan_dana.pengajuan_bantuan_id)
+      if not pengajuan_bantuan.present?
+        render json: {
+          response_code: Constants::ERROR_CODE_VALIDATION,
+          response_message: "Belum ada data penerima beasiswa" 
+          }, status: :unprocessable_entity
+      else
+        render json: {
+          response_code: Constants::RESPONSE_SUCCESS, 
+          response_message: "Success", 
+          data: pengajuan_bantuan
+          }, status: :ok
+      end
+    end
+  end
+
+  def getRekapitulasiNonBeasiswa
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.rekapitulasi_non_beasiswa
+    if not pengajuan_bantuan.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Data Rekapitulasi Dana Non Beasiswa tidak ada!" 
+        }, status: :unprocessable_entity
+    else
+      non_beasiswa = Pengajuan::NonBeasiswa.where(:id.in => pengajuan_bantuan.pluck(:non_beasiswa_id))
+      if pengajuan_bantuan.length > 1
+        array_of_pengajuan = []
+        pengajuan_bantuan.each do |data|
+          non_beasiswa = Pengajuan::NonBeasiswa.where(id: data.non_beasiswa_id)
+          array_of_pengajuan << data.attributes.merge({
+            :non_beasiswa_id => non_beasiswa,
+            :total_donasi => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data.id).first.total_nominal_terkumpul
+            })
+        end
+        penyaluran_non_beasiswa = array_of_pengajuan
+      else
+        data_pengajuan = pengajuan_bantuan.first
+        penyaluran_non_beasiswa = data_pengajuan.attributes.merge({
+          :non_beasiswa_id => non_beasiswa,
+          :total_donasi => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data_pengajuan.id).first.total_nominal_terkumpul
+        })
+      end
+      render json: {
+        response_code: Constants::RESPONSE_SUCCESS, 
+        response_message: "Success", 
+        data: penyaluran_non_beasiswa
+        }, status: :ok
+    end
+  end
+
+  def getTotalPenerimaBantuan
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.done
+    if not pengajuan_bantuan.present?
+      render json: {
+        response_code: Constants::RESPONSE_SUCCESS, 
+        response_message: "Success", 
+        data: 0
+      }, status: :ok
+    else
+      render json: {
+        response_code: Constants::RESPONSE_SUCCESS, 
+        response_message: "Success", 
+        data: pengajuan_bantuan.length
+      }, status: :ok
+    end
+  end
+
+  def selectPenyaluranBeasiswa
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.penyaluran_beasiswa.where(id: params[:id]).first
+    if not pengajuan_bantuan.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Penerima Bantuan Dana Beasiswa tidak ada atau sudah dilakukan penyaluran" 
+        }, status: :unprocessable_entity
+    else
+      penggalangan_dana = Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: pengajuan_bantuan.id).first
+      if not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+        render json: {
+          response_code: Constants::ERROR_CODE_VALIDATION,
+          response_message: "Penerima Bantuan Dana Beasiswa tidak ada!" 
+          }, status: :unprocessable_entity
+      else        
+        if params[:is_penyaluran] == "true"
+          status_penyaluran = Enums::StatusPenyaluran::DELIVERED
+        else
+          status_penyaluran = Enums::StatusPenyaluran::PENDING
+        end
+        pengajuan_bantuan.assign_attributes(status_penyaluran: status_penyaluran)
+        if pengajuan_bantuan.save
+          render json: {
+            response_code: Constants::RESPONSE_SUCCESS,
+            response_message: "Success",
+            data: pengajuan_bantuan
+            }, status: :ok
+        end
+      end
+    end
+  end
+
+  def selectPenyaluranNonBeasiswa
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.penyaluran_non_beasiswa.where(id: params[:id]).first
+    if not pengajuan_bantuan.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Penerima Bantuan Dana Non Beasiswa tidak ada atau sudah dilakukan penyaluran" 
+        }, status: :unprocessable_entity
+    else
+      penggalangan_dana = Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: pengajuan_bantuan.id).first
+      if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+        render json: {
+          response_code: Constants::ERROR_CODE_VALIDATION,
+          response_message: "Penerima Bantuan Dana Non Beasiswa tidak ada!" 
+          }, status: :unprocessable_entity
+      else        
+        if params[:is_penyaluran] == "true"
+          status_penyaluran = Enums::StatusPenyaluran::DELIVERED
+        else
+          status_penyaluran = Enums::StatusPenyaluran::PENDING
+        end
+        pengajuan_bantuan.assign_attributes(status_penyaluran: status_penyaluran)
+        if pengajuan_bantuan.save
+          render json: {
+            response_code: Constants::RESPONSE_SUCCESS,
+            response_message: "Success",
+            data: pengajuan_bantuan
+            }, status: :ok
+        end
+      end
     end
   end
 

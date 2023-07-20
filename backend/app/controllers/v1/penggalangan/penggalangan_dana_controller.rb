@@ -401,37 +401,107 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     end
   end
 
-  def getTotalDonatur
-    donatur = User::Donatur.donatur_registered
-    if not donatur.present?
+  def getDataDonaturByPenggalanganDana
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
+    if not penggalangan_dana.present?
       render json: {
-        response_code: Constants::RESPONSE_SUCCESS, 
-        response_message: "Success", 
-        data: "0 Donatur"
-      }, status: :ok
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Penggalangan dana tidak ditemukan!"
+        }, status: :unprocessable_entity
+    elsif not penggalangan_dana.donasi_id.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Tidak ada data donatur!"
+        }, status: :unprocessable_entity
     else
+      donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
+      donatur = User::Donatur.donatur_registered.where(:donasi_id.in => donasi.pluck(:id))
+      if donatur.length > 1
+        data_donatur = []
+        donatur.each do |data|
+          data_donasi = Penggalangan::Donasi.approved.where(:id.in => data.donasi_id)
+          data_donatur << data.attributes.merge(:donasi_id => data_donasi)
+        end
+      else
+        donatur_data = donatur.first
+        data_donatur = donatur_data.attributes.merge(:donasi_id => donasi)
+      end
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
-        data: donatur.length.to_s + " Donatur"
-      }, status: :ok
+        data: data_donatur
+        }, status: :ok
     end
   end
 
-  def getTotalPenerimaBantuan
-    pengajuan_bantuan = Pengajuan::PengajuanBantuan.done
+  def getTotalPengeluaran
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
+    if not penggalangan_dana.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Data Penggalangan Dana tidak ada!"
+        }, status: :unprocessable_entity
+    elsif not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Batch beasiswa tidak ada!"
+        }, status: :unprocessable_entity
+    else
+      donasi = Penggalangan::Donasi.approved.where(id: penggalangan_dana.donasi_id)
+      total_donasi = donasi.pluck(:nominal).inject(0, :+)
+      penyaluran = total_donasi - penggalangan_dana.total_nominal_terkumpul
+      render json: {
+        response_code: Constants::RESPONSE_SUCCESS, 
+        response_message: "Success", 
+        data: penyaluran
+        }, status: :ok
+    end
+  end
+
+  def getSaldoAwal
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_done_admin
     if not pengajuan_bantuan.present?
       render json: {
-        response_code: Constants::RESPONSE_SUCCESS, 
-        response_message: "Success", 
+        response_code: Constants::RESPONSE_SUCCESS,
+        response_message: "Success",
         data: 0
-      }, status: :ok
+        }, status: :ok
     else
+      penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan.pluck(:id))
+      donasi = Penggalangan::Donasi.approved.where(:id => penggalangan_dana.donasi_id)
+      total_donasi = donasi.pluck(:nominal).inject(0, :+)
+      penyaluran = total_donasi - penggalangan_dana.total_nominal_terkumpul
+      saldo_akhir = total_donasi - penyaluran
       render json: {
-        response_code: Constants::RESPONSE_SUCCESS, 
+        response_code: 200, 
         response_message: "Success", 
-        data: pengajuan_bantuan.length
-      }, status: :ok
+        data: saldo_akhir
+        }, status: :ok
+    end
+  end
+
+  def getSaldoAkhir
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
+    if not penggalangan_dana.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Data Penggalangan Dana tidak ada!"
+        }, status: :unprocessable_entity
+    elsif not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Data Batch Beasiswa tidak ada!"
+        }, status: :unprocessable_entity
+    else
+      donasi = Penggalangan::Donasi.approved.where(:id => penggalangan_dana.donasi_id)
+      total_donasi = donasi.pluck(:nominal).inject(0, :+)
+      penyaluran = total_donasi - penggalangan_dana.total_nominal_terkumpul
+      saldo_akhir = total_donasi - penyaluran
+      render json: {
+        response_code: 200, 
+        response_message: "Success", 
+        data: saldo_akhir
+        }, status: :ok
     end
   end
 
