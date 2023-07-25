@@ -221,7 +221,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
             pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id => penggalangan_dana.pengajuan_bantuan_id)
           end
           array_of_data_donasi << penggalangan_dana.attributes.merge({
-            :pengajuan_bantuan_id => pengajuan_bantuan,
+            :pengajuan_bantuan_id => pengajuan_bantuan.first,
             :donasi_id => donatur.attributes.merge(:donasi_id => data_donation)
           })
         end
@@ -229,12 +229,12 @@ class V1::Penggalangan::DonasiController < ApplicationController
       else
         data_penggalangan_dana = penggalangan_dana.first
         if data_penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
-          pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id.in => penggalangan_dana.pluck(:pengajuan_bantuan_id)[0])
+          pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id => penggalangan_dana.first.pengajuan_bantuan_id[0])
         else
-          pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id.in => penggalangan_dana.pluck(:pengajuan_bantuan_id))
+          pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id => penggalangan_dana.first.pengajuan_bantuan_id)
         end
         data_donasi = data_penggalangan_dana.attributes.merge({
-          :pengajuan_bantuan_id => pengajuan_bantuan,
+          :pengajuan_bantuan_id => pengajuan_bantuan.first,
           :donasi_id => donatur.first.attributes.merge(:donasi_id => donasi)
         })
       end
@@ -243,56 +243,6 @@ class V1::Penggalangan::DonasiController < ApplicationController
         response_message: "Success", 
         data: data_donasi
         }, status: :ok
-    end
-  end
-
-  def getApprovedDonasiByPenggalanganDana
-    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
-    if not penggalangan_dana.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Data Penggalangan Dana tidak ditemukan!"
-        }, status: :unprocessable_entity
-    elsif not penggalangan_dana.donasi_id.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Belum ada donasi pada penggalangan dana ini!"
-        }, status: :unprocessable_entity
-    else
-      if penggalangan_dana.pengajuan_bantuan.kind_of?(Array)
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penyaluran_beasiswa.where(:id => penggalangan_dana.pengajuan_bantuan_id[0])
-      else
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penyaluran_non_beasiswa.where(:id => penggalangan_dana.pengajuan_bantuan_id)
-      end
-      donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
-      if not donasi.present?
-        render json: {
-          response_code: Constants::ERROR_CODE_VALIDATION,
-          response_message: "Tidak ada data donasi pada penggalangan dana ini!"
-          }, status: :unprocessable_entity
-      else
-        donatur = User::Donatur.donatur_registered.where(:donasi_id.in => donasi.pluck(:id))
-        if donasi.length > 1
-          data_donasi = []
-          donasi.each_with_index do |data_donation, index_donasi|
-            data_donasi << penggalangan_dana.attributes.merge({
-              :pengajuan_bantuan_id => pengajuan_bantuan,
-              :donasi_id => donatur.first.attributes.merge(:donasi_id => data_donation)
-            })
-          end
-          donasi_penggalangan_dana = data_donasi.reverse
-        else
-          donasi_penggalangan_dana = penggalangan_dana.attributes.merge({
-            :pengajuan_bantuan_id => pengajuan_bantuan,
-            :donasi_id => donatur.first.attributes.merge(:donasi_id => donasi)
-          })
-        end
-        render json: {
-          response_code: Constants::RESPONSE_SUCCESS, 
-          response_message: "Success", 
-          data: donasi_penggalangan_dana
-          }, status: :ok
-      end
     end
   end
 

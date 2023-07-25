@@ -40,7 +40,6 @@ Rails.application.routes.draw do
         post "/getDonasiByPenggalanganDana" => "donasi#getDonasiByPenggalanganDana"
         get "/getAllApprovedDonasi" => "donasi#getAllApprovedDonasi"
         get "/getAllNewDonasi" => "donasi#getAllNewDonasi"
-        post "/getApprovedDonasiByPenggalanganDana" => "donasi#getApprovedDonasiByPenggalanganDana"
         get "/getTotalAllDonasi" => "donasi#getTotalAllDonasi"
         get "/getTotalNewDonasi" => "donasi#getTotalNewDonasi"
         post "/createDonasi" => "donasi#createDonasi"
@@ -63,6 +62,8 @@ Rails.application.routes.draw do
         post "/getSaldoAwal" => "penggalangan_dana#getSaldoAwal"
         post "getTotalPengeluaran" => "penggalangan_dana#getTotalPengeluaran"
         post "getSaldoAkhir" => "penggalangan_dana#getSaldoAkhir"
+        post "/getApprovedDonasiByPenggalanganDana" => "penggalangan_dana#getApprovedDonasiByPenggalanganDana"
+        post "/getRekapitulasiBeasiswa" => "penggalangan_dana#getRekapitulasiBeasiswa"
       end
     end
     namespace :rekapitulasi do
