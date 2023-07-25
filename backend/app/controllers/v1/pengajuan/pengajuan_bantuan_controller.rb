@@ -682,7 +682,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
           non_beasiswa = Pengajuan::NonBeasiswa.where(id: data.non_beasiswa_id)
           array_of_pengajuan << data.attributes.merge({
             :non_beasiswa_id => non_beasiswa,
-            :total_donasi => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data.id).first.total_nominal_terkumpul
+            :penggalangan_dana => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data.id).first,
             })
         end
         penyaluran_non_beasiswa = array_of_pengajuan
@@ -690,7 +690,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
         data_pengajuan = pengajuan_bantuan.first
         penyaluran_non_beasiswa = data_pengajuan.attributes.merge({
           :non_beasiswa_id => non_beasiswa,
-          :total_donasi => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data_pengajuan.id).first.total_nominal_terkumpul
+          :penggalangan_dana => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data_pengajuan.id).first
         })
       end
       render json: {

@@ -295,6 +295,41 @@ describe 'Penggalangan Dana API' do
     end
   end 
 
+  path '/v1/penggalangan/penggalangan_dana/getApprovedDonasiByPenggalanganDana' do
+    post 'Get All Approved Donasi by Penggalangan Dana' do
+      tags 'Penggalangan Dana'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            id: {type: :string, example: "649dd899e21fac1f60f56d45"},
+        },
+        required: []
+      }
+      response '201', 'Created' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Data tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Tidak memiliki akses!"},
+                response_code: {type: :integer, example: 401}
+              }
+        run_test!
+      end
+    end
+  end
+
   path '/v1/penggalangan/penggalangan_dana/getAllPenggalanganDana' do
     get 'Get All Penggalangan Dana' do
       tags 'Penggalangan Dana'
