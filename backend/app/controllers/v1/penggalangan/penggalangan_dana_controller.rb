@@ -169,7 +169,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           if penggalangan_dana_beasiswa == []
             new_data_pengajuan = penggalangan_dana_non_beasiswa.reverse
           else
-            new_data_pengajuan = list_data_penggalangan_dana
+            new_data_pengajuan = list_data_penggalangan_dana.flatten
           end
           render json: {
             response_code: Constants::RESPONSE_SUCCESS, 
@@ -438,18 +438,13 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       if donatur.length > 1
         array_of_data_donatur = []
         array_of_data_donasi = []
-        data_donasi = {}
         donatur.each_with_index do |data_donatur, index_donatur|
-          penggalangan_dana.donasi_id.each_with_index do |data_donasi_penggalangan, index_donasi_penggalangan|
-            if data_donatur.donasi_id == data_donasi_penggalangan
-              data_donasi = Penggalangan::Donasi.approved.where(:id.in => data_donasi_penggalangan)
-            end
-          end
+          data_donasi = donasi.where(:id.in => data_donatur.donasi_id)
           array_of_data_donatur << data_donatur.attributes.merge(:donasi_id => data_donasi.pluck(:nominal).inject(0, :+))
           array_of_data_donasi << data_donasi
         end
         data_donatur = array_of_data_donatur.sort_by { |item| -item[:donasi_id] }
-        data_donatur << {total_donasi: array_of_data_donasi.length}
+        data_donatur << {total_donasi: array_of_data_donasi.flatten.length}
       else
         donatur_data = donatur.first
         data_donatur = donatur_data.attributes.merge({
