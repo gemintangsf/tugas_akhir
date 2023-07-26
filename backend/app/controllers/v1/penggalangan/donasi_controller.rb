@@ -163,9 +163,14 @@ class V1::Penggalangan::DonasiController < ApplicationController
       if params[:is_approve] == "true"
         status_donasi = Enums::StatusDonasi::APPROVED
         penggalangan_dana = Penggalangan::PenggalanganDana.where(:donasi_id => donasi.id).first
-        total_nominal_awal = penggalangan_dana.total_nominal_terkumpul
+        donasi_approved = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)        
+        if donasi_approved.present?
+          total_nominal_awal = donasi_approved.pluck(:nominal).inject(0, :+)
+        else
+          total_nominal_awal = 0
+        end
         nominal_donasi = donasi.nominal
-        total_nominal_terkumpul = penggalangan_dana.total_nominal_terkumpul + donasi.nominal
+        total_nominal_terkumpul = total_nominal_awal + nominal_donasi
         penggalangan_dana.assign_attributes({
           total_nominal_terkumpul: total_nominal_terkumpul})
       else

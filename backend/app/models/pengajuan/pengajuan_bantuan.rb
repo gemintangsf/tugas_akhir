@@ -63,5 +63,9 @@ class Pengajuan::PengajuanBantuan
     scope :done, -> { where(status_pengajuan: Enums::StatusPengajuan::DONE).union.in(status_penyaluran: Enums::StatusPenyaluran::DELIVERED) }
     scope :pengajuan_baru_admin, -> { where(status_pengajuan: Enums::StatusPengajuan::ADMIN).union.in(status_penyaluran: Enums::StatusPenyaluran::NULL)}
     scope :pengajuan_done_admin, -> { where(status_pengajuan: Enums::StatusPengajuan::DONE).union.in(status_penyaluran: Enums::StatusPenyaluran::NULL)}
+    scope :batch_beasiswa, -> { 
+      where(status_pengajuan: Enums::StatusPengajuan::ADMIN).union.in(
+        status_pengajuan: Enums::StatusPengajuan::DONE).union.in(
+        status_penyaluran: Enums::StatusPenyaluran::NULL)}
   end
   

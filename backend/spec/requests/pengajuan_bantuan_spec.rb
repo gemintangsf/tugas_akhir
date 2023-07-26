@@ -503,8 +503,8 @@ describe 'Pengajuan Bantuan API' do
     end
   end
 
-  path '/v1/pengajuan/pengajuan_bantuan/getRekapitulasiNonBeasiswa' do
-    get 'Get Rekapitulasi Dana Non Beasiswa' do
+  path '/v1/pengajuan/pengajuan_bantuan/getRekapitulasiBeasiswa' do
+    get 'Get Rekapitulasi Dana Beasiswa' do
       tags 'Pengajuan Bantuan'
       consumes 'application/json'
       produces 'application/json'
@@ -531,36 +531,29 @@ describe 'Pengajuan Bantuan API' do
     end
   end
 
-  path '/v1/pengajuan/pengajuan_bantuan/getRekapitulasiBeasiswa' do
-    post 'get Rekapitulasi Dana Beasiswa' do
+  path '/v1/pengajuan/pengajuan_bantuan/getRekapitulasiNonBeasiswa' do
+    get 'Get Rekapitulasi Dana Non Beasiswa' do
       tags 'Pengajuan Bantuan'
       consumes 'application/json'
       produces 'application/json'
-      parameter name: :body, in: :body, schema: {
-        type: :object,
-        properties: {
-            id: {type: :string, example: "64b29f82e21fac00f0642fb1"},
-        },
-        required: []
-      }
-      response '200', 'Successfull' do
+      response '200', 'Success' do
         schema type: :object
         run_test!
       end
       response '422', 'Unprocessable Entity' do
         schema type: :object,
               properties: {
-                response_message: {type: :string, example: "Pengajuan Non Beasiswa tidak dapat ditemukan!"},
+                response_message: {type: :string, example: "Data tidak Ditemukan"},
                 response_code: {type: :integer, example: 422}
               }
         run_test!
       end
       response '401', 'Unauthorized' do
         schema type: :object,
-        properties: {
-          response_message: {type: :string, example: "Tidak memiliki akses!"},
-          response_code: {type: :integer, example: 401}
-        }
+              properties: {
+                response_message: {type: :string, example: "Tidak memiliki akses!"},
+                response_code: {type: :integer, example: 401}
+              }
         run_test!
       end
     end

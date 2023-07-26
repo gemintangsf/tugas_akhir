@@ -1156,9 +1156,9 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/pengajuan/pengajuan_bantuan/getRekapitulasiNonBeasiswa":
+  "/v1/pengajuan/pengajuan_bantuan/getRekapitulasiBeasiswa":
     get:
-      summary: Get Rekapitulasi Dana Non Beasiswa
+      summary: Get Rekapitulasi Dana Beasiswa
       tags:
       - Pengajuan Bantuan
       consumes:
@@ -1192,28 +1192,18 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/pengajuan/pengajuan_bantuan/getRekapitulasiBeasiswa":
-    post:
-      summary: get Rekapitulasi Dana Beasiswa
+  "/v1/pengajuan/pengajuan_bantuan/getRekapitulasiNonBeasiswa":
+    get:
+      summary: Get Rekapitulasi Dana Non Beasiswa
       tags:
       - Pengajuan Bantuan
       consumes:
       - application/json
       produces:
       - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 64b29f82e21fac00f0642fb1
-          required: []
       responses:
         '200':
-          description: Successfull
+          description: Success
           schema:
             type: object
         '422':
@@ -1223,7 +1213,7 @@ paths:
             properties:
               response_message:
                 type: string
-                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
+                example: Data tidak Ditemukan
               response_code:
                 type: integer
                 example: 422
