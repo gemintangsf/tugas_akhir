@@ -639,32 +639,55 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   end
 
   def getRekapitulasiBeasiswa
-    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
-    if not penggalangan_dana.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Data Batch Beasiswa Tidak ada" 
-        }, status: :unprocessable_entity
-    elsif not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_baru_admin
+    if not pengajuan_bantuan.present?
       render json: {
         response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Data Batch Beasiswa Tidak ada" 
         }, status: :unprocessable_entity
     else
-      pengajuan_bantuan = Pengajuan::PengajuanBantuan.rekapitulasi_beasiswa.where(:id.in => penggalangan_dana.pengajuan_bantuan_id)
-      if not pengajuan_bantuan.present?
-        render json: {
-          response_code: Constants::ERROR_CODE_VALIDATION,
-          response_message: "Belum ada data penerima beasiswa" 
-          }, status: :unprocessable_entity
+      penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan.pluck(:id)).first
+      array_of_penerima_beasiswa = []
+      if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+        if penggalangan_dana.pengajuan_bantuan_id.length > 1
+          penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
+            if index > 0
+              array_of_penerima_beasiswa << Pengajuan::PengajuanBantuan.where(:id => data).first
+            end
+          end
+          penerima_beasiswa = array_of_penerima_beasiswa
+        else
+          penerima_beasiswa = {}
+        end
+        rekapitulasi_beasiswa = penggalangan_dana.attributes.merge(pengajuan_bantuan_id: penerima_beasiswa)
+      render json: {
+        response_code: Constants::RESPONSE_SUCCESS, 
+        response_message: "Success", 
+        data: rekapitulasi_beasiswa
+        }, status: :ok
       else
         render json: {
-          response_code: Constants::RESPONSE_SUCCESS, 
-          response_message: "Success", 
-          data: pengajuan_bantuan
-          }, status: :ok
+          response_code: Constants::ERROR_CODE_VALIDATION,
+          response_message: "Data Batch Beasiswa Tidak ada" 
+          }, status: :unprocessable_entity
       end
     end
+  end
+  
+  def getAllRekapitulasiBeasiswa
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.batch_beasiswa
+    if not pengajuan_bantuan.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Data Batch Beasiswa tidak ada!" 
+        }, status: :unprocessable_entity
+    else
+      penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan.pluck(:id))
+    end
+  end
+
+  def getBacthBeasiswa
+
   end
 
   def getRekapitulasiNonBeasiswa
@@ -681,22 +704,22 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
         pengajuan_bantuan.each do |data|
           non_beasiswa = Pengajuan::NonBeasiswa.where(id: data.non_beasiswa_id)
           array_of_pengajuan << data.attributes.merge({
-            :non_beasiswa_id => non_beasiswa,
+            :non_beasiswa_id => non_beasiswa.first,
             :penggalangan_dana => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data.id).first,
             })
         end
-        penyaluran_non_beasiswa = array_of_pengajuan
+        rekapitulasi_non_beasiswa = array_of_pengajuan
       else
         data_pengajuan = pengajuan_bantuan.first
-        penyaluran_non_beasiswa = data_pengajuan.attributes.merge({
-          :non_beasiswa_id => non_beasiswa,
+        rekapitulasi_non_beasiswa = data_pengajuan.attributes.merge({
+          :non_beasiswa_id => non_beasiswa.first,
           :penggalangan_dana => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data_pengajuan.id).first
         })
       end
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
-        data: penyaluran_non_beasiswa
+        data: rekapitulasi_non_beasiswa
         }, status: :ok
     end
   end
