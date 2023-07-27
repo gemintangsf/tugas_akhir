@@ -8,7 +8,7 @@ paths:
     post:
       summary: Create User
       tags:
-      - Registrasi
+      - Admin
       consumes:
       - application/json
       produces:
@@ -28,9 +28,15 @@ paths:
             username:
               type: string
               example: AdminJTKBerbagi
+            nama_bank:
+              type: string
+              example: BSI
             nomor_rekening:
               type: string
               example: '219382932'
+            nama_pemilik_rekening:
+              type: string
+              example: Gemintang Sangkaji Furqon
             password:
               type: string
               example: '12345678'
@@ -106,6 +112,82 @@ paths:
               response_code:
                 type: integer
                 example: 401
+  "/v1/importExcelCivitasAkademika":
+    post:
+      summary: Import Excel Civitas Akademika
+      tags:
+      - Civitas Akademika
+      consumes:
+      - multipart/form-data
+      produces:
+      - application/json
+      parameters:
+      - in: formData
+        name: file
+        type: file
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '422':
+          description: Error
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Import Excel gagal!
+              response_code:
+                type: integer
+                example: 401
+        '401':
+          description: Error
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak ada akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/getAllCivitasAkademika":
+    get:
+      summary: Get All Data Civitas Akademika
+      tags:
+      - Civitas Akademika
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Data tidak Ditemukan
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
   "/v1/penggalangan/donasi/createDonasi":
     post:
       summary: Create Donasi
@@ -133,9 +215,15 @@ paths:
             nominal:
               type: integer
               example: 100000
+            nomor_rekening:
+              type: string
+              example: '210931929'
             nama_pemilik_rekening:
               type: string
               example: Gemintang
+            nama_bank:
+              type: string
+              example: BSI
           required: []
       responses:
         '201':
@@ -470,7 +558,7 @@ paths:
             nama_pemilik_rekening:
               type: string
               example: Gemintang
-            bank:
+            nama_bank:
               type: string
               example: BSI
             deskripsi:
@@ -567,7 +655,7 @@ paths:
             nama_pemilik_rekening:
               type: string
               example: Gemintang
-            bank:
+            nama_bank:
               type: string
               example: BSI
             judul_galang_dana:
@@ -1249,6 +1337,9 @@ paths:
             id:
               type: string
               example: 64b29f45e21fac00f0642fab
+            nominal_penyaluran:
+              type: integer
+              example: 10000
           required: []
       responses:
         '200':
@@ -1411,7 +1502,7 @@ paths:
             nama_pemilik_rekening:
               type: string
               example: Gemintang
-            bank:
+            nama_bank:
               type: string
               example: BSI
             judul_galang_dana:
@@ -1541,190 +1632,6 @@ paths:
               response_message:
                 type: string
                 example: Penggalangan dana tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/penggalangan/penggalangan_dana/getDurasiPenggalanganDana":
-    post:
-      summary: Get Durasi Penggalangan Dana
-      tags:
-      - Penggalangan Dana
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 649ad853e21fac364c2d0da6
-          required: []
-      responses:
-        '201':
-          description: Created
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Penggalangan Dana tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/penggalangan/penggalangan_dana/getNominalTerkumpulPenggalanganDana":
-    post:
-      summary: Get Nominal Terkumpul Penggalangan Dana
-      tags:
-      - Penggalangan Dana
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 649d3a55e21fac0234f47868
-          required: []
-      responses:
-        '201':
-          description: Created
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Penggalangan Dana tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/penggalangan/penggalangan_dana/getTotalDonaturInPenggalanganDana":
-    post:
-      summary: Get Total Donatur Penggalangan Dana
-      tags:
-      - Penggalangan Dana
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 64a13bfbe21fac2f6492d4fb
-          required: []
-      responses:
-        '201':
-          description: Created
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Penggalangan Dana tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/penggalangan/penggalangan_dana/getDataDonaturByPenggalanganDana":
-    post:
-      summary: Get Data Donatur By Penggalangan Dana
-      tags:
-      - Penggalangan Dana
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 64b29f45e21fac00f0642fac
-          required: []
-      responses:
-        '201':
-          description: Created
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Penggalangan Dana tidak dapat ditemukan!
               response_code:
                 type: integer
                 example: 422

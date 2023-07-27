@@ -13,7 +13,9 @@ describe 'Donasi API' do
             nama: {type: :string, example: "Donatur1"},
             nomor_telepon: {type: :string, example: "082118397901"},
             nominal: {type: :integer, example: 100000},
+            nomor_rekening: {type: :string, example: "210931929"},
             nama_pemilik_rekening: {type: :string, example: "Gemintang"},
+            nama_bank: {type: :string, example: "BSI"},
         },
         required: []
       }

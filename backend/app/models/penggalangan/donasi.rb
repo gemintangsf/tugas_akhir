@@ -7,11 +7,8 @@ class Penggalangan::Donasi
   has_many :donatur, class_name: "User::Donatur"
 
   validates :nominal, presence: true
-  validates :nama_pemilik_rekening, presence: true
-  validates :nomor_referensi, presence: true
-
+  
   field :nominal, type: Integer
-  field :nama_pemilik_rekening, type: String
   field :struk_pembayaran, type: String
   field :nomor_referensi, type: String
   field :waktu_berakhir, type: Time

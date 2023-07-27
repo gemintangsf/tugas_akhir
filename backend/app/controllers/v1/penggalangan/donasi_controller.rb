@@ -46,7 +46,9 @@ class V1::Penggalangan::DonasiController < ApplicationController
           end
         end
       else
+        bank = Bank.new(bank_params)
         donatur = User::Donatur.new(
+          bank: bank,
           nama: params[:nama],
           nomor_telepon: params[:nomor_telepon],
           status: Enums::StatusDonatur::CANDIDATE
@@ -81,16 +83,19 @@ class V1::Penggalangan::DonasiController < ApplicationController
         else
           donatur.donasi_id << donasi.id
         end
-        if donatur.save(:validate => false) and donasi.save and penggalangan_dana.save
+        if donatur.save(:validate => false) and donasi.save and penggalangan_dana.save and bank.save(:validate => false)
           render json: {
             response_code: Constants::RESPONSE_CREATED, 
             response_message: "Success", 
-            data: {donasi: donasi, donatur: donatur, penggalangan_dana: penggalangan_dana},
+            data: {donasi: donasi, donatur: donatur, penggalangan_dana: penggalangan_dana, bank: bank},
             }, status: :created
         else
           render json: {
             response_code: Constants::ERROR_CODE_VALIDATION,
-            response_message: {donasi: donasi.errors.full_messages, penggalangan_dana: penggalangan_dana.errors.full_messages}
+            response_message: {donatur: donatur.errors.full_messages, 
+              donasi: donasi.errors.full_messages, 
+              penggalangan_dana: penggalangan_dana.errors.full_messages, 
+              bank: bank.errors.full_messages}
             }, status: :unprocessable_entity
         end
       end
@@ -115,6 +120,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
   
       seconds = seconds_diff
       if seconds_diff < 1
+        
         donasi.assign_attributes(status: Enums::StatusDonasi::EXPIRED)
         donasi.save!(:validate => false)
       end
@@ -160,47 +166,61 @@ class V1::Penggalangan::DonasiController < ApplicationController
         response_message: "Data Donasi baru tidak ditemukan!"
         }, status: :unprocessable_entity
     else
-      if params[:is_approve] == "true"
-        status_donasi = Enums::StatusDonasi::APPROVED
-        penggalangan_dana = Penggalangan::PenggalanganDana.where(:donasi_id => donasi.id).first
-        donasi_approved = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)        
-        if donasi_approved.present?
-          total_nominal_awal = donasi_approved.pluck(:nominal).inject(0, :+)
-        else
-          total_nominal_awal = 0
-        end
-        nominal_donasi = donasi.nominal
-        total_nominal_terkumpul = total_nominal_awal + nominal_donasi
-        penggalangan_dana.assign_attributes({
-          total_nominal_terkumpul: total_nominal_terkumpul})
-      else
-        status_donasi = Enums::StatusDonasi::REJECTED
-      end
-      donasi.assign_attributes(status: status_donasi)
-      #check donatur
-      donatur = User::Donatur.where(donasi_id: donasi.id).first
-      if donatur.status == false
-        password_candidate = (0...8).map { (65 + rand(26)).chr }.join
-        donatur.assign_attributes(
-          password: password_candidate,
-          password_confirmation: password_candidate,
-          status: Enums::StatusDonatur::REGISTERED,
-        )
-        donatur.save!
-      else
-        password_candidate = []
-      end
-      if donasi.save and penggalangan_dana.save
-        render json: {
-          response_code: Constants::RESPONSE_SUCCESS, 
-          response_message: "Success", 
-          data: {penggalangan_dana: penggalangan_dana, donatur: donatur, donasi: donasi, password_donatur: password_candidate},
-          }, status: :ok
-      else
+      if params[:is_approve].blank?
         render json: {
           response_code: Constants::ERROR_CODE_VALIDATION,
-          response_message: {donasi: donasi.errors.full_messages, penggalangan_dana: penggalangan_dana.errors.full_messages}
+          response_message: "is_approve tidak boleh kosong!"
           }, status: :unprocessable_entity
+      else 
+        if params[:is_approve] != "true" and params[:is_approve] != "false"
+          render json: {
+            response_code: Constants::ERROR_CODE_VALIDATION,
+            response_message: "is_approve hanya dapat true atau false!"
+            }, status: :unprocessable_entity
+        else
+          if params[:is_approve] == "true"
+            status_donasi = Enums::StatusDonasi::APPROVED
+            penggalangan_dana = Penggalangan::PenggalanganDana.where(:donasi_id => donasi.id).first
+            donasi_approved = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)        
+            if donasi_approved.present?
+              total_nominal_awal = donasi_approved.pluck(:nominal).inject(0, :+)
+            else
+              total_nominal_awal = 0
+            end
+            nominal_donasi = donasi.nominal
+            total_nominal_terkumpul = total_nominal_awal + nominal_donasi
+            penggalangan_dana.assign_attributes({
+              total_nominal_terkumpul: total_nominal_terkumpul})
+          else
+            status_donasi = Enums::StatusDonasi::REJECTED
+          end
+          donasi.assign_attributes(status: status_donasi)
+          #check donatur
+          donatur = User::Donatur.where(donasi_id: donasi.id).first
+          if donatur.status == false
+            password_candidate = (0...8).map { (65 + rand(26)).chr }.join
+            donatur.assign_attributes(
+              password: password_candidate,
+              password_confirmation: password_candidate,
+              status: Enums::StatusDonatur::REGISTERED,
+            )
+            donatur.save!
+          else
+            password_candidate = []
+          end
+          if donasi.save and penggalangan_dana.save
+            render json: {
+              response_code: Constants::RESPONSE_SUCCESS, 
+              response_message: "Success", 
+              data: {penggalangan_dana: penggalangan_dana, donatur: donatur, donasi: donasi, password_donatur: password_candidate},
+              }, status: :ok
+          else
+            render json: {
+              response_code: Constants::ERROR_CODE_VALIDATION,
+              response_message: {donasi: donasi.errors.full_messages, penggalangan_dana: penggalangan_dana.errors.full_messages}
+              }, status: :unprocessable_entity
+          end
+        end
       end
     end
   end
@@ -225,10 +245,13 @@ class V1::Penggalangan::DonasiController < ApplicationController
           else
             pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id => penggalangan_dana.pengajuan_bantuan_id)
           end
-          array_of_data_donasi << penggalangan_dana.attributes.merge({
+          object_data_donasi = penggalangan_dana.attributes.merge({
             :pengajuan_bantuan_id => pengajuan_bantuan.first,
             :donasi_id => donatur.attributes.merge(:donasi_id => data_donation)
           })
+          object_data_donasi["donatur"] = object_data_donasi.delete("donasi_id")
+          array_of_data_donasi << object_data_donasi
+
         end
         data_donasi = array_of_data_donasi.reverse
       else
@@ -238,10 +261,15 @@ class V1::Penggalangan::DonasiController < ApplicationController
         else
           pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id => penggalangan_dana.first.pengajuan_bantuan_id)
         end
+        bank = Bank.where(:id => donatur.first.bank_id).first
         data_donasi = data_penggalangan_dana.attributes.merge({
           :pengajuan_bantuan_id => pengajuan_bantuan.first,
-          :donasi_id => donatur.first.attributes.merge(:donasi_id => donasi)
+          :donasi_id => donatur.first.attributes.merge({
+            :donasi_id => donasi.first,
+            :bank_id => bank
+            })
         })
+        data_donasi["donatur"] = data_donasi.delete("donasi_id")
       end
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
@@ -327,7 +355,17 @@ class V1::Penggalangan::DonasiController < ApplicationController
         data: 0
         }, status: :ok
     else
-      donasi_terkumpul = donasi.pluck(:nominal).inject(0, :+)
+      penggalangan_dana = Penggalangan::PenggalanganDana.where(:donasi_id.in => donasi.pluck(:id))
+      array_of_nominal_donasi = []
+      penggalangan_dana.each do |data|
+        if not data.pengajuan_bantuan_id.kind_of?(Array)
+          pengajuan_bantuan = Pengajuan::PengajuanBantuan.done.where(:id => data.pengajuan_bantuan_id)
+          if pengajuan_bantuan.present?
+            array_of_nominal_donasi << data.total_nominal_terkumpul
+          end
+        end
+      end
+      donasi_terkumpul = donasi.pluck(:nominal).inject(0, :+) - array_of_nominal_donasi.inject(0, :+)
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
@@ -340,8 +378,11 @@ class V1::Penggalangan::DonasiController < ApplicationController
   # Form Donasi
   def donasi_params
     params.permit(
-      :nominal, 
-      :nama_pemilik_rekening, 
+      :nominal,
     )
+  end
+
+  def bank_params
+    params.permit(:nama_bank, :nomor_rekening, :nama_pemilik_rekening)
   end
 end

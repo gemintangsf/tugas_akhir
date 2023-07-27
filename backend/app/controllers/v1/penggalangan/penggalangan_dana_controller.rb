@@ -10,12 +10,10 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         }, status: :unprocessable_entity
     else
       data_admin = User::Admin.where(id: params[:id]).first
+      bank = Bank.where(id: data_admin.bank_id).first
       nama = data_admin.nama
       nomor_telepon = data_admin.nomor_telepon
       no_identitas_pengaju = "-"
-      nomor_rekening = data_admin.nomor_rekening
-      nama_pemilik_rekening = "Rekening Admin"
-      bank = "Bank Admin"
       dana_yang_dibutuhkan = 0
       status_pengajuan = Enums::StatusPengajuan::ADMIN
       status_penyaluran = Enums::StatusPenyaluran::NULL
@@ -27,13 +25,11 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           }, status: :unprocessable_entity
       else
         pengajuan_bantuan = Pengajuan::PengajuanBantuan.new(
+          bank: bank,
           jenis: "Beasiswa",
           nama: nama, 
           no_identitas_pengaju: no_identitas_pengaju, 
-          no_telepon: nomor_telepon, 
-          nomor_rekening: nama_pemilik_rekening, 
-          nama_pemilik_rekening: nomor_rekening, 
-          bank: bank, 
+          no_telepon: nomor_telepon,
           waktu_galang_dana: waktu_galang_dana, 
           judul_galang_dana: params[:judul_galang_dana], 
           deskripsi: params[:deskripsi], 
@@ -89,8 +85,10 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         no_identitas_penerima: no_identitas_penerima,
         bukti_butuh_bantuan: bukti_butuh_bantuan})
       pengajuan_bantuan = Pengajuan::PengajuanBantuan.new(pengajuan_bantuan_params)
+      bank = Bank.new(bank_params)
       pengajuan_bantuan.assign_attributes({
         jenis: "NonBeasiswa",
+        bank: bank,
         no_identitas_pengaju: no_identitas_pengaju,
         waktu_galang_dana: waktu_galang_dana,
         status_pengajuan: status_pengajuan,
@@ -98,16 +96,16 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         non_beasiswa: non_beasiswa,
         penggalangan_dana: [penggalangan_dana]
       })
-      if penggalangan_dana.save and pengajuan_bantuan.save and non_beasiswa.save
+      if penggalangan_dana.save and pengajuan_bantuan.save and non_beasiswa.save and bank.save
           render json: {
               response_code: Constants::RESPONSE_CREATED, 
               response_message: "Success", 
-              data: {penggalangan_dana: penggalangan_dana, pengajuan_bantuan: pengajuan_bantuan, non_beasiswa: non_beasiswa},
+              data: {penggalangan_dana: penggalangan_dana, pengajuan_bantuan: pengajuan_bantuan, non_beasiswa: non_beasiswa, bank: bank},
               }, status: :created
       else
           render json: {
               response_code: Constants::ERROR_CODE_VALIDATION,
-              response_message: {penggalangan_dana: penggalangan_dana.errors.full_messages, pengajuan_bantuan: pengajuan_bantuan.errors.full_messages, non_beasiswa: non_beasiswa.errors.full_messages}
+              response_message: {penggalangan_dana: penggalangan_dana.errors.full_messages, pengajuan_bantuan: pengajuan_bantuan.errors.full_messages, non_beasiswa: non_beasiswa.errors.full_messages, bank: bank.errors.full_messages}
               }, status: :unprocessable_entity
       end
     end
@@ -287,23 +285,23 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           pengajuan_penggalangan = []
           if penggalangan_dana.length > 1
             penggalangan_dana.each do |data|
-              pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data.pengajuan_bantuan_id)
+              pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data.pengajuan_bantuan_id).first
               pengajuan_penggalangan << data.attributes.merge({
                 :pengajuan_bantuan_id => pengajuan_bantuan,
                 :durasi => getDurasiPenggalanganDana(data.id),
                 :nominal_terkumpul => getNominalTerkumpulPenggalanganDana(data.id),
-                :total_donatur => getTotalDonaturInPenggalanganDana(data.id)
+                :total_donatur => getTotalDonaturByPenggalanganDana(data.id)
                 })
             end
             pengajuan_penggalangan_dana = pengajuan_penggalangan.reverse
           else
             new_penggalangan_dana = penggalangan_dana.first
-            pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: new_penggalangan_dana.pengajuan_bantuan_id)
+            pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: new_penggalangan_dana.pengajuan_bantuan_id).first
             pengajuan_penggalangan_dana = new_penggalangan_dana.attributes.merge({
               :pengajuan_bantuan_id => pengajuan_bantuan,
               :durasi => getDurasiPenggalanganDana(new_penggalangan_dana.id),
               :nominal_terkumpul => getNominalTerkumpulPenggalanganDana(new_penggalangan_dana.id),
-              :total_donatur => getTotalDonaturInPenggalanganDana(new_penggalangan_dana.id)
+              :total_donatur => getTotalDonaturByPenggalanganDana(new_penggalangan_dana.id)
             })
           end
           render json: {
@@ -374,55 +372,21 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     return total_donatur
   end
 
-  def getTotalDonasiByPenggalanganDana(penggalangan_dana_id)
-    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: penggalangan_dana_id).first
-    if not penggalangan_dana.donasi_id.present?
-      total_donatur = 0
-    else
-      donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
-      if not donasi.present?
-        total_donatur = 0
-      else
-        donatur = User::Donatur.where(:donasi_id.in => donasi.pluck(:id))
-        total_donatur = donatur.group_by(&:itself).transform_values(&:count).length
-      end
-    end
-    return total_donatur
-  end
-
   def getTotalPenggalanganDana
     penggalangan_dana = Penggalangan::PenggalanganDana.all
-    if penggalangan_dana.length == 0
+    if not penggalangan_dana.present?
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
         data: 0
       }, status: :ok
     else
-      pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana
-      if pengajuan_bantuan.length == 0
-        render json: {
-          response_code: Constants::RESPONSE_SUCCESS, 
-          response_message: "Success", 
-          data: 0
-        }, status: :ok
-      else
-        total_beasiswa = 0
-        total_non_beasiswa = 0
-        pengajuan_bantuan.each do |data|
-          if data.jenis == "Beasiswa"
-            total_beasiswa = 1
-          else
-            total_non_beasiswa = pengajuan_bantuan.where(jenis: "NonBeasiswa").length
-          end
-        end
-        total_penggalangan_dana = total_beasiswa + total_non_beasiswa
-        render json: {
-          response_code: Constants::RESPONSE_SUCCESS, 
-          response_message: "Success", 
-          data: total_penggalangan_dana
-        }, status: :ok
-      end
+      total_penggalangan_dana = penggalangan_dana.length
+      render json: {
+        response_code: Constants::RESPONSE_SUCCESS, 
+        response_message: "Success", 
+        data: total_penggalangan_dana
+      }, status: :ok
     end
   end
 
@@ -456,75 +420,35 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     end
   end
 
-  def getTotalPengeluaran
-    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
-    if not penggalangan_dana.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Data Penggalangan Dana tidak ada!"
-        }, status: :unprocessable_entity
-    elsif not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Batch beasiswa tidak ada!"
-        }, status: :unprocessable_entity
-    else
-      donasi = Penggalangan::Donasi.approved.where(id: penggalangan_dana.donasi_id)
-      total_donasi = donasi.pluck(:nominal).inject(0, :+)
-      penyaluran = total_donasi - penggalangan_dana.total_nominal_terkumpul
-      render json: {
-        response_code: Constants::RESPONSE_SUCCESS, 
-        response_message: "Success", 
-        data: penyaluran
-        }, status: :ok
-    end
+  def getTotalPengeluaran(penggalangan_dana_id)
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: penggalangan_dana_id).first
+    donasi = Penggalangan::Donasi.approved.where(id: penggalangan_dana.donasi_id)
+    total_donasi = donasi.pluck(:nominal).inject(0, :+)
+    penyaluran = total_donasi - penggalangan_dana.total_nominal_terkumpul
+    return penyaluran
   end
 
   def getSaldoAwal
     pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_done_admin
     if not pengajuan_bantuan.present?
-      render json: {
-        response_code: Constants::RESPONSE_SUCCESS,
-        response_message: "Success",
-        data: 0
-        }, status: :ok
+      saldo_awal = 0
     else
       penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id.in => pengajuan_bantuan.pluck(:id))
       donasi = Penggalangan::Donasi.approved.where(:id => penggalangan_dana.donasi_id)
       total_donasi = donasi.pluck(:nominal).inject(0, :+)
       penyaluran = total_donasi - penggalangan_dana.total_nominal_terkumpul
-      saldo_akhir = total_donasi - penyaluran
-      render json: {
-        response_code: 200, 
-        response_message: "Success", 
-        data: saldo_akhir
-        }, status: :ok
+      saldo_awal = total_donasi - penyaluran
     end
+    return saldo_awal
   end
 
-  def getSaldoAkhir
-    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
-    if not penggalangan_dana.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Data Penggalangan Dana tidak ada!"
-        }, status: :unprocessable_entity
-    elsif not penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Data Batch Beasiswa tidak ada!"
-        }, status: :unprocessable_entity
-    else
-      donasi = Penggalangan::Donasi.approved.where(:id => penggalangan_dana.donasi_id)
-      total_donasi = donasi.pluck(:nominal).inject(0, :+)
-      penyaluran = total_donasi - penggalangan_dana.total_nominal_terkumpul
-      saldo_akhir = total_donasi - penyaluran
-      render json: {
-        response_code: 200, 
-        response_message: "Success", 
-        data: saldo_akhir
-        }, status: :ok
-    end
+  def getSaldoAkhir(penggalangan_dana_id)
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: penggalangan_dana_id).first
+    donasi = Penggalangan::Donasi.approved.where(:id => penggalangan_dana.donasi_id)
+    total_donasi = donasi.pluck(:nominal).inject(0, :+)
+    penyaluran = total_donasi - penggalangan_dana.total_nominal_terkumpul
+    saldo_akhir = total_donasi - penyaluran
+    return saldo_akhir
   end
 
   def getApprovedDonasiByPenggalanganDana
@@ -555,19 +479,31 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         if donasi.length > 1
           data_donasi = []
           donasi.each_with_index do |data_donation, index_donasi|
-            donatur = User::Donatur.donatur_registered.where(:donasi_id => data_donation.id)
-            data_donasi << penggalangan_dana.attributes.merge({
+            donatur = User::Donatur.donatur_registered.where(:donasi_id => data_donation.id).first
+            bank = Bank.where(:id => donatur.bank_id).first
+            object_data_donasi = penggalangan_dana.attributes.merge({
               :pengajuan_bantuan_id => pengajuan_bantuan,
-              :donasi_id => donatur.first.attributes.merge(:donasi_id => data_donation)
+              :donasi_id => donatur.attributes.merge({
+                :donasi_id => data_donation,
+                :bank_id => bank,
+                })
             })
+            object_data_donasi["donatur"] = object_data_donasi.delete("donasi_id")
+            data_donasi << object_data_donasi
           end
+          
           donasi_penggalangan_dana = data_donasi.reverse
         else
-          donatur = User::Donatur.donatur_registered.where(:donasi_id => donasi.first.id)
+          donatur = User::Donatur.donatur_registered.where(:donasi_id => donasi.first.id).first
+          bank = Bank.where(:id => donatur.bank_id).first
           donasi_penggalangan_dana = penggalangan_dana.attributes.merge({
             :pengajuan_bantuan_id => pengajuan_bantuan,
-            :donasi_id => donatur.first.attributes.merge(:donasi_id => donasi)
+            :donasi_id => donatur.attributes.merge({
+              :donasi_id => donasi.first,
+              :bank_id => bank,
+              })
           })
+          donasi_penggalangan_dana["donatur"] = donasi_penggalangan_dana.delete("donasi_id")
         end
         render json: {
           response_code: Constants::RESPONSE_SUCCESS, 
@@ -583,16 +519,18 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   def pengajuan_bantuan_params
     params.permit(
       :nama, 
-      :no_telepon, 
-      :nomor_rekening, 
-      :nama_pemilik_rekening, 
-      :bank,
+      :no_telepon,
       :judul_galang_dana,
       :waktu_galang_dana,
       :deskripsi,
       :dana_yang_dibutuhkan,
     )
   end
+
+  def bank_params
+    params.permit(:nama_bank, :nomor_rekening, :nama_pemilik_rekening)
+  end
+
   #form non_beasiswa
   def non_beasiswa_params
     params.permit(
