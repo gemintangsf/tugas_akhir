@@ -6,13 +6,11 @@ class Pengajuan::PengajuanBantuan
     has_many :penggalangan_dana, class_name: "Penggalangan::PenggalanganDana"
     belongs_to :beasiswa, class_name: "Pengajuan::Beasiswa", optional: true
     belongs_to :non_beasiswa, class_name: "Pengajuan::NonBeasiswa", optional: true
+    belongs_to :bank, class_name: "Bank"
 
     validates :nama, presence: true
     validates :no_identitas_pengaju, presence: true
     validates :no_telepon, presence: true
-    validates :nomor_rekening, presence: true
-    validates :nama_pemilik_rekening, presence: true
-    validates :bank, presence: true
     validates :waktu_galang_dana, presence: true
     validates :judul_galang_dana, presence: true
     validates :deskripsi, presence: true
@@ -23,9 +21,6 @@ class Pengajuan::PengajuanBantuan
     field :nama, type: String
     field :no_identitas_pengaju, type: String
     field :no_telepon, type: String
-    field :nomor_rekening, type: String
-    field :nama_pemilik_rekening, type: String
-    field :bank, type: String
     field :waktu_galang_dana, type: DateTime
     field :judul_galang_dana, type: String
     field :deskripsi, type: String

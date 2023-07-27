@@ -1,9 +1,9 @@
 require 'swagger_helper'
 
-describe 'Registrasi API' do
+describe 'Admin API' do
   path '/v1/user/admin/createAdmin' do
     post 'Create User' do
-      tags 'Registrasi'
+      tags 'Admin'
       consumes 'application/json'
       produces 'application/json'
       parameter name: :body, in: :body, schema: {
@@ -12,7 +12,9 @@ describe 'Registrasi API' do
             nama: {type: :string, example: "Admin JTK Berbagi"},
             role: {type: :string, example: "AdminJTKBerbagi"},
             username: {type: :string, example: "AdminJTKBerbagi"},
+            nama_bank: {type: :string, example: "BSI"},
             nomor_rekening: {type: :string, example: "219382932"},
+            nama_pemilik_rekening: {type: :string, example: "Gemintang Sangkaji Furqon"},
             password: {type: :string, example: "12345678"},
             password_confirmation: {type: :string, example: "12345678"},
             nomor_telepon: {type: :string, example: "081232132318"},

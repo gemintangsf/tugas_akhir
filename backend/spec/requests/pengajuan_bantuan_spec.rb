@@ -14,7 +14,7 @@ describe 'Pengajuan Bantuan API' do
             no_telepon: {type: :string, example: "082118397901"},
             nomor_rekening: {type: :string, example: "21312214"},
             nama_pemilik_rekening: {type: :string, example: "Gemintang"},
-            bank: {type: :string, example: "BSI"},
+            nama_bank: {type: :string, example: "BSI"},
             deskripsi: {type: :string, example: "membutuhkan bantuan dana untuk kuliah"},
             golongan_ukt: {type: :integer, example: 1},
             kuitansi_pembayaran_ukt: {type: :string, example: "path"},
@@ -65,7 +65,7 @@ describe 'Pengajuan Bantuan API' do
             no_telepon: {type: :string, example: "082118397901"},
             nomor_rekening: {type: :string, example: "21312214"},
             nama_pemilik_rekening: {type: :string, example: "Gemintang"},
-            bank: {type: :string, example: "BSI"},
+            nama_bank: {type: :string, example: "BSI"},
             judul_galang_dana: {type: :string, example: "Galang Dana untuk Pengobatan"},
             waktu_galang_dana: {type: :string, example: "30-06-2023"},
             deskripsi: {type: :string, example: "Membutuhkan biaya untuk pengobatan"},
@@ -569,6 +569,7 @@ describe 'Pengajuan Bantuan API' do
         properties: {
           is_penyaluran: {type: :string, example: "true"},
           id: {type: :string, example: "64b29f45e21fac00f0642fab"},
+          nominal_penyaluran: {type: :integer, example: 10000},
         },
         required: []
       }

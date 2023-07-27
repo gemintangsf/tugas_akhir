@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   namespace :v1 do
     resources :users, param: :username
     post '/login', to: 'authentication#login'
+    
+    post '/importExcelCivitasAkademika' => "civitas_akademika#importExcelCivitasAkademika"
+    get '/getAllCivitasAkademika' => "civitas_akademika#getAllCivitasAkademika"
     namespace :user do
       resource :admin do
         post "/createAdmin" => "admin#createAdmin"

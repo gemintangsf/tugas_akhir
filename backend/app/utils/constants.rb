@@ -4,4 +4,7 @@ module Constants
     RESPONSE_CREATED = 201
     ERROR_CODE_VALIDATION = 422
     ERROR_CODE_HEADER_INVALID = 401
+
+    #Nominal Penyaluran Penerima Beasiswa Baru
+    NOMINAL_PENYALURAN = 0
 end
