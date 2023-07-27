@@ -105,8 +105,8 @@ describe 'Donasi API' do
     end
   end
 
-  path '/v1/penggalangan/donasi/getDurasiDonasi' do
-    post 'Get Durasi Donasi' do
+  path '/v1/penggalangan/donasi/getPendingDonasi' do
+    post 'Get Pending Donasi' do
       tags 'Donasi'
       consumes 'application/json'
       produces 'application/json'
@@ -140,19 +140,61 @@ describe 'Donasi API' do
     end
   end
 
-  path '/v1/penggalangan/donasi/getAllNewDonasi' do
-    get 'Get All New Donasi' do
+  path '/v1/penggalangan/donasi/getDonasiByStatus' do
+    post 'Get Donasi By Status' do
       tags 'Donasi'
       consumes 'application/json'
       produces 'application/json'
-      response '200', 'Success' do
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            status: {type: :integer, example: 0},
+        },
+        required: []
+      }
+      response '201', 'Created' do
         schema type: :object
         run_test!
       end
       response '422', 'Unprocessable Entity' do
         schema type: :object,
               properties: {
-                response_message: {type: :string, example: "Data tidak Ditemukan"},
+                response_message: {type: :string, example: "Data tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Tidak memiliki akses!"},
+                response_code: {type: :integer, example: 401}
+              }
+        run_test!
+      end
+    end
+  end
+
+  path '/v1/penggalangan/donasi/search' do
+    post 'Search Attributes in Donasi' do
+      tags 'Donasi'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            keyword: {type: :string, example: "141719192019"},
+        },
+        required: []
+      }
+      response '201', 'Created' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Data tidak dapat ditemukan!"},
                 response_code: {type: :integer, example: 422}
               }
         run_test!

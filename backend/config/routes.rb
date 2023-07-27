@@ -4,13 +4,19 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   namespace :v1 do
     resources :users, param: :username
-    post '/login', to: 'authentication#login'
+    resource :authentication do
+      post '/login', to: 'authentication#login'
+    end
     
-    post '/importExcelCivitasAkademika' => "civitas_akademika#importExcelCivitasAkademika"
-    get '/getAllCivitasAkademika' => "civitas_akademika#getAllCivitasAkademika"
+    resource :civitas_akademika do
+      post '/importExcelCivitasAkademika' => "civitas_akademika#importExcelCivitasAkademika"
+      get '/getAllCivitasAkademika' => "civitas_akademika#getAllCivitasAkademika"
+      post '/search' => "civitas_akademika#search"
+    end
     namespace :user do
       resource :admin do
         post "/createAdmin" => "admin#createAdmin"
+        get "/getBankByAdmin" => "admin#getBankByAdmin"
       end
       resource :donatur do
         get "/getTotalDonatur" => "donatur#getTotalDonatur"
@@ -42,14 +48,14 @@ Rails.application.routes.draw do
     namespace :penggalangan do
       resource :donasi do
         post "/getDonasiByPenggalanganDana" => "donasi#getDonasiByPenggalanganDana"
-        get "/getAllApprovedDonasi" => "donasi#getAllApprovedDonasi"
-        get "/getAllNewDonasi" => "donasi#getAllNewDonasi"
+        post "/getDonasiByStatus" => "donasi#getDonasiByStatus"
         get "/getTotalAllDonasi" => "donasi#getTotalAllDonasi"
         get "/getTotalNewDonasi" => "donasi#getTotalNewDonasi"
         post "/createDonasi" => "donasi#createDonasi"
-        post "/getDurasiDonasi" => "donasi#getDurasiDonasi"
+        post "/getPendingDonasi" => "donasi#getPendingDonasi"
         post "/uploadStrukPembayaran" => "donasi#uploadStrukPembayaran"
         post "/approvalDonasi" => "donasi#approvalDonasi"
+        post "/search" => "donasi#search"
       end
       resource :penggalangan_dana do
         post "/createPenggalanganDanaBeasiswa" => "penggalangan_dana#createPenggalanganDanaBeasiswa"

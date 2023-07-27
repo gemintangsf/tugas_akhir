@@ -6,20 +6,41 @@ class V1::User::AdminController < ApplicationController
   end
 
   def createAdmin
-    admin = User::Admin.new(admin_params)
-    bank = Bank.new(bank_params)
-    admin.assign_attributes(bank: bank)
-    if admin.save and bank.save
+    admin_registered = User::Admin.where(role: params[:role])
+    if admin_registered.present?
       render json: {
-          response_code: 201, 
-          response_message: "Success", 
-          data: {admin: admin, bank: bank}
-          }, status: :created
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Admin dengan Role #{params[:role]} sudah terdaftar!"
+        }, status: :unprocessable_entity
     else
+      admin = User::Admin.new(admin_params)
+      bank = Bank.new(bank_params)
+      admin.assign_attributes(bank: bank)
+      if admin.save and bank.save
+        render json: {
+            response_code: Constants::RESPONSE_CREATED, 
+            response_message: "Success", 
+            data: {admin: admin, bank: bank}
+            }, status: :created
+      else
+        render json: {
+            response_code: Constants::ERROR_CODE_VALIDATION,
+            response_message: {admin: admin.errors.full_messages, bank: bank.errors.full_messages}
+            }, status: :unprocessable_entity
+      end
+    end
+  end
+
+  def getBankByAdmin
+    admin = User::Admin.where(role: "AdminJTKBerbagi").first
+    if not admin.present?
       render json: {
-          response_code: 422,
-          response_message: {admin: admin.errors.full_messages, bank: bank.errors.full_messages}
-          }, status: :unprocessable_entity
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Admin JTK Berbagi tidak ada!"
+        }, status: :unprocessable_entity
+    else
+      bank = Bank.where(:id => admin.bank_id).first
+      return bank
     end
   end
 
