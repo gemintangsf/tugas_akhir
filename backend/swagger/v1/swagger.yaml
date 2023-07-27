@@ -74,7 +74,43 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/login":
+  "/v1/user/admin/getBankByAdmin":
+    get:
+      summary: Get Bank By Admin
+      tags:
+      - Admin
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Data tidak Ditemukan
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/authentication/login":
     post:
       summary: Login Admin
       tags:
@@ -112,7 +148,7 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/importExcelCivitasAkademika":
+  "/v1/civitas_akademika/importExcelCivitasAkademika":
     post:
       summary: Import Excel Civitas Akademika
       tags:
@@ -152,7 +188,7 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/getAllCivitasAkademika":
+  "/v1/civitas_akademika/getAllCivitasAkademika":
     get:
       summary: Get All Data Civitas Akademika
       tags:
@@ -174,6 +210,52 @@ paths:
               response_message:
                 type: string
                 example: Data tidak Ditemukan
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/civitas_akademika/search":
+    post:
+      summary: Search Attributes in Civitas Akademika
+      tags:
+      - Civitas Akademika
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            keyword:
+              type: string
+              example: '191524009'
+          required: []
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Data tidak dapat ditemukan!
               response_code:
                 type: integer
                 example: 422
@@ -338,9 +420,9 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/penggalangan/donasi/getDurasiDonasi":
+  "/v1/penggalangan/donasi/getPendingDonasi":
     post:
-      summary: Get Durasi Donasi
+      summary: Get Pending Donasi
       tags:
       - Donasi
       consumes:
@@ -384,18 +466,28 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/penggalangan/donasi/getAllNewDonasi":
-    get:
-      summary: Get All New Donasi
+  "/v1/penggalangan/donasi/getDonasiByStatus":
+    post:
+      summary: Get Donasi By Status
       tags:
       - Donasi
       consumes:
       - application/json
       produces:
       - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 0
+          required: []
       responses:
-        '200':
-          description: Success
+        '201':
+          description: Created
           schema:
             type: object
         '422':
@@ -405,7 +497,53 @@ paths:
             properties:
               response_message:
                 type: string
-                example: Data tidak Ditemukan
+                example: Data tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/penggalangan/donasi/search":
+    post:
+      summary: Search Attributes in Donasi
+      tags:
+      - Donasi
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            keyword:
+              type: string
+              example: '141719192019'
+          required: []
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Data tidak dapat ditemukan!
               response_code:
                 type: integer
                 example: 422

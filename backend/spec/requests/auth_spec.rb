@@ -1,7 +1,7 @@
 require 'swagger_helper'
 
 describe 'Authentication API' do
-  path '/v1/login' do
+  path '/v1/authentication/login' do
     post 'Login Admin' do
       tags 'Authentication'
       consumes 'application/json'

@@ -823,7 +823,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
             :penggalangan_dana => Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: data.id).first,
             })
         end
-        rekapitulasi_non_beasiswa = array_of_pengajuan
+        rekapitulasi_non_beasiswa = array_of_pengajuan.reverse
       else
         data_pengajuan = pengajuan_bantuan.first
         rekapitulasi_non_beasiswa = data_pengajuan.attributes.merge({
