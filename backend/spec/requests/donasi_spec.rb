@@ -69,8 +69,8 @@ describe 'Donasi API' do
     end
   end
 
-  path '/v1/penggalangan/donasi/approvalDonasi' do
-    post 'Approval Donasi' do
+  path '/v1/penggalangan/donasi/approvalNewDonasi' do
+    post 'Approval New Donasi' do
       tags 'Donasi'
       consumes 'application/json'
       produces 'application/json'
@@ -78,6 +78,42 @@ describe 'Donasi API' do
         type: :object,
         properties: {
             id: {type: :string, example: "649dee71e21fac1f60f56d4d"},
+            is_approve: {type: :string, example: "true"},
+        },
+        required: []
+      }
+      response '201', 'Created' do
+        schema type: :object
+        run_test!
+      end
+      response '422', 'Unprocessable Entity' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Data tidak dapat ditemukan!"},
+                response_code: {type: :integer, example: 422}
+              }
+        run_test!
+      end
+      response '401', 'Unauthorized' do
+        schema type: :object,
+              properties: {
+                response_message: {type: :string, example: "Tidak memiliki akses!"},
+                response_code: {type: :integer, example: 401}
+              }
+        run_test!
+      end
+    end
+  end
+
+  path '/v1/penggalangan/donasi/approvalExpiredDonasi' do
+    post 'Approval Expired Donasi' do
+      tags 'Donasi'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :body, in: :body, schema: {
+        type: :object,
+        properties: {
+            nomor_referensi: {type: :string, example: "141719192019"},
             is_approve: {type: :string, example: "true"},
         },
         required: []
