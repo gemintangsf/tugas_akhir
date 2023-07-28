@@ -63,6 +63,11 @@ class V1::Penggalangan::DonasiController < ApplicationController
         else
           random_number = 6.times.map{ 10 + Random.rand(11) }
           nomor_referensi = random_number.join("")
+          nomor_referensi_registered = Penggalangan::Donasi.where(:nomor_referensi => nomor_referensi).first
+          while nomor_referensi_registered.present?
+            random_number = 6.times.map{ 10 + Random.rand(11) }
+            nomor_referensi = random_number.join("")
+          end
           waktu_berakhir = Time.now + 1.hours.to_i
           donasi = Penggalangan::Donasi.new(donasi_params)
           donasi.assign_attributes({
@@ -111,9 +116,14 @@ class V1::Penggalangan::DonasiController < ApplicationController
         }, status: :unprocessable_entity
     else
       seconds_diff = (donasi.waktu_berakhir - Time.now).to_i.abs
-      if seconds_diff < 1
-        donasi.assign_attributes(status: Enums::StatusDonasi::EXPIRED)
-        donasi.save(:validate => false)
+      if not donasi.struk_pembayaran.present?
+        status_donasi = Enums::StatusDonasi::NEW
+        if seconds_diff < 1
+          donasi.assign_attributes(status: Enums::StatusDonasi::EXPIRED)
+          donasi.save(:validate => false)
+        end
+      else
+        status_donasi = Enums::StatusDonasi::DONE
       end
       hours = seconds_diff / 3600
       seconds_diff -= hours * 3600
@@ -125,11 +135,6 @@ class V1::Penggalangan::DonasiController < ApplicationController
       
       durasi = "#{hours.to_s.rjust(2, '0')}:#{minutes.to_s.rjust(2, '0')}:#{seconds.to_s.rjust(2, '0')}"
       waktu_berakhir = donasi.waktu_berakhir.strftime("%A, %d %B %Y %H:%M")
-      if not donasi.struk_pembayaran.present?
-        status_donasi = Enums::StatusDonasi::NEW
-      else
-        status_donasi = Enums::StatusDonasi::DONE
-      end
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
@@ -170,12 +175,79 @@ class V1::Penggalangan::DonasiController < ApplicationController
     end
   end
 
-  def approvalDonasi
+  def approvalNewDonasi
     donasi = Penggalangan::Donasi.new_donation.where(id: params[:id]).first
     if not donasi.present?
       render json: {
         response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Data Donasi baru tidak ditemukan!"
+        }, status: :unprocessable_entity
+    else
+      if params[:is_approve].blank?
+        render json: {
+          response_code: Constants::ERROR_CODE_VALIDATION,
+          response_message: "is_approve tidak boleh kosong!"
+          }, status: :unprocessable_entity
+      else 
+        if params[:is_approve] != "true" and params[:is_approve] != "false"
+          render json: {
+            response_code: Constants::ERROR_CODE_VALIDATION,
+            response_message: "is_approve hanya dapat true atau false!"
+            }, status: :unprocessable_entity
+        else
+          if params[:is_approve] == "true"
+            status_donasi = Enums::StatusDonasi::APPROVED
+            penggalangan_dana = Penggalangan::PenggalanganDana.where(:donasi_id => donasi.id).first
+            donasi_approved = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)        
+            if donasi_approved.present?
+              total_nominal_awal = donasi_approved.pluck(:nominal).inject(0, :+)
+            else
+              total_nominal_awal = 0
+            end
+            nominal_donasi = donasi.nominal
+            total_nominal_terkumpul = total_nominal_awal + nominal_donasi
+            penggalangan_dana.assign_attributes({
+              total_nominal_terkumpul: total_nominal_terkumpul})
+          else
+            status_donasi = Enums::StatusDonasi::REJECTED
+          end
+          donasi.assign_attributes(status: status_donasi)
+          #check donatur
+          donatur = User::Donatur.where(donasi_id: donasi.id).first
+          if donatur.status == false
+            password_candidate = (0...8).map { (65 + rand(26)).chr }.join
+            donatur.assign_attributes(
+              password: password_candidate,
+              password_confirmation: password_candidate,
+              status: Enums::StatusDonatur::REGISTERED,
+            )
+            donatur.save!
+          else
+            password_candidate = []
+          end
+          if donasi.save and penggalangan_dana.save
+            render json: {
+              response_code: Constants::RESPONSE_SUCCESS, 
+              response_message: "Success", 
+              data: {penggalangan_dana: penggalangan_dana, donatur: donatur, donasi: donasi, password_donatur: password_candidate},
+              }, status: :ok
+          else
+            render json: {
+              response_code: Constants::ERROR_CODE_VALIDATION,
+              response_message: {donasi: donasi.errors.full_messages, penggalangan_dana: penggalangan_dana.errors.full_messages}
+              }, status: :unprocessable_entity
+          end
+        end
+      end
+    end
+  end
+
+  def approvalExpiredDonasi
+    donasi = Penggalangan::Donasi.expired.where(nomor_referensi: params[:nomor_referensi]).first
+    if not donasi.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Data Donasi Expired tidak ditemukan!"
         }, status: :unprocessable_entity
     else
       if params[:is_approve].blank?

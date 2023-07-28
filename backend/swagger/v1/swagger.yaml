@@ -371,9 +371,9 @@ paths:
               code:
                 type: string
                 example: X-401
-  "/v1/penggalangan/donasi/approvalDonasi":
+  "/v1/penggalangan/donasi/approvalNewDonasi":
     post:
-      summary: Approval Donasi
+      summary: Approval New Donasi
       tags:
       - Donasi
       consumes:
@@ -389,6 +389,55 @@ paths:
             id:
               type: string
               example: 649dee71e21fac1f60f56d4d
+            is_approve:
+              type: string
+              example: 'true'
+          required: []
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Data tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/penggalangan/donasi/approvalExpiredDonasi":
+    post:
+      summary: Approval Expired Donasi
+      tags:
+      - Donasi
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            nomor_referensi:
+              type: string
+              example: '141719192019'
             is_approve:
               type: string
               example: 'true'

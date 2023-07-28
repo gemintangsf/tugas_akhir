@@ -54,7 +54,8 @@ Rails.application.routes.draw do
         post "/createDonasi" => "donasi#createDonasi"
         post "/getPendingDonasi" => "donasi#getPendingDonasi"
         post "/uploadStrukPembayaran" => "donasi#uploadStrukPembayaran"
-        post "/approvalDonasi" => "donasi#approvalDonasi"
+        post "/approvalNewDonasi" => "donasi#approvalNewDonasi"
+        post "/approvalExpiredDonasi" => "donasi#approvalExpiredDonasi"
         post "/search" => "donasi#search"
       end
       resource :penggalangan_dana do
