@@ -9,10 +9,9 @@ describe 'Penggalangan Dana API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            id: {type: :string, example: "64997232e21fac364c2d0d51"},
+            id: {type: :string, example: "64c16e4de21fac03ac15dcac"},
             judul_galang_dana: {type: :string, example: "Penggalangan Dana untuk Beasiswa"},
             deskripsi: {type: :string, example: "Penggalangan Dana untuk Beasiswa Mahasiswa JTK"},
-            waktu_galang_dana: {type: :string, example: "30-12-2023"},
             total_pengajuan: {type: :integer, example: 6},
         },
         required: []
