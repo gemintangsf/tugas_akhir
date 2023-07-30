@@ -7,19 +7,12 @@ class V1::User::DonaturController < ApplicationController
 
   def getTotalDonatur
     donatur = User::Donatur.donatur_registered
-    if not donatur.present?
-      render json: {
-        response_code: Constants::RESPONSE_SUCCESS, 
-        response_message: "Success", 
-        data: "0 Donatur"
-      }, status: :ok
-    else
-      render json: {
-        response_code: Constants::RESPONSE_SUCCESS, 
-        response_message: "Success", 
-        data: donatur.length.to_s + " Donatur"
-      }, status: :ok
-    end
+    render json: {
+      response_code: Constants::RESPONSE_SUCCESS, 
+      response_message: "Success", 
+      data: donatur.length
+    }, status: :ok
+    
   end
 
   def createDonatur

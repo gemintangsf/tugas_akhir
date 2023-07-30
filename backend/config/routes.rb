@@ -13,6 +13,15 @@ Rails.application.routes.draw do
       get '/getAllCivitasAkademika' => "civitas_akademika#getAllCivitasAkademika"
       post '/search' => "civitas_akademika#search"
     end
+
+    resource :rekapitulasi do
+      get "/getRekapitulasiBeasiswa" => "rekapitulasi#getRekapitulasiBeasiswa"
+      get "/getRekapitulasiNonBeasiswa" => "rekapitulasi#getRekapitulasiNonBeasiswa"
+      post "/getApprovedDonasiByPenggalanganDana" => "rekapitulasi#getApprovedDonasiByPenggalanganDana"
+      post "/selectPenyaluranBeasiswa" => "rekapitulasi#selectPenyaluranBeasiswa"
+      post "/selectPenyaluranNonBeasiswa" => "rekapitulasi#selectPenyaluranNonBeasiswa"
+    end
+
     namespace :user do
       resource :admin do
         post "/createAdmin" => "admin#createAdmin"
@@ -25,23 +34,15 @@ Rails.application.routes.draw do
     namespace :pengajuan do
       resource :pengajuan_bantuan do
         get "getDurasiPengajuanBeasiswa" => "pengajuan_bantuan#getDurasiPengajuanBeasiswa"
-        post "getPengajuan" => "pengajuan_bantuan#getPengajuan"
-        post "getPenerimaBantuanDana" => "pengajuan_bantuan#getPenerimaBantuanDana"
-        post "getPenerimaNonBeasiswaByKategori" => "pengajuan_bantuan#getPenerimaNonBeasiswaByKategori"
+        post "getPengajuanBantuan" => "pengajuan_bantuan#getPengajuanBantuan"
+        post "getNonBeasiswaByKategori" => "pengajuan_bantuan#getNonBeasiswaByKategori"
         get "getLanjutBeasiswa" => "pengajuan_bantuan#getLanjutBeasiswa"
         post "getTotalCalonPengajuan" => "pengajuan_bantuan#getTotalCalonPengajuan"
         post "selectLanjutBeasiswa" => "pengajuan_bantuan#selectLanjutBeasiswa"
-        post "getPengajuanNonBeasiswaByKategori" => "pengajuan_bantuan#getPengajuanNonBeasiswaByKategori"
         post "/createPengajuanBeasiswa" => "pengajuan_bantuan#createPengajuanBeasiswa"
         post "/createPengajuanNonBeasiswa" => "pengajuan_bantuan#createPengajuanNonBeasiswa"
-        post "/selectPengajuanBeasiswa" => "pengajuan_bantuan#selectPengajuanBeasiswa"
-        post "/selectPengajuanNonBeasiswa" => "pengajuan_bantuan#selectPengajuanNonBeasiswa"
+        post "/selectNewPengajuan" => "pengajuan_bantuan#selectNewPengajuan"
         post "/createPenilaianEsai" => "pengajuan_bantuan#createPenilaianEsai"
-        post "/getRekapitulasiBeasiswa" => "pengajuan_bantuan#getRekapitulasiBeasiswa"
-        get "/getRekapitulasiNonBeasiswa" => "pengajuan_bantuan#getRekapitulasiNonBeasiswa"
-        get "/getRekapitulasiBeasiswa" => "pengajuan_bantuan#getRekapitulasiBeasiswa"
-        post "/selectPenyaluranNonBeasiswa" => "pengajuan_bantuan#selectPenyaluranNonBeasiswa"
-        post "/selectPenyaluranBeasiswa" => "pengajuan_bantuan#selectPenyaluranBeasiswa"
         get "/getTotalPenerimaBantuan" => "pengajuan_bantuan#getTotalPenerimaBantuan"
       end
     end
@@ -54,8 +55,7 @@ Rails.application.routes.draw do
         post "/createDonasi" => "donasi#createDonasi"
         post "/getPendingDonasi" => "donasi#getPendingDonasi"
         post "/uploadStrukPembayaran" => "donasi#uploadStrukPembayaran"
-        post "/approvalNewDonasi" => "donasi#approvalNewDonasi"
-        post "/approvalExpiredDonasi" => "donasi#approvalExpiredDonasi"
+        post "/approvalDonasi" => "donasi#approvalDonasi"
         post "/search" => "donasi#search"
       end
       resource :penggalangan_dana do
@@ -68,21 +68,7 @@ Rails.application.routes.draw do
         post "/getDurasiPenggalanganDana" => "penggalangan_dana#getDurasiPenggalanganDana"
         post "/getNominalTerkumpulPenggalanganDana" => "penggalangan_dana#getNominalTerkumpulPenggalanganDana"
         post "/getTotalDonaturInPenggalanganDana" => "penggalangan_dana#getTotalDonaturInPenggalanganDana"
-        get "/getTotalDonatur" => "penggalangan_dana#getTotalDonatur"
         post "/getDataDonaturByPenggalanganDana" => "penggalangan_dana#getDataDonaturByPenggalanganDana"
-        post "/getSaldoAwal" => "penggalangan_dana#getSaldoAwal"
-        post "getTotalPengeluaran" => "penggalangan_dana#getTotalPengeluaran"
-        post "getSaldoAkhir" => "penggalangan_dana#getSaldoAkhir"
-        post "/getApprovedDonasiByPenggalanganDana" => "penggalangan_dana#getApprovedDonasiByPenggalanganDana"
-      end
-    end
-    namespace :rekapitulasi do
-      resource :rekapitulasi do
-        post "/getRekapitulasiDanaBeasiswa" => "rekapitulasi#getRekapitulasiDanaBeasiswa"
-        post "/getTotalPengeluaran" => "rekapitulasi#getTotalPengeluaran"
-        post "/getSaldoAkhir" => "rekapitulasi#getSaldoAkhir"
-        post "/getApprovedDonasiByPenggalanganDana" => "rekapitulasi#getApprovedDonasiByPenggalanganDana"
-        get "/getRekapitulasiDanaNonBeasiswa" => "rekapitulasi#getRekapitulasiDanaNonBeasiswa"
       end
     end
   end
