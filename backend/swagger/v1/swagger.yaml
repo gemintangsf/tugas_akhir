@@ -371,9 +371,9 @@ paths:
               code:
                 type: string
                 example: X-401
-  "/v1/penggalangan/donasi/approvalNewDonasi":
+  "/v1/penggalangan/donasi/approvalDonasi":
     post:
-      summary: Approval New Donasi
+      summary: Approval Donasi
       tags:
       - Donasi
       consumes:
@@ -389,52 +389,6 @@ paths:
             id:
               type: string
               example: 649dee71e21fac1f60f56d4d
-            is_approve:
-              type: string
-              example: 'true'
-          required: []
-      responses:
-        '201':
-          description: Created
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Data tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/penggalangan/donasi/approvalExpiredDonasi":
-    post:
-      summary: Approval Expired Donasi
-      tags:
-      - Donasi
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
             nomor_referensi:
               type: string
               example: '141719192019'
@@ -900,98 +854,6 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/pengajuan/pengajuan_bantuan/getPengajuan":
-    post:
-      summary: Get Pengajuan Bantuan Dana
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            jenis:
-              type: string
-              example: Beasiswa
-          required: []
-      responses:
-        '200':
-          description: Successfull
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/pengajuan/pengajuan_bantuan/getPengajuanNonBeasiswaByKategori":
-    post:
-      summary: Get Pengajuan Non Beasiswa By Kategori
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            kategori:
-              type: string
-              example: Medis
-          required: []
-      responses:
-        '200':
-          description: Successfull
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
   "/v1/pengajuan/pengajuan_bantuan/createPenilaianEsai":
     post:
       summary: Create Penilaian Esai Pengajuan Beasiswa
@@ -1041,9 +903,107 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/pengajuan/pengajuan_bantuan/selectPengajuanBeasiswa":
+  "/v1/pengajuan/pengajuan_bantuan/getPengajuanBantuan":
     post:
-      summary: Approval Pengajuan Beasiswa
+      summary: Get Pengajuan Bantuan Dana
+      tags:
+      - Pengajuan Bantuan
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            jenis:
+              type: string
+              example: Beasiswa
+            is_pengajuan:
+              type: string
+              example: 'true'
+          required: []
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/pengajuan/pengajuan_bantuan/getNonBeasiswaByKategori":
+    post:
+      summary: Get Pengajuan Non Beasiswa By Kategori
+      tags:
+      - Pengajuan Bantuan
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            kategori:
+              type: string
+              example: Medis
+            is_pengajuan:
+              type: string
+              example: 'true'
+          required: []
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/pengajuan/pengajuan_bantuan/selectNewPengajuan":
+    post:
+      summary: Approval Pengajuan Baru
       tags:
       - Pengajuan Bantuan
       consumes:
@@ -1076,147 +1036,6 @@ paths:
               response_message:
                 type: string
                 example: Pengajuan Beasiswa tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/pengajuan/pengajuan_bantuan/selectPengajuanNonBeasiswa":
-    post:
-      summary: Approval Pengajuan Non Beasiswa
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 638235b0e21fac0354b16976
-            is_approve:
-              type: string
-              example: 'true'
-          required: []
-      responses:
-        '200':
-          description: Successfull
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/pengajuan/pengajuan_bantuan/getPenerimaBantuanDana":
-    post:
-      summary: Get Penerima Bantuan Dana
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            jenis:
-              type: string
-              example: Beasiswa
-          required: []
-      responses:
-        '200':
-          description: Successfull
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/pengajuan/pengajuan_bantuan/getPenerimaNonBeasiswaByKategori":
-    post:
-      summary: Get Penerima Bantuan Dana
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            kategori:
-              type: string
-              example: Medis
-          required: []
-      responses:
-        '200':
-          description: Successfull
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
               response_code:
                 type: integer
                 example: 422
@@ -1431,179 +1250,6 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/pengajuan/pengajuan_bantuan/getRekapitulasiBeasiswa":
-    get:
-      summary: Get Rekapitulasi Dana Beasiswa
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        '200':
-          description: Success
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Data tidak Ditemukan
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/pengajuan/pengajuan_bantuan/getRekapitulasiNonBeasiswa":
-    get:
-      summary: Get Rekapitulasi Dana Non Beasiswa
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        '200':
-          description: Success
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Data tidak Ditemukan
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/pengajuan/pengajuan_bantuan/selectPenyaluranBeasiswa":
-    post:
-      summary: Select Penyaluran Beasiswa
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            is_penyaluran:
-              type: string
-              example: 'true'
-            id:
-              type: string
-              example: 64b29f45e21fac00f0642fab
-            nominal_penyaluran:
-              type: integer
-              example: 10000
-          required: []
-      responses:
-        '200':
-          description: Successfull
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
-  "/v1/pengajuan/pengajuan_bantuan/selectPenyaluranNonBeasiswa":
-    post:
-      summary: Select Penyaluran Non Beasiswa
-      tags:
-      - Pengajuan Bantuan
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            is_penyaluran:
-              type: string
-              example: 'true'
-            id:
-              type: string
-              example: 64b29f45e21fac00f0642fab
-          required: []
-      responses:
-        '200':
-          description: Successfull
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
   "/v1/penggalangan/penggalangan_dana/createPenggalanganDanaBeasiswa":
     post:
       summary: Create Penggalangan Dana Beasiswa
@@ -1621,7 +1267,7 @@ paths:
           properties:
             id:
               type: string
-              example: 64c16e4de21fac03ac15dcac
+              example: 64c988c5e21fac0ab0a04ec5
             judul_galang_dana:
               type: string
               example: Penggalangan Dana untuk Beasiswa
@@ -1830,52 +1476,6 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/penggalangan/penggalangan_dana/getApprovedDonasiByPenggalanganDana":
-    post:
-      summary: Get All Approved Donasi by Penggalangan Dana
-      tags:
-      - Penggalangan Dana
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 649dd899e21fac1f60f56d45
-          required: []
-      responses:
-        '201':
-          description: Created
-          schema:
-            type: object
-        '422':
-          description: Unprocessable Entity
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Data tidak dapat ditemukan!
-              response_code:
-                type: integer
-                example: 422
-        '401':
-          description: Unauthorized
-          schema:
-            type: object
-            properties:
-              response_message:
-                type: string
-                example: Tidak memiliki akses!
-              response_code:
-                type: integer
-                example: 401
   "/v1/penggalangan/penggalangan_dana/getAllPenggalanganDana":
     get:
       summary: Get All Penggalangan Dana
@@ -1948,28 +1548,18 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/penggalangan/penggalangan_dana/getSaldoAwal":
-    post:
-      summary: Get Saldo Awal in Batch Beasiswa
+  "/v1/rekapitulasi/getRekapitulasiBeasiswa":
+    get:
+      summary: Get Rekapitulasi Dana Beasiswa
       tags:
-      - Penggalangan Dana
+      - Rekapitulasi
       consumes:
       - application/json
       produces:
       - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 64b29f82e21fac00f0642fb1
-          required: []
       responses:
-        '201':
-          description: Created
+        '200':
+          description: Success
           schema:
             type: object
         '422':
@@ -1979,7 +1569,7 @@ paths:
             properties:
               response_message:
                 type: string
-                example: Penggalangan Dana tidak dapat ditemukan!
+                example: Data tidak Ditemukan
               response_code:
                 type: integer
                 example: 422
@@ -1994,28 +1584,18 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/penggalangan/penggalangan_dana/getTotalPengeluaran":
-    post:
-      summary: Get Total Pengeluaran in Batch Beasiswa
+  "/v1/rekapitulasi/getRekapitulasiNonBeasiswa":
+    get:
+      summary: Get Rekapitulasi Dana Non Beasiswa
       tags:
-      - Penggalangan Dana
+      - Rekapitulasi
       consumes:
       - application/json
       produces:
       - application/json
-      parameters:
-      - name: body
-        in: body
-        schema:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 64b29f82e21fac00f0642fb1
-          required: []
       responses:
-        '201':
-          description: Created
+        '200':
+          description: Success
           schema:
             type: object
         '422':
@@ -2025,7 +1605,7 @@ paths:
             properties:
               response_message:
                 type: string
-                example: Penggalangan Dana tidak dapat ditemukan!
+                example: Data tidak Ditemukan
               response_code:
                 type: integer
                 example: 422
@@ -2040,11 +1620,112 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/penggalangan/penggalangan_dana/getSaldoAkhir":
+  "/v1/rekapitulasi/selectPenyaluranBeasiswa":
     post:
-      summary: Get Saldo Akhir in Batch Beasiswa
+      summary: Select Penyaluran Beasiswa
       tags:
-      - Penggalangan Dana
+      - Rekapitulasi
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            is_penyaluran:
+              type: string
+              example: 'true'
+            id:
+              type: string
+              example: 64b29f45e21fac00f0642fab
+            nominal_penyaluran:
+              type: integer
+              example: 10000
+          required: []
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/rekapitulasi/selectPenyaluranNonBeasiswa":
+    post:
+      summary: Select Penyaluran Non Beasiswa
+      tags:
+      - Rekapitulasi
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            is_penyaluran:
+              type: string
+              example: 'true'
+            id:
+              type: string
+              example: 64b29f45e21fac00f0642fab
+          required: []
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/rekapitulasi/getApprovedDonasiByPenggalanganDana":
+    post:
+      summary: Get All Approved Donasi by Penggalangan Dana
+      tags:
+      - Rekapitulasi
       consumes:
       - application/json
       produces:
@@ -2057,7 +1738,7 @@ paths:
           properties:
             id:
               type: string
-              example: 64b29f82e21fac00f0642fb1
+              example: 649dd899e21fac1f60f56d45
           required: []
       responses:
         '201':
@@ -2071,7 +1752,7 @@ paths:
             properties:
               response_message:
                 type: string
-                example: Penggalangan Dana tidak dapat ditemukan!
+                example: Data tidak dapat ditemukan!
               response_code:
                 type: integer
                 example: 422

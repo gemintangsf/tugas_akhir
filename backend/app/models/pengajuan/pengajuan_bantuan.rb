@@ -38,9 +38,10 @@ class Pengajuan::PengajuanBantuan
       }
     scope :rekapitulasi_beasiswa, -> { 
       where(status_pengajuan: Enums::StatusPengajuan::APPROVED).union.in(
-        status_penyaluran: Enums::StatusPenyaluran::NEW).union.in(
-          status_penyaluran: Enums::StatusPenyaluran::PENDING).union.in(
-            status_penyaluran: Enums::StatusPenyaluran::DELIVERED
+        status_pengajuan: Enums::StatusPengajuan::DONE).union.in(
+          status_penyaluran: Enums::StatusPenyaluran::NEW).union.in(
+            status_penyaluran: Enums::StatusPenyaluran::PENDING).union.in(
+              status_penyaluran: Enums::StatusPenyaluran::DELIVERED
           )
     }
     scope :rekapitulasi_non_beasiswa, -> { 

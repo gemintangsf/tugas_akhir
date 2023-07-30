@@ -33,5 +33,20 @@ class ApplicationController < ActionController::API
           end
       end
   end
+
+  def render_success_response(response_code, data, status)
+    render json: {
+      response_code: response_code,
+      response_message: "Success!",
+      data: data
+    }, status: status
+  end
+
+  def render_error_response(message)
+    render json: {
+      response_code: Constants::ERROR_CODE_VALIDATION,
+      response_message: message
+    }, status: :unprocessable_entity
+  end
 end
   
