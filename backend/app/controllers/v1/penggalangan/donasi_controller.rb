@@ -290,10 +290,14 @@ class V1::Penggalangan::DonasiController < ApplicationController
   end
   
   def prepare_donatur_and_check_struk(data_donatur, pengajuan_bantuan)
+    is_struk_pembayaran = 0
     if data_donatur.present?
       donatur = data_donatur
-      donasi_donatur = Penggalangan::Donasi.new_donation.where(id: data_donatur.donasi_id)
-      is_struk_pembayaran = donasi_donatur.present? && donasi_donatur.pluck(:struk_pembayaran).all?(nil)
+      donasi_donatur = Penggalangan::Donasi.new_donation.where(:id.in => data_donatur.donasi_id)
+      if donasi_donatur.length > 1 && donasi_donatur.pluck(:struk_pembayaran).length > 1
+        puts "masuk ga sih"
+        is_struk_pembayaran = 1
+      end
     else
       bank = Bank.create(bank_params)
       donatur = User::Donatur.create(
