@@ -14,7 +14,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       return render_error_response("Gagal membuat penggalangan dana Beasiswa karena sudah minggu ke #{week_number} di Bulan #{date_now.strftime("%B")}!")
     else
       data_admin = User::Admin.where(id: params[:id]).first
-      bank = Bank.find_by(id: data_admin.bank_id)
+      bank = Bank.where(id: data_admin.bank_id).first
       nama = data_admin.nama
       nomor_telepon = data_admin.nomor_telepon
       no_identitas_pengaju = "-"
@@ -160,10 +160,10 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   end
 
   def getDurasiPenggalanganDana(penggalangan_dana_id)
-    penggalangan_dana = Penggalangan::PenggalanganDana.find_by(id: penggalangan_dana_id)
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: penggalangan_dana_id).first
   
     pengajuan_bantuan_id = Array(penggalangan_dana.pengajuan_bantuan_id)
-    pengajuan_bantuan = Pengajuan::PengajuanBantuan.find_by(id: pengajuan_bantuan_id[0])
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: pengajuan_bantuan_id[0]).first
   
     end_date = pengajuan_bantuan.waktu_galang_dana.to_datetime
     durasi = (end_date - DateTime.now).to_i + 1
@@ -171,12 +171,12 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     if durasi < 1
       pengajuan_bantuan_id.each_with_index do |data, index|
         if index == 0
-          pengajuan_bantuan_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.find_by(id: data)
+          pengajuan_bantuan_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.where(id: data).first
           pengajuan_bantuan_admin.assign_attributes(status_pengajuan: Enums::StatusPengajuan::DONE)
           pengajuan_bantuan_admin.save!
         end
   
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.find_by(id: data)
+        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data).first
         pengajuan_bantuan.assign_attributes(
           status_pengajuan: Enums::StatusPengajuan::DONE,
           status_penyaluran: Enums::StatusPenyaluran::PENDING
@@ -213,7 +213,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   
     if penggalangan_dana.length > 1
       penggalangan_dana.each do |data|
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.find_by(id: data.pengajuan_bantuan_id)
+        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data.pengajuan_bantuan_id).first
         pengajuan_penggalangan_dana << data.attributes.merge({
           pengajuan_bantuan_id: pengajuan_bantuan,
           durasi: getDurasiPenggalanganDana(data.id),
@@ -223,7 +223,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       pengajuan_penggalangan_dana = pengajuan_penggalangan_dana.reverse
     else
       new_penggalangan_dana = penggalangan_dana.first
-      pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.find_by(id: new_penggalangan_dana.pengajuan_bantuan_id)
+      pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: new_penggalangan_dana.pengajuan_bantuan_id).first
       pengajuan_penggalangan_dana = new_penggalangan_dana.attributes.merge({
         pengajuan_bantuan_id: pengajuan_bantuan,
         durasi: getDurasiPenggalanganDana(new_penggalangan_dana.id),
@@ -240,7 +240,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
 
   #Memilih Kasus Penggalangan Dana
   def selectPenggalanganDana
-    penggalangan_dana = Penggalangan::PenggalanganDana.find_by(id: params[:id])
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
     if penggalangan_dana.nil?
       return render_error_response("Penggalangan dana tidak ditemukan!")
     end
@@ -255,11 +255,11 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
         next if index == 0
   
-        data_pengajuan_beasiswa << Pengajuan::PengajuanBantuan.penggalangan_dana.find_by(id: data)
+        data_pengajuan_beasiswa << Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data).first
       end
     else
-      pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.find_by(id: penggalangan_dana.pengajuan_bantuan_id)
-      non_beasiswa = Pengajuan::NonBeasiswa.find_by(id: pengajuan_bantuan.non_beasiswa_id)
+      pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
+      non_beasiswa = Pengajuan::NonBeasiswa.where(id: pengajuan_bantuan.non_beasiswa_id).first
     end
   
     selected_penggalangan_dana = penggalangan_dana.attributes.merge({
@@ -303,16 +303,16 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   end
 
   def getDataDonaturByPenggalanganDana(penggalangan_dana_id)
-    penggalangan_dana = Penggalangan::PenggalanganDana.find_by(id: penggalangan_dana_id)
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: penggalangan_dana_id).first
     
     return {} unless penggalangan_dana.present? && penggalangan_dana.donasi_id.present?
     
     donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
     donatur = User::Donatur.donatur_registered.where(:donasi_id.in => donasi.pluck(:id))
-  
+    
     if donatur.length > 1
       array_of_data_donatur = donatur.map do |data_donatur|
-        data_donasi = donasi.where(donatur_id: data_donatur.id)
+        data_donasi = Penggalangan::Donasi.approved.where(:id.in => data_donatur.donasi_id)
         {
           id: data_donatur.id,
           nama: data_donatur.nama,
