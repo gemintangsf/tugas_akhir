@@ -229,69 +229,6 @@ class V1::RekapitulasiController < ApplicationController
     return saldo_awal
   end
 
-  def getApprovedDonasiByPenggalanganDana
-    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
-    if not penggalangan_dana.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Data Penggalangan Dana tidak ditemukan!"
-        }, status: :unprocessable_entity
-    elsif not penggalangan_dana.donasi_id.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Belum ada donasi pada penggalangan dana ini!"
-        }, status: :unprocessable_entity
-    else
-      if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(:id => penggalangan_dana.pengajuan_bantuan_id[0]).first
-      else
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(:id => penggalangan_dana.pengajuan_bantuan_id).first
-      end
-      donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
-      if not donasi.present?
-        render json: {
-          response_code: Constants::ERROR_CODE_VALIDATION,
-          response_message: "Tidak ada data donasi pada penggalangan dana ini!"
-          }, status: :unprocessable_entity
-      else
-        if donasi.length > 1
-          data_donasi = []
-          donasi.each_with_index do |data_donation, index_donasi|
-            donatur = User::Donatur.donatur_registered.where(:donasi_id => data_donation.id).first
-            bank = Bank.where(:id => donatur.bank_id).first
-            object_data_donasi = penggalangan_dana.attributes.merge({
-              :pengajuan_bantuan_id => pengajuan_bantuan,
-              :donasi_id => donatur.attributes.merge({
-                :donasi_id => data_donation,
-                :bank_id => bank,
-                })
-            })
-            object_data_donasi["donatur"] = object_data_donasi.delete("donasi_id")
-            data_donasi << object_data_donasi
-          end
-          
-          donasi_penggalangan_dana = data_donasi.reverse
-        else
-          donatur = User::Donatur.donatur_registered.where(:donasi_id => donasi.first.id).first
-          bank = Bank.where(:id => donatur.bank_id).first
-          donasi_penggalangan_dana = penggalangan_dana.attributes.merge({
-            :pengajuan_bantuan_id => pengajuan_bantuan,
-            :donasi_id => donatur.attributes.merge({
-              :donasi_id => donasi.first,
-              :bank_id => bank,
-              })
-          })
-          donasi_penggalangan_dana["donatur"] = donasi_penggalangan_dana.delete("donasi_id")
-        end
-        render json: {
-          response_code: Constants::RESPONSE_SUCCESS, 
-          response_message: "Success", 
-          data: donasi_penggalangan_dana
-          }, status: :ok
-      end
-    end
-  end
-
   def getTotalDonasi(penggalangan_dana_id)
     penggalangan_dana = Penggalangan::PenggalanganDana.where(_id: penggalangan_dana_id).first
     if not penggalangan_dana.donasi_id.present?
@@ -320,30 +257,32 @@ class V1::RekapitulasiController < ApplicationController
     return array_of_month
   end
 
-  def getApprovedDonasiByMonth()
+  def getApprovedDonasiByPenggalanganDana
     penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
+  
     if not penggalangan_dana.present?
       render json: {
         response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Data Penggalangan Dana tidak ditemukan!"
-        }, status: :unprocessable_entity
+      }, status: :unprocessable_entity
     elsif not penggalangan_dana.donasi_id.present?
       render json: {
         response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Belum ada donasi pada penggalangan dana ini!"
-        }, status: :unprocessable_entity
+      }, status: :unprocessable_entity
     else
       if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
         pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(:id => penggalangan_dana.pengajuan_bantuan_id[0]).first
       else
         pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(:id => penggalangan_dana.pengajuan_bantuan_id).first
       end
+  
       donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
       if not donasi.present?
         render json: {
           response_code: Constants::ERROR_CODE_VALIDATION,
           response_message: "Tidak ada data donasi pada penggalangan dana ini!"
-          }, status: :unprocessable_entity
+        }, status: :unprocessable_entity
       else
         if donasi.length > 1
           data_donasi = []
@@ -355,7 +294,7 @@ class V1::RekapitulasiController < ApplicationController
               :donasi_id => donatur.attributes.merge({
                 :donasi_id => data_donation,
                 :bank_id => bank,
-                })
+              })
             })
             object_data_donasi["donatur"] = object_data_donasi.delete("donasi_id")
             data_donasi << object_data_donasi
@@ -370,15 +309,26 @@ class V1::RekapitulasiController < ApplicationController
             :donasi_id => donatur.attributes.merge({
               :donasi_id => donasi.first,
               :bank_id => bank,
-              })
+            })
           })
           donasi_penggalangan_dana["donatur"] = donasi_penggalangan_dana.delete("donasi_id")
         end
-        render json: {
-          response_code: Constants::RESPONSE_SUCCESS, 
-          response_message: "Success", 
-          data: donasi_penggalangan_dana
+  
+        if params[:month].present?
+          # Filter the response by the specified month
+          month_filter = donasi_penggalangan_dana.select { |donasi| donasi[:updated_at].strftime('%B') == params[:month] }
+          render json: {
+            response_code: Constants::RESPONSE_SUCCESS, 
+            response_message: "Success", 
+            data: month_filter
           }, status: :ok
+        else
+          render json: {
+            response_code: Constants::RESPONSE_SUCCESS, 
+            response_message: "Success", 
+            data: donasi_penggalangan_dana
+          }, status: :ok
+        end
       end
     end
   end

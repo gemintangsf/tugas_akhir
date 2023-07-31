@@ -139,6 +139,7 @@ describe 'Rekapitulasi API' do
             type: :object,
             properties: {
                 id: {type: :string, example: "649dd899e21fac1f60f56d45"},
+                month: {type: :string, example: "August"},
             },
             required: []
             }

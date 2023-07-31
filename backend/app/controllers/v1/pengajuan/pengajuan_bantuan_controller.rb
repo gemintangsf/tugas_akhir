@@ -75,7 +75,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     })
   
     if beasiswa.save && pengajuan_beasiswa.save && bank.save
-      render_success_response({ pengajuan_beasiswa: pengajuan_beasiswa, beasiswa: beasiswa, bank: bank }, "Success", Constants::STATUS_CREATED)
+      render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_beasiswa: pengajuan_beasiswa, beasiswa: beasiswa, bank: bank }, Constants::STATUS_CREATED)
     else
       render_error_response({ pengajuan_beasiswa: pengajuan_beasiswa.errors.full_messages, beasiswa: beasiswa.errors.full_messages, bank: bank.errors.full_messages })
     end
@@ -299,7 +299,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       penggalangan_dana = Penggalangan::PenggalanganDana.new(
         total_pengajuan: "1",
         total_nominal_terkumpul: 0,
-        pengajuan_bantuan: pengajuan_non_beasiswa
+        pengajuan_bantuan: pengajuan_bantuan
       )
   
       if pengajuan_bantuan.save && penggalangan_dana.save
