@@ -1,7 +1,7 @@
 class V1::Penggalangan::DonasiController < ApplicationController
     # before_action :
   def createDonasi
-    penggalangan_dana = Penggalangan::PenggalanganDana.find_by(id: params[:id])
+    penggalangan_dana = Penggalangan::PenggalanganDana.where(id: params[:id]).first
     return render_error_response("Data Penggalangan Dana tidak ada!") unless penggalangan_dana
   
     pengajuan_bantuan = fetch_pengajuan_bantuan(penggalangan_dana.pengajuan_bantuan_id)
@@ -49,7 +49,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
   end
 
   def uploadStrukPembayaran
-    donasi = Penggalangan::Donasi.new_donation.find_by(id: params[:id])
+    donasi = Penggalangan::Donasi.new_donation.where(id: params[:id]).first
     return render_error_response("Data Donasi baru tidak ditemukan!") unless donasi
   
     if params[:struk_pembayaran].blank?
@@ -282,10 +282,10 @@ class V1::Penggalangan::DonasiController < ApplicationController
 
   def fetch_pengajuan_bantuan(pengajuan_bantuan_id)
     if pengajuan_bantuan_id.kind_of?(Array)
-      Pengajuan::PengajuanBantuan.pengajuan_baru_admin.find_by(id: pengajuan_bantuan_id[0])
+      Pengajuan::PengajuanBantuan.pengajuan_baru_admin.where(id: pengajuan_bantuan_id[0]).first
     else
-      pengajuan_bantuan = Pengajuan::PengajuanBantuan.find_by(id: pengajuan_bantuan_id)
-      pengajuan_bantuan.jenis == "Beasiswa" ? Pengajuan::PengajuanBantuan.pengajuan_baru_admin.find_by(id: pengajuan_bantuan_id) : pengajuan_bantuan
+      pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: pengajuan_bantuan_id).first
+      pengajuan_bantuan.jenis == "Beasiswa" ? Pengajuan::PengajuanBantuan.pengajuan_baru_admin.where(id: pengajuan_bantuan_id).first : pengajuan_bantuan
     end
   end
   

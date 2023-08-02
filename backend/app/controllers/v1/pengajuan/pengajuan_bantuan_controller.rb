@@ -10,13 +10,12 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   
     start_date = pengajuan_beasiswa_by_admin.created_at.to_datetime
     last_day_of_month = Date.new(start_date.year, start_date.month, -1)
-    default_duration = last_day_of_month.day - start_date.day
   
     if start_date.month != DateTime.now.month or start_date.year != DateTime.now.year
       @duration_pengajuan = 0
       @error_message = "Pengajuan Bantuan Dana Beasiswa sudah ditutup!"
     else
-      @duration_pengajuan = default_duration - DateTime.now.day + 1
+      @duration_pengajuan = last_day_of_month.day - DateTime.now.day + 1
     end
   
   
@@ -44,7 +43,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       render_error_response("Pengajuan Bantuan Dana Beasiswa sudah ditutup!")
     end
   
-    is_civitas = CivitasAkademika.find_by(nomor_induk: params[:no_identitas_pengaju])
+    is_civitas = CivitasAkademika.where(nomor_induk: params[:no_identitas_pengaju]).first
   
     if !is_civitas.present?
       render_error_response("NIM tidak dapat ditemukan!")
@@ -84,8 +83,8 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
 
   #Untuk membuat pengajuan bantuan non dana beasiswa
   def createPengajuanNonBeasiswa
-    is_civitas_pengaju = CivitasAkademika.find_by(nomor_induk: params[:no_identitas_pengaju])
-    is_civitas_penerima = CivitasAkademika.find_by(nomor_induk: params[:no_identitas_penerima])
+    is_civitas_pengaju = CivitasAkademika.where(nomor_induk: params[:no_identitas_pengaju]).first
+    is_civitas_penerima = CivitasAkademika.where(nomor_induk: params[:no_identitas_penerima]).first
   
     if !is_civitas_pengaju.present? && !is_civitas_penerima.present?
       return render_error_response("NIM/NIP Penanggung Jawab dan Penerima tidak dapat ditemukan!")
@@ -202,13 +201,13 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       return render_error_response("id tidak boleh kosong!")
     end
   
-    pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_baru.where(jenis: "Beasiswa").find_by(id: params[:id])
+    pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_baru.where(jenis: "Beasiswa").where(id: params[:id]).first
   
     if !pengajuan_bantuan.present?
       return render_error_response("Pengajuan Bantuan tidak dapat ditemukan!")
     end
   
-    beasiswa = Pengajuan::Beasiswa.find_by(id: pengajuan_bantuan.beasiswa_id)
+    beasiswa = Pengajuan::Beasiswa.where(id: pengajuan_bantuan.beasiswa_id).first
 
     if beasiswa.penilaian_esai.present?
       return render_error_response("Penilaian Esai sudah dilakukan!")
@@ -266,7 +265,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     if pengajuan_bantuan.jenis == "Beasiswa"
       pengajuan_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.first
       penggalangan_dana_beasiswa = Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: pengajuan_admin).first
-      beasiswa = Pengajuan::Beasiswa.find_by(id: pengajuan_bantuan.beasiswa_id)
+      beasiswa = Pengajuan::Beasiswa.where(id: pengajuan_bantuan.beasiswa_id).first
   
       if beasiswa.penilaian_esai.nil?
         return render_error_response("Penilaian Esai tidak boleh kosong!")
@@ -336,16 +335,16 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     
     pengajuan_bantuan.each do |data_pengajuan|
       if jenis == "Beasiswa"
-        beasiswa = Pengajuan::Beasiswa.find_by(id: data_pengajuan.beasiswa_id)
+        beasiswa = Pengajuan::Beasiswa.where(id: data_pengajuan.beasiswa_id).first
         penerima_data = data_pengajuan.attributes.merge({
           beasiswa_id: beasiswa,
-          bank_id: Bank.find_by(id: data_pengajuan.bank_id)
+          bank_id: Bank.where(id: data_pengajuan.bank_id).first
         })
       else
-        non_beasiswa = Pengajuan::NonBeasiswa.find_by(id: data_pengajuan.non_beasiswa_id)
+        non_beasiswa = Pengajuan::NonBeasiswa.where(id: data_pengajuan.non_beasiswa_id).first
         penerima_data = data_pengajuan.attributes.merge({
           non_beasiswa_id: non_beasiswa,
-          bank_id: Bank.find_by(id: data_pengajuan.bank_id)
+          bank_id: Bank.where(id: data_pengajuan.bank_id).first
         })
       end
       data_array << penerima_data
@@ -385,7 +384,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     pengajuan_bantuan.each_with_index do |data_pengajuan, index_pengajuan_bantuan|
       non_beasiswa_new.each_with_index do |data_non_beasiswa, index_non_beasiswa|
         if index_pengajuan_bantuan == index_non_beasiswa
-          bank = Bank.find_by(id: data_pengajuan.bank_id)
+          bank = Bank.where(id: data_pengajuan.bank_id).first
           data_pengajuan_non_beasiswa << data_pengajuan.attributes.merge({
             non_beasiswa_id: data_non_beasiswa,
             bank_id: bank
