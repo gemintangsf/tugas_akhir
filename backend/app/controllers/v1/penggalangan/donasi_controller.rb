@@ -182,6 +182,11 @@ class V1::Penggalangan::DonasiController < ApplicationController
         response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Data Donasi baru tidak ditemukan!"
         }, status: :unprocessable_entity
+    elsif not donasi.struk_pembayaran.present?
+      render json: {
+        response_code: Constants::ERROR_CODE_VALIDATION,
+        response_message: "Struk Pembayaran masih kosong!"
+        }, status: :unprocessable_entity
     else
       if params[:is_approve].blank?
         render json: {
@@ -460,15 +465,24 @@ class V1::Penggalangan::DonasiController < ApplicationController
     else
       penggalangan_dana = Penggalangan::PenggalanganDana.where(:donasi_id.in => donasi.pluck(:id))
       array_of_nominal_donasi = []
+      array_of_nominal_penyaluran = []
       penggalangan_dana.each do |data|
         if not data.pengajuan_bantuan_id.kind_of?(Array)
           pengajuan_bantuan = Pengajuan::PengajuanBantuan.done.where(:id => data.pengajuan_bantuan_id)
           if pengajuan_bantuan.present?
             array_of_nominal_donasi << data.total_nominal_terkumpul
           end
+        else
+          data.pengajuan_bantuan_id.each_with_index do |data_pengajuan_bantuan_id, index_pengajuan_bantuan_id|
+            if index_pengajuan_bantuan_id > 0
+              pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(:id => data_pengajuan_bantuan_id).first
+              beasiswa = Pengajuan::Beasiswa.where(:id => pengajuan_bantuan.beasiswa_id).first
+              array_of_nominal_penyaluran << beasiswa.nominal_penyaluran
+            end
+          end
         end
       end
-      donasi_terkumpul = donasi.pluck(:nominal).inject(0, :+) - array_of_nominal_donasi.inject(0, :+)
+      donasi_terkumpul = donasi.pluck(:nominal).inject(0, :+) - (array_of_nominal_donasi.inject(0, :+) + array_of_nominal_penyaluran.inject(0, :+))
       render json: {
         response_code: Constants::RESPONSE_SUCCESS, 
         response_message: "Success", 
