@@ -15,11 +15,12 @@ Rails.application.routes.draw do
     end
 
     resource :rekapitulasi do
-      get "/getRekapitulasiBeasiswa" => "rekapitulasi#getRekapitulasiBeasiswa"
+      post "/getRekapitulasiBeasiswa" => "rekapitulasi#getRekapitulasiBeasiswa"
       get "/getRekapitulasiNonBeasiswa" => "rekapitulasi#getRekapitulasiNonBeasiswa"
       post "/getApprovedDonasiByPenggalanganDana" => "rekapitulasi#getApprovedDonasiByPenggalanganDana"
       post "/selectPenyaluranBeasiswa" => "rekapitulasi#selectPenyaluranBeasiswa"
       post "/selectPenyaluranNonBeasiswa" => "rekapitulasi#selectPenyaluranNonBeasiswa"
+      get "/getAllRekapitulasiBeasiswa" => "rekapitulasi#getAllRekapitulasiBeasiswa"
     end
 
     namespace :user do

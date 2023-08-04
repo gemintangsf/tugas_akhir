@@ -141,10 +141,11 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
           pengajuan_bantuan_id: pengajuan_bantuan,
           durasi: getDurasiPenggalanganDana(data_penggalangan_dana.id),
           total_donatur: getTotalDonaturByPenggalanganDana(data_penggalangan_dana.id)
-        }
+        }      
   
         if pengajuan_bantuan.jenis == "Beasiswa"
-          penggalangan_dana_beasiswa << data_penggalangan_dana.attributes.merge(data_penggalangan_dana_attributes)
+          getNominalPenyaluran(data_penggalangan_dana)
+          penggalangan_dana_beasiswa << data_penggalangan_dana.attributes.merge(data_penggalangan_dana_attributes.merge(nominal_penyaluran: @total_penyaluran))
         else
           penggalangan_dana_non_beasiswa << data_penggalangan_dana.attributes.merge(data_penggalangan_dana_attributes)
         end
@@ -157,6 +158,19 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     new_data_pengajuan = list_data_penggalangan_dana.flatten
   
     render_success_response(Constants::RESPONSE_SUCCESS, new_data_pengajuan, Constants::STATUS_OK)
+  end
+
+  def getNominalPenyaluran(data_penggalangan_dana)
+    nominal_penyaluran = []
+    data_penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data,index|
+      if index > 0
+        penerima_beasiswa = Pengajuan::PengajuanBantuan.penggalangan_dana.where(:id => data).first
+        beasiswa = Pengajuan::Beasiswa.where(id: penerima_beasiswa.beasiswa_id).first
+        nominal_penyaluran << beasiswa.nominal_penyaluran
+      end
+    end
+    @total_penyaluran = nominal_penyaluran.inject(0, :+)
+    return @total_penyaluran
   end
 
   def getDurasiPenggalanganDana(penggalangan_dana_id)
@@ -256,10 +270,11 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     penanggung_jawab = {}
   
     if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+      getNominalPenyaluran(penggalangan_dana)
       penanggung_jawab = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.first
       penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
         next if index == 0
-  
+        
         data_pengajuan_beasiswa << Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data).first
       end
     else
@@ -271,7 +286,8 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       pengajuan_bantuan_id: pengajuan_bantuan || penanggung_jawab,
       data_donatur: getDataDonaturByPenggalanganDana(penggalangan_dana.id),
       penerima_bantuan: non_beasiswa || data_pengajuan_beasiswa,
-      durasi: getDurasiPenggalanganDana(penggalangan_dana.id)
+      durasi: getDurasiPenggalanganDana(penggalangan_dana.id),
+      nominal_penyaluran: @total_penyaluran
     })
   
     selected_penggalangan_dana["penanggung_jawab"] = selected_penggalangan_dana.delete('pengajuan_bantuan_id')
