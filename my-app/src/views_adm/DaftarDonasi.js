@@ -11,8 +11,8 @@ import Button from '@mui/material/Button';
 import TableAdmin from '../components/molekul/tabel/Tabel';
 import { styled } from '@mui/material/styles';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import { Box, Container, Typography } from '@mui/material'
-import { useState } from 'react';
+import { Box, Container, Typography, MenuItem } from '@mui/material'
+import { useEffect, useState } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
 import Modal from '@mui/material/Modal'
@@ -43,6 +43,21 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 function LaporanRekapitulasiDonasi() {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [dataTable, setDataTable] = useState([]);
+	const [expiredTable, setExpiredTable] = useState([])
+	const [status, setStatus] = useState('true')
+	const [step, setStep] = useState(0)
+	const [stat, setStat] = useState('')
+	const handleStatChange = (val) => {
+		setStat(val)
+	}
+	// const [judul, setJudul] = useState('');
+	// const [namaDonatur, setNamaDonatur] = useState('');
+	// const [noTelepon, setNoTelepon] = useState('');
+	// const [nominalDonasi, setNominalDonasi] = useState('');
+	// const [namaPemilikRekening, setNamaPemilikRekening] = useState('');
+	// const [status, setStatus] = useState('')
+	// const [strukPembayaran, setStrukPembayaran] = useState('')
 
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -59,6 +74,16 @@ function LaporanRekapitulasiDonasi() {
 	const handleClose = () => {
 		setOpen(false);
 	};
+	const statusDonasi = [
+		{
+			label: 'New Donation',
+			value: 0,
+		},
+		{
+			label: 'Expired Donation',
+			value: 4,
+		}
+	]
 	const styleBox = {
 		position: 'absolute',
 		top: '50%',
@@ -74,49 +99,68 @@ function LaporanRekapitulasiDonasi() {
 		setOpenModal(true);
 	};
 	const handleCloseModal = () => setOpenModal(false);
-	const headers = [
-		{ title: 'No', id: 'no' },
-		{ title: 'Judul Galang Dana', id: 'judul' },
-		{ title: 'Nama Donatur', id: 'nama_donatur' },
-		{ title: 'No Telepon Donatur', id: 'no_telepon' },
-		{ title: 'Nominal Donasi', id: 'nominal' },
-		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik' },
-		{ title: 'Nomor Rekening', id: 'no_rekening' },
-		{ title: 'Nama Bank', id: 'nama_bank' },
-		{ title: 'Status', id: 'status' },
-	]
 
-	const rows = [
-		{
-			no: '1',
-			judul: 'Operasi Jantung',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121444529',
-			nominal: '50000',
-			nama_pemilik: 'MUHAMAD HASBI',
-			no_rekening: '130006421462',
-			nama_bank: 'Mandiri',
-		},
-		{
-			no: '2',
-			judul: 'Operasi Jantung',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121444529',
-			nominal: '50000',
-			nama_pemilik: 'MUHAMAD HASBI',
-			no_rekening: '130006421462',
-			nama_bank: 'Mandiri',
-		},
-		{
-			no: '3',
-			judul: 'Operasi Jantung',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121444529',
-			nominal: '50000',
-			nama_pemilik: 'MUHAMAD HASBI',
-			no_rekening: '130006421462',
-			nama_bank: 'Mandiri',
+	const approvalDonasi = async (id) => {
+		await fetch(
+			'http://localhost:8000/v1/penggalangan/donasi/approvalDonasi',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: id,
+					is_approve: status
+				})
+			}
+		)
+	}
+
+	useEffect(() => {
+		const getDaftarDonasi = async () => {
+			await fetch(
+				'http://localhost:8000/v1/penggalangan/donasi/getDonasiByStatus',
+				{
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+					body: JSON.stringify({
+						status: stat
+					})
+				}
+			)
+				.then((response) => response.json())
+				.then((data) => {
+					if (data.response_code === 200) {
+						let selectedArray = []
+
+						for (let i = 0; i < data.data.length; i++) {
+							selectedArray.push(data.data[i])
+						}
+						setDataTable(selectedArray)
+
+						console.log(selectedArray)
+					}
+				})
 		}
+		getDaftarDonasi()
+	}, [stat])
+
+
+	const headers = [
+		{ title: 'Judul Galang Dana', id: 'judul_galang_dana', parentId: 'pengajuan_bantuan_id' },
+		{ title: 'Nama Donatur', id: 'nama', parentId: 'donatur', grandParentId: 'donatur' },
+		{ title: 'No Telepon Donatur', id: 'nomor_telepon', parentId: 'donatur', grandParentId: 'donatur' },
+		{ title: 'Nominal Donasi', id: 'nominal', parentId: 'donasi_id', grandParentId: 'donatur' },
+		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'bank_id', grandParentId: 'donatur' },
+		{ title: 'Nomor Referensi', id: 'nomor_referensi', parentId: 'donasi_id', grandParentId: 'donatur' },
+		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id', grandParentId: 'donatur' },
+		{ title: 'Status', id: 'status' },
 	]
 	return (
 		<Container
@@ -138,57 +182,75 @@ function LaporanRekapitulasiDonasi() {
 					sx={{ minWidth: 350 }}
 					size='small'
 				></TextField>
+				<TextField select variant="outlined" size="small" label='Donasi Baru' onChange={(val) => { handleStatChange(val.target.value) }} sx={{ minWidth: 200 }}>
+					{
+						statusDonasi.map((option) => (
+							<MenuItem key={option.value} value={option.value}>
+								{option.label}
+							</MenuItem>
+						))
+					}
+				</TextField>
 			</Box>
 			<Box sx={{ mt: 2 }}>
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 700 }} aria-label="customized table">
 						<TableHead >
-							{headers.map((header) =>
-								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
-							)}
+							<StyledTableCell>No</StyledTableCell>
+							{headers
+								.map((header) =>
+									<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
+								)}
 							<StyledTableCell sx={{ textAlign: 'center' }}>Struk Pembayaran</StyledTableCell>
 						</TableHead>
 						<TableBody>
-							{rows
-								.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
-								.map((row) => (
-									<StyledTableRow key={row.no}>
-										{Object.entries(headers).map(([key, val]) => (
-											<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
-												<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
-													<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approved</Typography>
+							{
+								dataTable
+									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+									.map((row, index) => (
+										<StyledTableRow key={index}>
+											<StyledTableCell>
+												{index + 1}
+											</StyledTableCell>
+											{Object.entries(headers).map(([key, val]) => (
+												<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
+													<Button size='small' variant='outlined' color='success' onClick={(val) => { approvalDonasi(row.donatur.donasi_id._id.$oid, val.target.value) }} sx={{ backgroundColor: '#EBF9F1' }}>
+														<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approve!</Typography>
+													</Button>
+													: <span>{val?.grandParentId ? row?.[val.grandParentId]?.[val.parentId]?.[val.id] : val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+												}
+												</StyledTableCell>
+											))}
+											<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
+												<Button size='small' color='primary' onClick={handleOpenModal} >
+													<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
 												</Button>
-												: row[val.id]}</StyledTableCell>
-										))}
-										<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
-											<Button size='small' color='primary' onClick={handleOpenModal} >
-												<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
-											</Button>
-											<Modal
-												open={openModal}
-												onClose={handleCloseModal}
-												aria-labelledby="modal-modal-title"
-												aria-describedby="modal-modal-description"
-											>
-												<Box sx={styleBox}>
-													<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
-														<Typography variant='h3' color={'white'}>Bukti Struk Pembayaran</Typography>
+												<Modal
+													open={openModal}
+													onClose={handleCloseModal}
+													aria-labelledby="modal-modal-title"
+													aria-describedby="modal-modal-description"
+												>
+													<Box sx={styleBox}>
+														<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
+															<Typography variant='h3' color={'white'}>Bukti Struk Pembayaran</Typography>
+														</Box>
+														<Box>
+															<img src={ImgContoh} alt="" style={{ width: '500px' }} />
+
+														</Box>
 													</Box>
-													<Box>
-														<img src={ImgContoh} alt="" style={{ width: '500px' }} />
-													</Box>
-												</Box>
-											</Modal>
-										</StyledTableCell>
-									</StyledTableRow>
-								)
-								)}
+												</Modal>
+											</StyledTableCell>
+										</StyledTableRow>
+									))
+							}
 						</TableBody>
 					</Table>
 				</TableContainer>
 				<TablePagination
 					component="div"
-					count={rows.length}
+					count={dataTable.length}
 					page={page}
 					onPageChange={handleChangePage}
 					rowsPerPage={rowsPerPage}

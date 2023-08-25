@@ -11,8 +11,8 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import { styled } from '@mui/material/styles';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { Box, Typography } from '@mui/material'
-import { useState } from 'react';
+import { Box, Divider, Typography } from '@mui/material'
+import { useEffect, useState } from 'react';
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
@@ -47,11 +47,20 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 function LaporanRekapitulasiBeasiswa() {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
-
+	const [dataTableDonatur, setDataTableDonatur] = useState([])
+	const [dataTablePenerima, setDataTablePenerima] = useState([])
+	const [month, setMonth] = useState([])
+	const [status, setStatus] = useState('true')
+	const [nominal, setNominal] = useState('')
+	const [id, setId] = useState('')
+	const [jenis, setJenis] = useState('Beasiswa')
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
 	};
 
+	const handleNominalChange = (val) => {
+		setNominal(val)
+	}
 	const handleChangeRowsPerPage = (event) => {
 		setRowsPerPage(parseInt(event.target.value, 10));
 		setPage(0);
@@ -63,110 +72,132 @@ function LaporanRekapitulasiBeasiswa() {
 	const handleClose = () => {
 		setOpen(false);
 	};
-	const [batch, setBatch] = useState('');
+	const [batch, setBatch] = useState([]);
 
 	const handleChange = (event) => {
 		setBatch(event.target.value);
 	};
+
 	const headers = [
-		{ title: 'No', id: 'no' },
-		{ title: 'Nama Donatur', id: 'nama_donatur' },
-		{ title: 'Nomor Telepon', id: 'no_telepon' },
+		{ title: 'Nama Donatur', id: 'nama' },
+		{ title: 'Nomor Telepon', id: 'nomor_telepon' },
 		{ title: 'Nominal Donasi (Rp)', id: 'nominal_donasi' },
-		{ title: 'Nama Penerima', id: 'nama_penerima' },
-		{ title: 'Nominal Pengeluaran Dana (Rp)', id: 'nominal_pengeluaran' },
 		{ title: 'Status', id: 'status' }
 	]
-	const rows = [
-		{
-			no: '1',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '2',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '3',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '4',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '5',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '6',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '7',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '8',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '9',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '10',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		},
-		{
-			no: '11',
-			nama_donatur: 'Hasbi',
-			no_telepon: '082121445524',
-			nominal_donasi: '1000000',
-			nama_penerima: '08120912312',
-			nominal_pengeluaran: '1000000'
-		}
+
+	const headers2 = [
+		{ title: 'NIM', id: 'no_identitas_pengaju' },
+		{ title: 'Nama', id: 'nama' },
+		{ title: 'No Telepon Mahasiswa', id: 'no_telepon' },
+		{ title: 'Nomor Rekening', id: 'nomor_rekening', parentId: 'bank_id' },
+		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id' },
+		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'bank_id' },
 	]
+
+	useEffect(() => {
+		const getAllPenggalanganDana = async () => {
+			await fetch(
+				'http://localhost:8000/v1/penggalangan/penggalangan_dana/getAllPenggalanganDana',
+				{
+					method: 'GET',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+				})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data.data[0]._id)
+					setId(data.data[0]._id.$oid)
+				})
+		}
+		getAllPenggalanganDana()
+	}, [])
+	const getRekapitulasiBeasiswa = async (bulan) => {
+		let body;
+		if (bulan === null) {
+			body = JSON.stringify({
+				id: id
+			})
+		} else {
+			body = JSON.stringify({
+				id: id,
+				month: bulan
+			})
+		}
+		await fetch(
+			'http://localhost:8000/v1/rekapitulasi/getRekapitulasiBeasiswa',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: body
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				let arrayData = []
+				let arrayMonth = []
+				let arrayDonatur = []
+				for (let i = 0; i < data.data.pengajuan_bantuan_id.length; i++) {
+					arrayData.push(data.data.pengajuan_bantuan_id[i])
+				}
+
+				setDataTablePenerima(arrayData)
+				console.log(arrayData)
+				// for (let i = 0; i < data.data.daftar_donasi.length; i++) {
+				// 	arrayDonatur.push(data.data.daftar_donasi[i])
+				// }
+				// setDataTableDonatur(arrayDonatur)
+				// console.log(arrayDonatur)
+				for (let i = 0; i < data.data.daftar_bulan.length; i++) {
+					arrayMonth.push({
+						name: data.data.daftar_bulan[i],
+						value: data.data.daftar_bulan[i]
+					})
+				}
+				setMonth(arrayMonth)
+				console.log(arrayMonth)
+			})
+	}
+	useEffect(() => {
+		if (id) {
+			getRekapitulasiBeasiswa()
+		}
+	}, [id])
+	const selectPenyaluranDanaBeasiswa = async (id) => {
+		await fetch(
+			'http://localhost:8000/v1/rekapitulasi/selectPenyaluranBeasiswa',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					is_penyaluran: status,
+					id: id,
+					nominal_penyaluran: nominal
+				})
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data);
+
+			})
+
+			.catch((err) => {
+				console.log(err.message);
+			})
+	}
+	// useEffect(() => {
+	// 	getApprovedDonasi()
+	// }, [id])
+
 	return (
 		<Container
 			disableGutters
@@ -181,20 +212,34 @@ function LaporanRekapitulasiBeasiswa() {
 				<DescriptionIcon />
 				<Typography variant='h4' sx={{ ml: 1 }}>Laporan Rekapitulasi Dana Beasiswa</Typography>
 			</Box>
-			<Box sx={{ mt: 2, display: 'flex' }}>
-				<Box sx={{ minWidth: 120 }}>
-					<FormControl fullWidth size='small'>
-						<InputLabel>Batch</InputLabel>
-						<Select
-							value={batch}
-							label='batch'
-							onChange={handleChange}
-						>
-							<MenuItem value={10}>Batch 1</MenuItem>
-						</Select>
-					</FormControl>
+			<Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+				<Box sx={{ mt: 2, display: 'flex' }}>
+					<Box sx={{ minWidth: 120 }}>
+						<TextField select variant="outlined" size="small" label='Pilih batch' sx={{ minWidth: 200 }}>
+							{
+								batch.map((option) => (
+									<MenuItem key={option.value} value={option.value}>
+										{option.label}
+									</MenuItem>
+								))
+							}
+						</TextField>
+
+					</Box>
+					<Box sx={{ ml: 1 }}>
+						<TextField select variant="outlined" size="small" label='Pilih bulan' sx={{ minWidth: 200 }} onChange={(val) => getRekapitulasiBeasiswa(val.target.value)}>
+							{
+								month.map((option) => (
+									<MenuItem key={option.value} value={option.value}>
+										{option.name}
+									</MenuItem>
+								))
+							}
+						</TextField>
+					</Box>
+
 				</Box>
-				<Box sx={{ minWidth: 350, ml: 1 }}>
+				<Box sx={{ mt: 2 }}>
 					<TextField search
 						size='small'
 						label="Search" type='search'
@@ -202,47 +247,99 @@ function LaporanRekapitulasiBeasiswa() {
 				</Box>
 			</Box>
 			<Box sx={{ mt: 2 }}>
-				<TableContainer component={Paper}>
-					<Table sx={{ minWidth: 700 }} aria-label="customized table">
-						<TableHead >
-							{headers.map((header) =>
-								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
-							)}
-							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
-						</TableHead>
-						<TableBody>
-							{
-								rows
-									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
-									.map((row) => (
-										<StyledTableRow key={row.no}>
-											{Object.entries(headers).map(([key, val]) => (
-												<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
-													<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
-														<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
+				<Box>
+					<TableContainer component={Paper}>
+						<Table sx={{ minWidth: 700 }} aria-label="customized table">
+							<TableHead >
+								<StyledTableCell>No</StyledTableCell>
+								{headers2.map((header) =>
+									<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
+								)}
+								<StyledTableCell sx={{ textAlign: 'center' }}>Total Dana Disalurkan (Rp)</StyledTableCell>
+								<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
+							</TableHead>
+							<TableBody>
+								{
+									dataTablePenerima
+										.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+										.map((row, index) => (
+											<StyledTableRow key={index}>
+												<StyledTableCell>{index + 1}</StyledTableCell>
+												{Object.entries(headers2).map(([key, val]) => (
+													<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
+														<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+															<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
+														</Button>
+														: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+													}</StyledTableCell>
+												))}
+												<StyledTableCell>
+													<TextField label="Cth: 400000" variant='outlined' sx={{ minWidth: 150 }} onChange={(val) => { handleNominalChange(parseInt(val.target.value)) }}>
+
+													</TextField>
+												</StyledTableCell>
+												<StyledTableCell sx={{ display: 'flex' }} >
+													{console.log(row._id.$oid)}
+													<Button onClick={(val) => { selectPenyaluranDanaBeasiswa(row._id.$oid, val.target.value) }}>
+														<TaskAltIcon sx={{ mr: 2 }} color='primary' />
 													</Button>
-													: row[val.id]}</StyledTableCell>
-											))}
-											<StyledTableCell sx={{ display: 'flex' }}>
-												<TaskAltIcon sx={{ mr: 2 }} color='primary' />
-												<DeleteOutlineIcon sx={{ color: red[500] }} />
-											</StyledTableCell>
-										</StyledTableRow>
-									)
-									)}
-						</TableBody>
-					</Table>
-				</TableContainer>
+
+													<DeleteOutlineIcon sx={{ color: red[500] }} />
+												</StyledTableCell>
+											</StyledTableRow>
+										)
+										)}
+							</TableBody>
+						</Table>
+					</TableContainer>
+				</Box>
+
+				<Box sx={{ mt: 2 }}>
+					<TableContainer component={Paper}>
+						<Table sx={{ minWidth: 700 }} aria-label="customized table">
+							<TableHead >
+								<StyledTableCell>No</StyledTableCell>
+								{headers.map((header) =>
+									<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
+								)}
+								<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
+							</TableHead>
+							<TableBody>
+								{
+									dataTableDonatur
+										.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+										.map((row, index) => (
+											<StyledTableRow key={index}>
+												<StyledTableCell>{index + 1}</StyledTableCell>
+												{Object.entries(headers).map(([key, val]) => (
+													<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
+														<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+															<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
+														</Button>
+														: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+													}</StyledTableCell>
+												))}
+												<StyledTableCell sx={{ display: 'flex' }}>
+													<TaskAltIcon sx={{ mr: 2 }} color='primary' />
+													<DeleteOutlineIcon sx={{ color: red[500] }} />
+												</StyledTableCell>
+											</StyledTableRow>
+										)
+										)}
+							</TableBody>
+						</Table>
+					</TableContainer>
+				</Box>
+
 				<TablePagination
 					component="div"
-					count={rows.length}
+					count={dataTableDonatur.length}
 					page={page}
 					onPageChange={handleChangePage}
 					rowsPerPage={rowsPerPage}
 					onRowsPerPageChange={handleChangeRowsPerPage}
 				>
 				</TablePagination>
-				<Typography>asd</Typography>
 			</Box>
 		</Container>
 	);

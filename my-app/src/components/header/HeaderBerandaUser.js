@@ -9,14 +9,18 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link'
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import DaftarPenggalanganDanaBeasiswa from '../../views_user/DaftarPenggalanganDana';
 
 function HeaderBar(props) {
+	const [kategori, setKategori] = React.useState('');
+	const handleKategoriChange = (val) => {
+		setKategori(val)
+	}
 	const navigate = useNavigate();
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const open = Boolean(anchorEl);
@@ -26,6 +30,8 @@ function HeaderBar(props) {
 	const handleClose = () => {
 		setAnchorEl(null);
 	};
+
+
 	return (
 		<Box sx={{ backgroundColor: 'white', display: 'flex', justifyContent: 'space-between', py: 1, boxShadow: '0px 0px 2px 0px', position: 'fixed', width: '100%', zIndex: '2' }}>
 			<Box sx={{ display: 'flex', alignItems: 'center', color: '#9E9E9E' }}>
@@ -60,9 +66,9 @@ function HeaderBar(props) {
 					<Typography variant='h5'>Kategori Galang Dana</Typography>
 				</Box>
 				<Divider />
-				<MenuItem onClick={() => navigate('/daftar-penggalangan-dana/beasiswa')}>Beasiswa</MenuItem>
-				<MenuItem onClick={() => navigate('/daftar-penggalangan-dana/medis')}> Medis</MenuItem>
-				<MenuItem onClick={() => navigate('/daftar-penggalangan-dana/bencana')}>Bencana</MenuItem>
+				<MenuItem><Link to='/penggalangan-dana' >Beasiswa</Link></MenuItem>
+				<MenuItem><Link to='/daftar-penggalangan-dana' state={'Medis'}>Medis</Link></MenuItem>
+				<MenuItem ><Link to='/daftar-penggalangan-dana' state={'Bencana'}>Bencana</Link></MenuItem>
 			</Menu>
 			<Box sx={{ pt: 1, mr: 18 }}>
 				<Typography variant='h3' fontFamily={'sans-serif'}>

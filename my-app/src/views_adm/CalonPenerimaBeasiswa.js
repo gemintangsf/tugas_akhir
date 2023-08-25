@@ -11,7 +11,7 @@ import Button from '@mui/material/Button';
 import TableAdmin from '../components/molekul/tabel/Tabel';
 import { styled } from '@mui/material/styles';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import { Box, Checkbox, Container, Modal, Typography } from '@mui/material'
+import { Box, Checkbox, Container, Modal, Typography, MenuItem } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import ButtonBase from '../components/base/Button';
@@ -43,217 +43,133 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function CalonPenerimaBeasiswa() {
-	// const [open, setOpen] = React.useState(false);
-	// const handleOpen = () => {
-	// 	setOpen(true);
-	// };
+	const [dataTable, setDataTable] = React.useState([])
+	const [jenis, setJenis] = React.useState('Beasiswa')
+	const [id, setId] = React.useState('')
+	const [penilaianEsai, setPenilaianEsai] = React.useState('')
+	const [approve, setApprove] = React.useState('true')
+	const [status, setStatus] = React.useState('true')
+	const [page, setPage] = React.useState(0);
+	const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
+
+	const handlePenilaianEsaiChange = (val) => {
+		setPenilaianEsai(val)
+		console.log(val)
+	}
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
+
+	React.useEffect(() => {
+		const dataTableCalonBeasiswa = async () => {
+			await fetch(
+				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getPengajuanBantuan',
+				{
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+					body: JSON.stringify({
+						jenis: jenis,
+						is_pengajuan: status
+					})
+				}
+			)
+				.then((response) => response.json())
+				.then((data) => {
+					let arrayData = []
+					for (let i = 0; i < data.data.length; i++) {
+						arrayData.push(data.data[i])
+					}
+					setDataTable(arrayData)
+					console.log(arrayData)
+				})
+				.catch((err) => {
+					console.log(err.message);
+				})
+		}
+		dataTableCalonBeasiswa()
+	}, [])
+
+	const createPenilaianEsai = async (id, penilaianEsai) => {
+		await fetch(
+			"http://localhost:8000/v1/pengajuan/pengajuan_bantuan/createPenilaianEsai",
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: id,
+					penilaian_esai: penilaianEsai
+				})
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				// for (let i = 0; i < data.data.length; i++) {
+				// 	onchange(val) = handlePenilaianEsaiChange(val.target.data_mhs)
+
+				// }
+				console.log(data.data)
+			})
+	}
+
+	const approvePengajuanBeasiswa = async (id) => {
+		await fetch(
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/selectNewPengajuan',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: id,
+					is_approve: approve
+				})
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data)
+			})
+	}
+	const nilaiEsai = [
+		{
+			label: 'Baik',
+			value: 'Baik',
+		},
+		{
+			label: 'Sangat Baik',
+			value: 'SangatBaik'
+		}
+	]
 	const headers = [
-		{ title: 'No', id: 'no' },
-		{ title: 'NIM', id: 'nim' },
+		{ title: 'NIM', id: 'no_identitas_pengaju' },
 		{ title: 'Nama', id: 'nama' },
 		{ title: 'No Telepon', id: 'no_telepon' },
-		{ title: 'Golongan UKT', id: 'golongan_ukt' },
-		{ title: 'Dokumen Golongan UKT', id: 'dokumen_ukt' },
-		{ title: 'Gaji Orang Tua', id: 'gaji_ortu' },
-		{ title: 'Dokumen Slip Gaji', id: 'dokumen_gaji' },
-		{ title: 'Jumlah Tanggungan Keluarga', id: 'tanggungan_keluarga' },
+		{ title: 'Golongan UKT', id: "golongan_ukt", parentId: 'beasiswa_id' },
+		{ title: 'Dokumen Golongan UKT', id: 'kuitansi_pembayaran_ukt', parentId: 'beasiswa_id' },
+		{ title: 'Gaji Orang Tua', id: 'gaji_orang_tua', parentId: 'beasiswa_id' },
+		{ title: 'Dokumen Slip Gaji', id: 'bukti_slip_gaji_orang_tua', parentId: 'beasiswa_id' },
+		{ title: 'Jumlah Tanggungan Keluarga', id: 'jumlah_tanggungan_keluarga', parentId: 'beasiswa_id' },
+		{ title: 'Dokumen Esai', id: 'esai', parentId: 'beasiswa_id' },
 		{ title: 'Penilaian Esai', id: 'penilaian_esai' },
-		{ title: 'Biaya Pengeluaran Keluarga', id: 'biaya_pengeluaran' },
-		{ title: 'Biaya Transportasi', id: 'biaya_transportasi' },
-		{ title: 'Biaya Konsumsi', id: 'biaya_konsumsi' },
-		{ title: 'Biaya Internet', id: 'biaya_internet' },
-		{ title: 'Biaya Kos', id: 'biaya_kos' },
-	]
-
-	const rows = [
-		{
-			no: '1',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		},
-		{
-			no: '2',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-
-		},
-		{
-			no: '3',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		},
-		{
-			no: '4',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		},
-		{
-			no: '5',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		},
-		{
-			no: '6',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		},
-		{
-			no: '7',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		},
-		{
-			no: '8',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		}, {
-			no: '9',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		},
-		{
-			no: '10',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		},
-		{
-			no: '11',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			golongan_ukt: '2',
-			dokumen_ukt: 'details',
-			gaji_ortu: '10000',
-			dokumen_gaji: 'details',
-			tanggungan_keluarga: '3',
-			penilaian_esai: 'Baik',
-			biaya_pengeluaran: '350000',
-			biaya_transportasi: '350000',
-			biaya_konsumsi: '350000',
-			biaya_internet: '350000',
-			biaya_kos: '350000',
-		}
+		{ title: 'Biaya Pengeluaran Keluarga', id: 'total_pengeluaran_keluarga', parentId: 'beasiswa_id' },
+		{ title: 'Biaya Transportasi', id: 'biaya_transportasi', parentId: 'beasiswa_id' },
+		{ title: 'Biaya Konsumsi', id: 'biaya_konsumsi', parentId: 'beasiswa_id' },
+		{ title: 'Biaya Internet', id: 'biaya_internet', parentId: 'beasiswa_id' },
+		{ title: 'Biaya Kos', id: 'biaya_kos', parentId: 'beasiswa_id' },
 	]
 
 	const style = {
@@ -266,17 +182,7 @@ function CalonPenerimaBeasiswa() {
 		boxShadow: 24,
 		p: 4,
 	};
-	const [page, setPage] = React.useState(0);
-	const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-	const handleChangePage = (event, newPage) => {
-		setPage(newPage);
-	};
-
-	const handleChangeRowsPerPage = (event) => {
-		setRowsPerPage(parseInt(event.target.value, 10));
-		setPage(0);
-	};
 	const styleBox = {
 		position: 'absolute',
 		top: '50%',
@@ -294,6 +200,7 @@ function CalonPenerimaBeasiswa() {
 	const handleCloseModal = () => {
 		setOpenModal(false);
 	};
+	console.log(headers)
 	return (
 		<Container
 			disableGutters
@@ -305,7 +212,7 @@ function CalonPenerimaBeasiswa() {
 			}}
 		>
 			<Box sx={{ display: 'flex', padding: 2, backgroundColor: '#1559E6', color: 'white', borderRadius: '4px', alignItems: 'center' }}>
-				<PeopleAltIcon fontSize='small'></PeopleAltIcon>
+				<PeopleAltIcon fontSize='small' />
 				<Typography variant='h4' sx={{ ml: 1 }}>Daftar Calon Penerima Bantuan Dana Beasiswa</Typography>
 			</Box>
 			<Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
@@ -323,7 +230,9 @@ function CalonPenerimaBeasiswa() {
 			<Box sx={{ mt: 2 }}>
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 700 }} aria-label="customized table">
+
 						<TableHead >
+							<StyledTableCell>No</StyledTableCell>
 							{headers.map((header) =>
 								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
 							)}
@@ -331,17 +240,32 @@ function CalonPenerimaBeasiswa() {
 						</TableHead>
 						<TableBody>
 							{
-								rows
+								dataTable
 									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
-									.map((row) => (
-										<StyledTableRow key={row.no}>
+									.map((row, index) => (
+										<StyledTableRow key={index}>
+											<StyledTableCell>
+												{index + 1}
+											</StyledTableCell>
 											{Object.entries(headers).map(([key, val]) => (
 												<StyledTableCell sx={{ textAlign: 'center' }}>{
-													val.id === 'dokumen_ukt' || val.id === 'dokumen_gaji' ?
-														<Button onClick={handleOpenModal}>
-															<u style={{ textTransform: "capitalize" }}>Details</u>
-														</Button>
-														: row[val.id]}
+													val.id === 'penilaian_esai' ?
+														<TextField select variant="outlined" size="small" label='Masukkan nilai' sx={{ width: 150 }} onChange={(val) => { createPenilaianEsai(row._id.$oid, val.target.value) }}>
+															{
+																nilaiEsai.map((option) => (
+																	<MenuItem key={option.value} value={option.value}>
+																		{option.label}
+																	</MenuItem>
+																))
+															}
+														</TextField> :
+														val.id === 'kuitansi_pembayaran_ukt' || val.id === 'bukti_slip_gaji_orang_tua' || val.id === 'esai' ?
+															<Button onClick={handleOpenModal}>
+																<u style={{ textTransform: "capitalize" }}>Details</u>
+															</Button>
+															:
+															<span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+												}
 													<Modal
 														open={openModal}
 														onClose={handleCloseModal}
@@ -360,9 +284,10 @@ function CalonPenerimaBeasiswa() {
 												</StyledTableCell>
 											)
 											)}
-
 											<StyledTableCell sx={{ display: 'flex' }}>
-												<TaskAltIcon sx={{ mr: 1 }} color='primary' />
+												<Button onClick={(val) => { approvePengajuanBeasiswa(row._id.$oid, val.target.value) }}>
+													<TaskAltIcon sx={{ mr: 1 }} color='primary' />
+												</Button>
 												<DeleteOutlineIcon sx={{ color: red[500] }} />
 											</StyledTableCell>
 										</StyledTableRow>
@@ -373,7 +298,7 @@ function CalonPenerimaBeasiswa() {
 				</TableContainer>
 				<TablePagination
 					component="div"
-					count={rows.length}
+					count={dataTable.length}
 					page={page}
 					onPageChange={handleChangePage}
 					rowsPerPage={rowsPerPage}

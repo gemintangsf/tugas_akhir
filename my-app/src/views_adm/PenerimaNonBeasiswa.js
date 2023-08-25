@@ -4,6 +4,7 @@ import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import SidebarAdmin from '../components/molekul/sidebar/SidebarAdmin'
 import TextField from '@mui/material/TextField';
@@ -11,10 +12,11 @@ import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Box, Container, Typography } from '@mui/material'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
+import MenuItem from '@mui/material/MenuItem';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -42,34 +44,79 @@ function NonBeasiswa() {
 	const handleOpen = () => {
 		setOpen(true);
 	};
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [dataTable, setDataTable] = useState([])
+	const [kategori, setKategori] = useState('')
+	const [pengajuan, setPengajuan] = useState('false')
 	const handleClose = () => {
 		setOpen(false);
 	};
+	const handleKategoriChange = (val) => {
+		setKategori(val)
+		console.log(val)
+	}
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 	const headers = [
-		{ title: 'No', id: 'no' },
-		{ title: 'NIM/NIP', id: 'nim' },
-		{ title: 'Nama Penerima', id: 'nama_penerima' },
-		{ title: 'Nomor Telepon Penerima', id: 'no_telepon_penerima' },
-		{ title: 'Nama Penanggung Jawab', id: 'nama_pj' },
-		{ title: 'No Telepon Penanggung Jawab', id: 'no_telepon_pj' },
-		{ title: 'Nomor Rekening', id: 'no_rekening' },
-		{ title: 'Nama Bank', id: 'nama_bank' },
-		{ title: 'Kategori', id: 'kategori' },
-		{ title: 'Riwayat Butuh Bantuan', id: 'dokumen_bantuan' },
+		{ title: 'NIM/NIP Penerima', id: 'no_identitas_penerima', parentId: 'non_beasiswa_id' },
+		{ title: 'Nama Penerima', id: 'nama_penerima', parentId: 'non_beasiswa_id' },
+		{ title: 'Nomor Telepon Penerima', id: 'no_telepon_penerima', parentId: 'non_beasiswa_id' },
+		{ title: 'NIM/NIP Penanggung Jawab', id: 'no_identitas_pengaju' },
+		{ title: 'Nama Penanggung Jawab', id: 'nama' },
+		{ title: 'No Telepon Penanggung Jawab', id: 'no_telepon' },
+		{ title: 'Nomor Rekening', id: 'nomor_rekening', parentId: 'bank_id' },
+		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id' },
+		{ title: 'Dana yang Dibutuhkan', id: 'dana_yang_dibutuhkan' },
 	]
-	const rows = [
+
+	const listKategori = [
 		{
-			no: '1',
-			nim: '191524024',
-			nama_penerima: 'Hasbi',
-			no_telepon_penerima: '08120912312',
-			nama_pj: 'Gemintang',
-			no_telepon_pj: '082121098124',
-			no_rekening: '13000123278',
-			nama_bank: 'Mandiri',
-			kategori: 'Medis'
+			label: 'Medis',
+			value: 'Medis'
+		},
+		{
+			label: 'Bencana',
+			value: 'Bencana'
 		}
 	]
+
+	useEffect(() => {
+		const getPenerimaNonBeasiswaByKategori = async () => {
+			await fetch(
+				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getNonBeasiswaByKategori',
+				{
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+					body: JSON.stringify({
+						kategori: kategori,
+						is_pengajuan: pengajuan
+					})
+				})
+				.then((response) => response.json())
+				.then((data) => {
+					let arrayData = []
+					for (let i = 0; i < data.data.length; i++) {
+						arrayData.push(data.data[i])
+					}
+					setDataTable(arrayData)
+				})
+				.catch((err) => {
+					console.log(err.message);
+				})
+		}
+		getPenerimaNonBeasiswaByKategori()
+	}, [kategori])
+
 	return (
 		<Container
 			disableGutters
@@ -90,35 +137,65 @@ function NonBeasiswa() {
 					sx={{ minWidth: 350 }}
 					size='small'
 				></TextField>
+				<TextField select variant="outlined" size="small" label='Pilih kategori' onChange={(val) => { handleKategoriChange(val.target.value) }} sx={{ minWidth: 200 }}>
+					{
+						listKategori.map((option) => (
+							<MenuItem key={option.value} value={option.value}>
+								{option.label}
+							</MenuItem>
+						))
+					}
+				</TextField>
 			</Box>
 			<Box sx={{ mt: 2 }}>
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 700 }} aria-label="customized table">
 						<TableHead >
+							<StyledTableCell>No</StyledTableCell>
 							{headers.map((header) =>
 								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
 							)}
 							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
 						</TableHead>
 						<TableBody>
-							{rows.map((row) => (
-								<StyledTableRow key={row.no}>
-									{Object.entries(headers).map(([key, val]) => (
-										<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'dokumen_bantuan' ? <Button onClick={handleOpen}>
-											<u style={{ textTransform: "capitalize" }}>Lihat Dokumen</u>
-										</Button>
-											: row[val.id]}</StyledTableCell>
-									))}
-									<StyledTableCell sx={{ display: 'flex', py: 5 }}>
-										<TaskAltIcon color='primary' />
-										<DeleteOutlineIcon sx={{ ml: 1, color: red[500] }} />
-									</StyledTableCell>
-								</StyledTableRow>
-							)
-							)}
+							{
+								dataTable
+									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+									.map((row, index) => (
+										<StyledTableRow key={index}>
+											<StyledTableCell>
+												{index + 1}
+											</StyledTableCell>
+											{Object.entries(headers).map(([key, val]) => (
+												<StyledTableCell sx={{ textAlign: 'center' }}>
+													{
+														val.id === 'dokumen_bantuan' ? <Button onClick={handleOpen}>
+															<u style={{ textTransform: "capitalize" }}>Lihat Dokumen</u>
+														</Button>
+															: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+													}
+												</StyledTableCell>
+											))
+											}
+											<StyledTableCell sx={{ display: 'flex', py: 5 }}>
+												<TaskAltIcon color='primary' />
+												<DeleteOutlineIcon sx={{ ml: 1, color: red[500] }} />
+											</StyledTableCell>
+										</StyledTableRow>
+									)
+									)}
 						</TableBody>
 					</Table>
 				</TableContainer>
+				<TablePagination
+					component="div"
+					count={dataTable.length}
+					page={page}
+					onPageChange={handleChangePage}
+					rowsPerPage={rowsPerPage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+				>
+				</TablePagination>
 			</Box>
 
 		</Container>

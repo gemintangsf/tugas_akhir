@@ -132,6 +132,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
           {
             pengajuan_bantuan_id: pengajuan_bantuan,
             donatur: {
+			  donatur: donatur,
               donasi_id: data_donation,
               bank_id: Bank.where(id: donatur.bank_id).first
             }

@@ -12,10 +12,11 @@ import TableAdmin from '../components/molekul/tabel/Tabel';
 import { styled } from '@mui/material/styles';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Box, Container, Typography } from '@mui/material'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
 import TablePagination from '@mui/material/TablePagination';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -42,7 +43,14 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 function LaporanRekapitulasiNonBeasiswa() {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [dataTable, setDataTable] = useState([])
+	const [dataTableDetails, setDataTableDetails] = useState([])
 
+	const [step, setStep] = useState(0)
+
+	const handleNominalChange = () => {
+
+	}
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
 	};
@@ -59,53 +67,198 @@ function LaporanRekapitulasiNonBeasiswa() {
 		setOpen(false);
 	};
 	const headers = [
-		{ title: 'No', id: 'no' },
-		{ title: 'Judul Galang Dana', id: 'judul' },
-		{ title: 'Kategori', id: 'kategori' },
-		{ title: 'Nama Penerima', id: 'nama_penerima' },
-		{ title: 'No Telepon Penerima', id: 'no_telp_penerima' },
-		{ title: 'Nama Penanggung Jawab', id: 'nama_pj' },
-		{ title: 'No Telepon Penanggung Jawab', id: 'no_telp_pj' },
-		{ title: 'Total Dana Dibutuhkan (Rp)', id: 'dana_dibutuhkan' },
-		{ title: 'Total Dana Disalurkan (Rp)', id: 'dana_disalurkan' },
+		{ title: 'Judul Galang Dana', id: 'judul_galang_dana' },
+		{ title: 'Kategori', id: 'kategori', parentId: 'non_beasiswa_id' },
+		{ title: 'Nama Penerima', id: 'nama_penerima', parentId: 'non_beasiswa_id' },
+		{ title: 'No Telepon Penerima', id: 'no_telepon_penerima', parentId: 'non_beasiswa_id' },
+		{ title: 'Nama Penanggung Jawab', id: 'nama' },
+		{ title: 'No Telepon Penanggung Jawab', id: 'no_telepon' },
+		{ title: 'Total Dana Dibutuhkan (Rp)', id: 'dana_yang_dibutuhkan' },
+		{ title: 'Total Dana Disalurkan (Rp)', id: 'total_nominal_terkumpul', parentId: 'penggalangan_dana' },
 		{ title: 'Status', id: 'status' }
 	]
-
-	const rows = [
-		{
-			no: '1',
-			judul: 'Operasi Jantung',
-			kategori: 'Medis',
-			nama_penerima: 'John',
-			no_telp_penerima: '082121344252',
-			nama_pj: 'Hasbi',
-			no_telp_pj: '082138712301',
-			dana_dibutuhkan: '1000000',
-			dana_disalurkan: '1000000'
-		},
-		{
-			no: '2',
-			judul: 'Operasi Jantung',
-			kategori: 'Medis',
-			nama_penerima: 'John',
-			no_telp_penerima: '082121344252',
-			nama_pj: 'Hasbi',
-			no_telp_pj: '082138712301',
-			dana_dibutuhkan: '1000000',
-			dana_disalurkan: '1000000'
-		},
-		{
-			no: '3',
-			judul: 'Operasi Jantung',
-			kategori: 'Medis',
-			nama_penerima: 'John',
-			no_telp_penerima: '082121344252',
-			nama_pj: 'Hasbi',
-			no_telp_pj: '082138712301',
-			dana_dibutuhkan: '1000000',
-			dana_disalurkan: '1000000'
-		}
+	const headersDetails = [
+		{ title: 'Nama Donatur', id: 'nama' },
+		{ title: 'Nomor Telepon', id: 'nomor_telepon' },
+		{ title: 'Nominal Donasi (Rp)', id: 'nominal_donasi' },
+		{ title: 'Status', id: 'status' }
 	]
+	const getRekapitulasiNonBeasiswa = async () => {
+		await fetch(
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getRekapitulasiNonBeasiswa',
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+			}
+		)
+			.then((response) => response.json())
+			.then((data) => {
+				if (data.response_code === 200) {
+					let arrayData = []
+					for (let i = 0; i < data.data.length; i++) {
+						arrayData.push(data.data[i])
+					}
+					console.log(data.data)
+					setDataTable(arrayData)
+				}
+				else {
+					console.log(data.response_message)
+				}
+			})
+			.catch((err) => {
+				console.log('error : ' + err.message);
+			})
+		setStep(0)
+	}
+
+	const getRekapitulasiNonBeasiswaDetails = async (id) => {
+		await fetch(
+			'http://localhost:8000/v1/penggalangan/penggalangan_dana/getApprovedDonasiByPenggalanganDana',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: id
+				})
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				if (data.response_code === 200) {
+					let arrayDataDonatur = []
+					for (let i = 0; i < data.data.length; i++) {
+						arrayDataDonatur.push(data.data[i])
+					}
+					setDataTableDetails(arrayDataDonatur)
+					console.log(data.id)
+				} else {
+					console.log(data.response_message)
+				}
+			})
+			.catch((err) => {
+				console.log('error : ' + err.message);
+			})
+		setStep(1)
+	}
+	useEffect(() => {
+		getRekapitulasiNonBeasiswa()
+	}, [])
+
+	const renderRekapitulasiNonBeasiswa = () => {
+		return (
+			<Box sx={{ mt: 2 }}>
+				<TableContainer component={Paper}>
+					<Table sx={{ minWidth: 700 }} aria-label="customized table">
+						<TableHead >
+							<StyledTableCell>No</StyledTableCell>
+							{headers.map((header) =>
+								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
+							)}
+							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
+						</TableHead>
+						<TableBody>
+							{
+								dataTable
+									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+									.map((row, index) => (
+										<StyledTableRow key={index}>
+											<StyledTableCell>{index + 1}</StyledTableCell>
+											{Object.entries(headers).map(([key, val]) => (
+												<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
+													<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+														<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
+													</Button>
+													: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+												}</StyledTableCell>
+											))}
+											<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
+												<Button size='small' color='primary' onClick={(val) => { getRekapitulasiNonBeasiswaDetails(row.penggalangan_dana._id.$oid, val.target.value) }} >
+													<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
+												</Button>
+												<DeleteOutlineIcon sx={{ color: red[500], ml: 1 }} />
+											</StyledTableCell>
+										</StyledTableRow>
+									)
+									)}
+						</TableBody>
+					</Table>
+				</TableContainer>
+				<TablePagination
+					component="div"
+					count={dataTable.length}
+					page={page}
+					onPageChange={handleChangePage}
+					rowsPerPage={rowsPerPage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+				>
+				</TablePagination>
+			</Box>
+		)
+	}
+	const renderDetailsRekapitulasiNonBeasiswa = () => {
+		return (
+			<Box sx={{ mt: 2 }}>
+				<Box>
+					<Button sx={{ color: 'black' }} onClick={() => setStep(0)}>
+						<ArrowBackIcon fontSize='small' />
+						<Typography>Back</Typography>
+					</Button>
+				</Box>
+				<TableContainer component={Paper}>
+					<Table sx={{ minWidth: 700 }} aria-label="customized table">
+						<TableHead >
+							<StyledTableCell>No</StyledTableCell>
+							{headersDetails.map((header) =>
+								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
+							)}
+							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
+						</TableHead>
+						<TableBody>
+							{
+								dataTableDetails
+									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+									.map((row, index) => (
+										<StyledTableRow key={index}>
+											<StyledTableCell>{index + 1}</StyledTableCell>
+											{Object.entries(headers).map(([key, val]) => (
+												<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
+													<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+														<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
+													</Button>
+													: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+												}</StyledTableCell>
+											))}
+											<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
+												<Button size='small' color='primary' onClick={handleOpen} >
+													<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
+												</Button>
+												<DeleteOutlineIcon sx={{ color: red[500], ml: 1 }} />
+											</StyledTableCell>
+										</StyledTableRow>
+									)
+									)}
+						</TableBody>
+					</Table>
+				</TableContainer>
+				<TablePagination
+					component="div"
+					count={dataTable.length}
+					page={page}
+					onPageChange={handleChangePage}
+					rowsPerPage={rowsPerPage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+				>
+				</TablePagination>
+			</Box>
+		)
+	}
 	return (
 		<Container
 			disableGutters
@@ -127,49 +280,9 @@ function LaporanRekapitulasiNonBeasiswa() {
 					size='small'
 				></TextField>
 			</Box>
-			<Box sx={{ mt: 2 }}>
-				<TableContainer component={Paper}>
-					<Table sx={{ minWidth: 700 }} aria-label="customized table">
-						<TableHead >
-							{headers.map((header) =>
-								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
-							)}
-							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
-						</TableHead>
-						<TableBody>
-							{rows
-								.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
-								.map((row) => (
-									<StyledTableRow key={row.no}>
-										{Object.entries(headers).map(([key, val]) => (
-											<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
-												<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
-													<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>
-												</Button>
-												: row[val.id]}</StyledTableCell>
-										))}
-										<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
-											<Button size='small' color='primary' onClick={handleOpen} >
-												<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
-											</Button>
-											<DeleteOutlineIcon sx={{ color: red[500], ml: 1 }} />
-										</StyledTableCell>
-									</StyledTableRow>
-								)
-								)}
-						</TableBody>
-					</Table>
-				</TableContainer>
-				<TablePagination
-					component="div"
-					count={rows.length}
-					page={page}
-					onPageChange={handleChangePage}
-					rowsPerPage={rowsPerPage}
-					onRowsPerPageChange={handleChangeRowsPerPage}
-				>
-				</TablePagination>
-			</Box>
+			{
+				step === 0 ? renderRekapitulasiNonBeasiswa() : renderDetailsRekapitulasiNonBeasiswa()
+			}
 		</Container>
 	);
 }

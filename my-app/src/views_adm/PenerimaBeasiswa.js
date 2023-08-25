@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
@@ -43,56 +43,66 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function BantuanBeasiswa() {
+	const [jenis, setJenis] = useState('Beasiswa')
+	const [pengajuan, setPengajuan] = useState('false')
 	const [open, setOpen] = useState(false);
+	const [dataTable, setDataTable] = useState([])
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const handleOpen = () => {
 		setOpen(true);
 	};
 	const handleClose = () => {
 		setOpen(false);
 	};
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
+	useEffect(() => {
+		const getPenerimaBeasiswa = async () => {
+			await fetch(
+				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getPengajuanBantuan',
+				{
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+					body: JSON.stringify({
+						jenis: jenis,
+						is_pengajuan: pengajuan
+					})
+				})
+				.then((response) => response.json())
+				.then((data) => {
+					let arrayData = []
+					for (let i = 0; i < data.data.length; i++) {
+						arrayData.push(data.data[i])
+					}
+					setDataTable(arrayData)
+				})
+				.catch((err) => {
+					console.log(err.message);
+				})
+		}
+		getPenerimaBeasiswa()
+	}, [])
+
 	const headers = [
-		{ title: 'No', id: 'no' },
-		{ title: 'NIM', id: 'nim' },
+		{ title: 'NIM', id: 'no_identitas_pengaju' },
 		{ title: 'Nama', id: 'nama' },
 		{ title: 'No Telepon Mahasiswa', id: 'no_telepon' },
-		{ title: 'Nomor Rekening', id: 'no_rekening' },
-		{ title: 'Nama Bank', id: 'nama_bank' },
-		{ title: 'Nama Pemilik Rekening', id: 'pemilik_rekening' },
+		{ title: 'Nomor Rekening', id: 'nomor_rekening', parentId: 'bank_id' },
+		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id' },
+		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'bank_id' },
 		{ title: 'Dokumen Kehadiran Perkuliahan', id: 'dokumen_kehadiran' },
 	]
 
-	const rows = [
-		{
-			no: '1',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			no_rekening: '13000872810',
-			nama_bank: 'Mandiri',
-			pemilik_rekening: 'Muhamad Hasbi',
-			dokumen_kehadiran: 'details',
-		},
-		{
-			no: '2',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			no_rekening: '13000872810',
-			nama_bank: 'Mandiri',
-			pemilik_rekening: 'Muhamad Hasbi',
-			dokumen_kehadiran: 'details',
-		},
-		{
-			no: '3',
-			nim: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			no_rekening: '13000872810',
-			nama_bank: 'Mandiri',
-			pemilik_rekening: 'Muhamad Hasbi',
-			dokumen_kehadiran: 'details',
-		},
-	]
 	return (
 		<Container
 			disableGutters
@@ -118,31 +128,49 @@ function BantuanBeasiswa() {
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 700 }} aria-label="customized table">
 						<TableHead>
+							<StyledTableCell>No</StyledTableCell>
 							{headers.map((header) =>
 								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
 							)}
 							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
 						</TableHead>
 						<TableBody>
-							{rows.map((row) => (
-								<StyledTableRow key={row.no}>
-									{Object.entries(headers).map(([key, val]) => (
-										<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'dokumen_kehadiran' ? <Button onClick={handleOpen}>
-											<u style={{ textTransform: "capitalize" }}>Lihat Dokumen</u>
-										</Button>
-											: row[val.id]}</StyledTableCell>
-									))}
-
-									<StyledTableCell sx={{ display: 'flex', py: 4.5 }}>
-										<TaskAltIcon sx={{ mr: 1 }} color='primary' />
-										<DeleteOutlineIcon sx={{ color: red[500] }} />
-									</StyledTableCell>
-								</StyledTableRow>
-							)
-							)}
+							{
+								dataTable
+									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
+									.map((row, index) => (
+										<StyledTableRow key={index}>
+											<StyledTableCell>
+												{index + 1}
+											</StyledTableCell>
+											{
+												Object.entries(headers).map(([key, val]) => (
+													<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'dokumen_kehadiran' ? <Button onClick={handleOpen}>
+														<u style={{ textTransform: "capitalize" }}>Lihat Dokumen</u>
+													</Button>
+														: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+													}</StyledTableCell>
+												))
+											}
+											<StyledTableCell sx={{ display: 'flex', py: 4.5 }}>
+												<TaskAltIcon sx={{ mr: 1 }} color='primary' />
+												<DeleteOutlineIcon sx={{ color: red[500] }} />
+											</StyledTableCell>
+										</StyledTableRow>
+									)
+									)}
 						</TableBody>
 					</Table>
 				</TableContainer>
+				<TablePagination
+					component="div"
+					count={dataTable.length}
+					page={page}
+					onPageChange={handleChangePage}
+					rowsPerPage={rowsPerPage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+				>
+				</TablePagination>
 			</Box>
 		</Container>
 	);

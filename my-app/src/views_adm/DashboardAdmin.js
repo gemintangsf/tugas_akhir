@@ -12,10 +12,12 @@ import Button from '@mui/material/Button'
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
+import { json } from 'react-router-dom';
 // import Item from '@mui/material';
 
 
 function Dashboard() {
+
 	const cardList = [
 		{ title: 'List Calon Penerima Beasiswa', description: 'Mahasiswa', value: 6 },
 		{ title: 'Pengajuan Bantuan Dana Tersedia', description: 'Pengajuan', value: 6 },
@@ -32,6 +34,28 @@ function Dashboard() {
 		boxShadow: 24,
 		borderRadius: '4px 4px 4px 4px'
 	}
+	const [jenisBeasiswa, setJenisBeasiswa] = React.useState('Beasiswa');
+	const [judulGalangDana, setJudulGalangDana] = React.useState('');
+	const [deskripsi, setDeskripsi] = React.useState('');
+	const [kuotaBeasiswa, setKuotaBeasiswa] = React.useState('');
+	const [tanggalBerakhir, setTanggalBerakhir] = React.useState('');
+	const [id, setId] = React.useState('64997232e21fac364c2d0d51');
+	const [jumlahPenerimaBantuan, setJumlahPenerimaBantuan] = React.useState([])
+	const handleJudulChange = (val) => {
+		setJudulGalangDana(val)
+	}
+	const handleDeskripsiChange = (val) => {
+		setDeskripsi(val)
+	}
+	const handleKuotaBeasiswaChange = (val) => {
+		setKuotaBeasiswa(val)
+	}
+	const handleTanggalBerakhirChange = (val) => {
+		setTanggalBerakhir(val)
+	}
+	// const handleJenisBeasiswa = (val) => {
+	// 	setJenisBeasiswa(val)
+	// }
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const open = Boolean(anchorEl)
 	const handleCloseMenu = () => setAnchorEl(null)
@@ -44,6 +68,8 @@ function Dashboard() {
 	const handleOpen = () => {
 		setOpenModal(true);
 		setAnchorEl(null);
+		setJenisBeasiswa();
+		console.log(jenisBeasiswa, 'test1')
 	};
 
 	const [openModalNonBeasiswa, setOpenModalNonBeasiswa] = React.useState(false)
@@ -60,6 +86,54 @@ function Dashboard() {
 	const handleCloseModalGalangDana = () => setOpenModalGalangDana(false);
 	const handleCloseModal = () => setOpenModal(false);
 
+	React.useEffect(() => {
+		const getTotalPenerimaBantuan = async () => {
+			await fetch(
+				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getTotalPenerimaBantuan',
+				{
+					method: 'GET',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+				})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data.data)
+					let arrayData = []
+					arrayData.push(data.data)
+					setJumlahPenerimaBantuan(arrayData)
+				})
+		}
+		getTotalPenerimaBantuan()
+	}, [])
+	const createPenggalanganDana = async () => {
+		await fetch('http://localhost:8000/v1/penggalangan/penggalangan_dana/createPenggalanganDanaBeasiswa',
+			{
+				mode: 'cors',
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: id,
+					judul_galang_dana: judulGalangDana,
+					deskripsi: deskripsi,
+					waktu_galang_dana: tanggalBerakhir,
+					total_pengajuan: kuotaBeasiswa
+				}),
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.id, 'test id');
+			})
+			.catch((err) => {
+				console.log(err.message);
+			})
+	}
 	return (
 		<Container
 			disableGutters
@@ -113,25 +187,25 @@ function Dashboard() {
 							<Box sx={{ display: 'flex' }}>
 								<Box>
 									<Typography>Judul Galang Dana</Typography>
-									<TextField size='small' variant='outlined' label='cth: Beasiswa JTK' />
+									<TextField size='small' variant='outlined' label='cth: Beasiswa JTK' onChange={(val) => { handleJudulChange(val.target.value) }} />
 								</Box>
 								<Box sx={{ ml: 2 }}>
 									<Typography>Kuota Beasiswa</Typography>
-									<TextField size='small' variant='outlined' label='cth: 8' />
+									<TextField size='small' variant='outlined' label='cth: 8' onChange={(val) => { handleKuotaBeasiswaChange(val.target.value) }} />
 								</Box>
 								<Box sx={{ ml: 2 }}>
 									<Typography>Tanggal Berakhir</Typography>
-									<TextField size='small' type='date' variant='outlined' />
+									<TextField size='small' type='date' variant='outlined' onChange={(val) => { handleTanggalBerakhirChange(val.target.value) }} />
 								</Box>
 							</Box>
 							<Box sx={{ display: 'flex', flexDirection: 'column', pt: 2 }}>
 								<Typography>Deskripsi Galang Dana</Typography>
-								<TextField variant='outlined' label='Deskprisi'></TextField>
+								<TextField variant='outlined' label='Deskprisi' onChange={(val) => { handleDeskripsiChange(val.target.value) }}></TextField>
 								<Typography sx={{ pt: 2 }}>Isi Redaksi</Typography>
 								<TextField variant='outlined' label='Isi Redaksi'></TextField>
 							</Box>
 							<Box sx={{ pt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-								<Button variant='contained' onClick={handleCloseModal}>Submit</Button>
+								<Button variant='contained' onClick={createPenggalanganDana}>Submit</Button>
 							</Box>
 						</Box>
 					</Box>
@@ -243,6 +317,7 @@ function Dashboard() {
 					{cardList.map((info, index) =>
 					(
 						<Grid item md={6} >
+
 							<CardInfo title={info.title} description={info.description} value={info.value} index={index} />
 						</Grid>
 					))}

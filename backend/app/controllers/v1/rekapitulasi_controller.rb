@@ -15,10 +15,10 @@ class V1::RekapitulasiController < ApplicationController
         if penggalangan_dana.pengajuan_bantuan_id.length > 1
           penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
             if index > 0
-              penerima_beasiswa = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data).first
-              beasiswa = Pengajuan::Beasiswa.where(id: penerima_beasiswa.beasiswa_id).first
-              bank = Bank.where(:id => penerima_beasiswa.bank_id).first
-              array_of_penerima_beasiswa << penerima_beasiswa.attributes.merge({
+              pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data).first
+              beasiswa = Pengajuan::Beasiswa.where(id: pengajuan_bantuan.beasiswa_id).first
+              bank = Bank.where(:id => pengajuan_bantuan.bank_id).first
+              array_of_penerima_beasiswa << pengajuan_bantuan.attributes.merge({
                 nominal_penyaluran: beasiswa.nominal_penyaluran,
                 bulan_penyaluran: beasiswa.bulan_penyaluran,
                 bank_id: bank
@@ -39,13 +39,20 @@ class V1::RekapitulasiController < ApplicationController
             saldo_awal = getSaldoAwal()
             total_pengeluaran = getTotalPengeluaran(penggalangan_dana.id, params[:month])
           else
-            getMonthRekapitulasiBeasiswa(penggalangan_dana.id).each_with_index do |data, index|
-              if data == params[:month]
-                saldo_awal = getTotalDonasi(penggalangan_dana.id, getMonthRekapitulasiBeasiswa(penggalangan_dana.id)[index - 1]) - getTotalPengeluaran(penggalangan_dana.id, getMonthRekapitulasiBeasiswa(penggalangan_dana.id)[index - 1])
+			month_filter = []
+            getMonthRekapitulasiBeasiswa(penggalangan_dana.id).each_with_index do |data_month, index_month|
+              if data_month == params[:month]
+                saldo_awal = getTotalDonasi(penggalangan_dana.id, getMonthRekapitulasiBeasiswa(penggalangan_dana.id)[index_month - 1]) - getTotalPengeluaran(penggalangan_dana.id, getMonthRekapitulasiBeasiswa(penggalangan_dana.id)[index_month - 1])
                 saldo_akhir = saldo_awal - getTotalPengeluaran(penggalangan_dana.id, params[:month]) + getTotalDonasi(penggalangan_dana.id, params[:month])
+                penerima_beasiswa.each_with_index do |data_penerima_beasiswa, index_penerima_beasiswa|
+                  if data_penerima_beasiswa["bulan_penyaluran"][index_month - 1].present?
+                    month_filter << data_penerima_beasiswa
+                  end
+                end
               end
             end
           end
+
           rekapitulasi_beasiswa = penggalangan_dana.attributes.merge({
             pengajuan_bantuan_id: month_filter,
             total_donasi: getTotalDonasi(penggalangan_dana.id, params[:month]),
