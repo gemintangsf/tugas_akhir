@@ -36,7 +36,6 @@ var theme = createTheme({
 		},
 		caption: {
 			fontSize: '12px',
-			fontFamily: 'Open Sans, sans-serif',
 			fontWeight: '300'
 		},
 		button: {

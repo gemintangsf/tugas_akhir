@@ -13,6 +13,8 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     elsif week_number != 1
       return render_error_response("Gagal membuat penggalangan dana Beasiswa karena sudah minggu ke #{week_number} di Bulan #{date_now.strftime("%B")}!")
     else
+		puts params[:judul_galang_dana]
+		puts "aya eweuh"
       data_admin = User::Admin.where(id: params[:id]).first
       bank = Bank.where(id: data_admin.bank_id).first
       nama = data_admin.nama

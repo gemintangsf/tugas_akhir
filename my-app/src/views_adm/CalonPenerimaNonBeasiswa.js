@@ -12,10 +12,13 @@ import { styled } from '@mui/material/styles';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Box, Typography } from '@mui/material'
 import TablePagination from '@mui/material/TablePagination';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { red } from '@mui/material/colors';
+import MenuItem from '@mui/material/MenuItem';
+import Modal from '@mui/material/Modal';
+import ImgContoh from '../assets/image_beranda/carousel_img.jpg'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -39,41 +42,117 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function CalonPenerimaNonBeasiswa() {
+	const styleBox = {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		transform: 'translate(-50%, -50%)',
+		width: 500,
+		bgcolor: 'background.paper',
+		boxShadow: 24,
+		borderRadius: '4px 4px 4px 4px'
+	}
+	const [openModal, setOpenModal] = useState(false);
+	const handleOpenModal = () => {
+		setOpenModal(true);
+	};
+	const handleCloseModal = () => {
+		setOpenModal(false);
+	};
+	const [kategori, setKategori] = useState('');
+	const handleKategoriChange = (val) => {
+		setKategori(val)
+		console.log(val)
+	}
+	const [dataTable, setDataTable] = useState([]);
+	const [status, setStatus] = useState('true')
+	const [id, setId] = useState('')
+	const [pengajuan, setPengajuan] = useState('true')
 	const [open, setOpen] = useState(false);
+
+	const handleStatusChange = (val) => {
+		setStatus(val)
+	}
 	const handleOpen = () => {
 		setOpen(true);
 	};
 	const handleClose = () => {
 		setOpen(false);
 	};
-	const headers = [
-		{ title: 'No', id: 'no' },
-		{ title: 'NIM/NIP', id: 'nim_nip' },
-		{ title: 'Nama Penerima', id: 'nama' },
-		{ title: 'No Telepon Penerima', id: 'no_telepon' },
-		{ title: 'Nama Penanggung Jawab', id: 'nama_pj' },
-		{ title: 'No Telepon Penanggung Jawab', id: 'no_telepon_pj' },
-		{ title: 'Kategori', id: 'kategori' },
-		{ title: 'Judul Bantuan', id: 'judul_bantuan' },
-		{ title: 'Dana yang Dibutuhkan', id: 'dana_dibutuhkan' },
-		{ title: 'Bukti Butuh Bantuan', id: 'bukti_bantuan' },
-	]
-
-	const rows = [
+	const listKategori = [
 		{
-			no: '1',
-			nim_nip: '191524024',
-			nama: 'Hasbi',
-			no_telepon: '08120912312',
-			nama_pj: 'Gemintang',
-			no_telepon_pj: '0812121249812',
-			kategori: 'Medis',
-			judul_bantuan: 'Operasi Kanker',
-			dana_dibutuhkan: '3000000',
-			bukti_bantuan: 'details',
+			label: 'Medis',
+			value: 'Medis'
 		},
-
+		{
+			label: 'Bencana',
+			value: 'Bencana'
+		}
 	]
+	useEffect(() => {
+		const getDataTableNonBeasiswaByKategori = async () => {
+			await fetch(
+				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getNonBeasiswaByKategori',
+				{
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+					body: JSON.stringify({
+						kategori: kategori,
+						is_pengajuan: pengajuan
+					})
+				}
+			)
+				.then((response) => response.json())
+				.then((data) => {
+					let arrayData = []
+					for (let i = 0; i < data.data.length; i++) {
+						arrayData.push(data.data[i])
+					}
+					setDataTable(arrayData)
+					console.log(arrayData)
+				})
+				.catch((err) => {
+					console.log(err.message);
+				})
+		}
+		getDataTableNonBeasiswaByKategori()
+	}, [kategori])
+
+	const approvalPengajuanNonBeasiswa = async (id) => {
+		await fetch(
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/selectNewPengajuan',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: id,
+					is_approve: status
+				})
+			}
+		)
+	}
+
+	const headers = [
+		{ title: 'NIM/NIP Penanggung Jawab', id: 'no_identitas_pengaju' },
+		{ title: 'Nama Penanggung Jawab', id: 'nama' },
+		{ title: 'No Telepon Penanggung Jawab', id: 'no_telepon' },
+		{ title: 'NIM/NIP Penerima Dana Bantuan', id: 'no_identitas_penerima', parentId: 'non_beasiswa_id' },
+		{ title: 'Nama Penerima Dana Bantuan', id: 'nama_penerima', parentId: 'non_beasiswa_id' },
+		{ title: 'No Telepon Penerima Dana Bantuan', id: 'no_telepon_penerima', parentId: 'non_beasiswa_id' },
+		{ title: 'Kategori', id: 'kategori', parentId: 'non_beasiswa_id' },
+		{ title: 'Judul Bantuan', id: 'judul_galang_dana' },
+		{ title: 'Dana yang Dibutuhkan', id: 'dana_yang_dibutuhkan' },
+		{ title: 'Bukti Butuh Bantuan', id: 'bukti_butuh_bantuan', parentId: 'non_beasiswa_id' },
+	]
+
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -96,7 +175,7 @@ function CalonPenerimaNonBeasiswa() {
 			}}
 		>
 			<Box sx={{ display: 'flex', padding: 2, backgroundColor: '#1559E6', color: 'white', borderRadius: '4px', alignItems: 'center' }}>
-				<PeopleAltIcon></PeopleAltIcon>
+				<PeopleAltIcon fontSize='small'></PeopleAltIcon>
 				<Typography variant='h4' sx={{ ml: 1 }}>Daftar Calon Penerima Bantuan Dana Non Beasiswa</Typography>
 			</Box>
 			<Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
@@ -105,11 +184,21 @@ function CalonPenerimaNonBeasiswa() {
 					label="Search" type='search'
 					sx={{ minWidth: 350 }}
 				></TextField>
+				<TextField select variant="outlined" size="small" label='Pilih kategori' onChange={(val) => { handleKategoriChange(val.target.value) }} sx={{ minWidth: 200 }}>
+					{
+						listKategori.map((option) => (
+							<MenuItem key={option.value} value={option.value}>
+								{option.label}
+							</MenuItem>
+						))
+					}
+				</TextField>
 			</Box>
 			<Box sx={{ mt: 2 }}>
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 700 }} aria-label="customized table">
 						<TableHead >
+							<StyledTableCell>No</StyledTableCell>
 							{headers.map((header) =>
 								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
 							)}
@@ -117,19 +206,46 @@ function CalonPenerimaNonBeasiswa() {
 						</TableHead>
 						<TableBody>
 							{
-								rows
+								dataTable
 									.slice(page * rowsPerPage, (page * rowsPerPage) + rowsPerPage)
-									.map((row) => (
-										<StyledTableRow key={row.no}>
+									.map((row, index) => (
+										<StyledTableRow key={index}>
+											<StyledTableCell>
+												{index + 1}
+											</StyledTableCell>
 											{Object.entries(headers).map(([key, val]) => (
-												<StyledTableCell sx={{ textAlign: 'center' }}>{
-													val.id === 'bukti_bantuan' ? <Button onClick={handleOpen}>
-														<u style={{ textTransform: "capitalize" }}>Details</u>
-													</Button>
-														: row[val.id]}</StyledTableCell>
-											))}
+												<StyledTableCell sx={{ textAlign: 'center' }}>
+													{
+														val.id === 'bukti_butuh_bantuan' ? <Button onClick={handleOpenModal}>
+															<u style={{ textTransform: "capitalize" }}>Details</u>
+														</Button>
+															:
+															<span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+													}
+												</StyledTableCell>
+
+
+											))
+											}
+											{/* <span>{console.log(row.non_beasiswa_id.bukti_butuh_bantuan)}</span> */}
+											<Modal
+												open={openModal}
+												onClose={handleCloseModal}
+												aria-labelledby="modal-modal-title"
+												aria-describedby="modal-modal-description"
+											>
+												<Box sx={styleBox}>
+													<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
+													</Box>
+													<Box>
+														<img src={row.non_beasiswa_id.bukti_butuh_bantuan} alt="" style={{ width: '500px' }} />
+													</Box>
+												</Box>
+											</Modal>
 											<StyledTableCell sx={{ display: 'flex', py: 5 }}>
-												<TaskAltIcon sx={{ mr: 1 }} color='primary' />
+												<Button onClick={(val) => { approvalPengajuanNonBeasiswa(row._id.$oid, val.target.value) }}>
+													<TaskAltIcon sx={{ mr: 1 }} color='primary' />
+												</Button>
 												<DeleteOutlineIcon sx={{ color: red[500] }} />
 											</StyledTableCell>
 										</StyledTableRow>
@@ -140,7 +256,7 @@ function CalonPenerimaNonBeasiswa() {
 				</TableContainer>
 				<TablePagination
 					component="div"
-					count={rows.length}
+					count={dataTable.length}
 					page={page}
 					onPageChange={handleChangePage}
 					rowsPerPage={rowsPerPage}

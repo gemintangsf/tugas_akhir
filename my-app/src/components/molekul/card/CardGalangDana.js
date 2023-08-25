@@ -9,9 +9,9 @@ function InfoCardGalangDana({ title, description, donaturs }) {
 				<div>
 					<img src={WisudaImg} alt="" style={{ borderRadius: '16px', height: '220px' }} />
 				</div>
-				<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+				<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '100%' }}>
 					<div>
-						<Typography variant='h6' sx={{ ml: 2 }}>{title}</Typography>
+						<Typography variant='h3' sx={{ ml: 2 }}>{title}</Typography>
 						<Typography variant='body2' sx={{ mt: 1, ml: 2, textAlign: 'justify' }}>{description}</Typography>
 					</div>
 					<div style={{ display: 'flex', justifyContent: 'space-between', marginLeft: '16px' }}>
