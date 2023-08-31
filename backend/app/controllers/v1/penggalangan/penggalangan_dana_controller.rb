@@ -162,21 +162,26 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   def getDurasiPenggalanganDana(penggalangan_dana_id)
     penggalangan_dana = Penggalangan::PenggalanganDana.where(id: penggalangan_dana_id).first
   
-    pengajuan_bantuan_id = Array(penggalangan_dana.pengajuan_bantuan_id)
-    pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: pengajuan_bantuan_id[0]).first
+    if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
+      pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.where(id: penggalangan_dana.pengajuan_bantuan_id[0]).first
+    else
+      pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: penggalangan_dana.pengajuan_bantuan_id).first
+    end
+    
   
     end_date = pengajuan_bantuan.waktu_galang_dana.to_datetime
     durasi = (end_date - DateTime.now).to_i + 1
   
     if durasi < 1
-      pengajuan_bantuan_id.each_with_index do |data, index|
-        if index == 0
-          pengajuan_bantuan_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.where(id: data).first
-          pengajuan_bantuan_admin.assign_attributes(status_pengajuan: Enums::StatusPengajuan::DONE)
-          pengajuan_bantuan_admin.save!
+      if pengajuan_bantuan.jenis == "Beasiswa"
+        pengajuan_bantuan.assign_attributes(status_pengajuan: Enums::StatusPengajuan::DONE)
+        pengajuan_bantuan.save!
+        penggalangan_dana.pengajuan_bantuan_id.each_with_index do |data, index|
+          penerima_beasiswa = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data).first
+          penerima_beasiswa.assign_attributes({status_pengajuan: Enums::StatusPengajuan::DONE, status_penyaluran: Enums::StatusPenyaluran::PENDING})
+          penerima_beasiswa.save!
         end
-  
-        pengajuan_bantuan = Pengajuan::PengajuanBantuan.penggalangan_dana.where(id: data).first
+      else
         pengajuan_bantuan.assign_attributes(
           status_pengajuan: Enums::StatusPengajuan::DONE,
           status_penyaluran: Enums::StatusPenyaluran::PENDING
