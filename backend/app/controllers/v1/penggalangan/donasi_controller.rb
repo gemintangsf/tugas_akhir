@@ -169,7 +169,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
     donasi = Penggalangan::Donasi.approved
   
     if donasi.present?
-      penggalangan_dana = Penggalangan::PenggalanganDana.where(donasi_id: donasi.pluck(:id))
+      penggalangan_dana = Penggalangan::PenggalanganDana.where(:donasi_id.in => donasi.pluck(:id))
       array_of_nominal_donasi = []
       array_of_nominal_penyaluran = []
   
@@ -187,7 +187,6 @@ class V1::Penggalangan::DonasiController < ApplicationController
           array_of_nominal_donasi << data.total_nominal_terkumpul if pengajuan_bantuan.present?
         end
       end
-  
       total_donasi_terkumpul = donasi.pluck(:nominal).sum - (array_of_nominal_donasi.sum + array_of_nominal_penyaluran.sum)
       
       render_success_response(Constants::RESPONSE_SUCCESS, total_donasi_terkumpul, Constants::STATUS_OK)      

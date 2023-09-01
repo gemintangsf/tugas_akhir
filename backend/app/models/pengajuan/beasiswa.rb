@@ -29,4 +29,5 @@ class Pengajuan::Beasiswa
   field :total_pengeluaran_keluarga, type: Integer
   field :penilaian_esai, type: Integer
   field :nominal_penyaluran, type: Integer
+  field :bulan_penyaluran, type: Array
 end

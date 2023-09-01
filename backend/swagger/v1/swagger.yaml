@@ -1548,9 +1548,9 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/rekapitulasi/getRekapitulasiBeasiswa":
+  "/v1/rekapitulasi/getAllRekapitulasiBeasiswa":
     get:
-      summary: Get Rekapitulasi Dana Beasiswa
+      summary: Get All Batch Beasiswa
       tags:
       - Rekapitulasi
       consumes:
@@ -1570,6 +1570,55 @@ paths:
               response_message:
                 type: string
                 example: Data tidak Ditemukan
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/rekapitulasi/getRekapitulasiBeasiswa":
+    post:
+      summary: Get Rekapitulasi Beasiswa
+      tags:
+      - Rekapitulasi
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 64b29f45e21fac00f0642fab
+            month:
+              type: string
+              example: September
+          required: []
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Pengajuan Non Beasiswa tidak dapat ditemukan!
               response_code:
                 type: integer
                 example: 422

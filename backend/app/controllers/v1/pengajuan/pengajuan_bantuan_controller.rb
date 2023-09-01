@@ -286,6 +286,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       penggalangan_dana_beasiswa.assign_attributes({ pengajuan_bantuan_id: array_of_pengajuan_bantuan_id })
   
       if penggalangan_dana_beasiswa.save!(:validate => false) && pengajuan_bantuan.save && beasiswa.save
+        getBulanPenyaluran(beasiswa)
         render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_bantuan: pengajuan_bantuan, beasiswa: beasiswa }, Constants::STATUS_OK)
       else
         render_error_response({ penggalangan_dana: penggalangan_dana.errors.full_messages, pengajuan_bantuan: pengajuan_bantuan.errors.full_messages, beasiswa: beasiswa.errors.full_messages })
@@ -308,6 +309,14 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
         render_error_response(pengajuan_non_beasiswa.errors.full_messages)
       end
     end
+  end
+
+  def getBulanPenyaluran(beasiswa)
+    date_pengajuan = beasiswa.updated_at
+    array_of_bulan_penyaluran = []
+    array_of_bulan_penyaluran << date_pengajuan
+    beasiswa.assign_attributes(bulan_penyaluran: array_of_bulan_penyaluran)
+    beasiswa.save
   end
 
   def getPengajuanBantuan
@@ -469,7 +478,6 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     total_pengajuan_done = pengajuan_bantuan_done.length
   
     total_pengajuan = total_pengajuan_approved + total_pengajuan_done
-  
     render_success_response(
       Constants::RESPONSE_SUCCESS,
       {
