@@ -60,8 +60,8 @@ class V1::CivitasAkademikaController < ApplicationController
   def import_data(file)
     xls = Roo::Excelx.new(file.path)
     xls.each_row_streaming(offset: 1) do |row|
-      nama = row[1]&.value
-      nomor_induk = row[0]&.value
+      nama = row[2]&.value
+      nomor_induk = row[1]&.value
       CivitasAkademika.create!(nama: nama, nomor_induk: nomor_induk)
     end
   end

@@ -358,11 +358,7 @@ class V1::RekapitulasiController < ApplicationController
       month_filter = data_donasi.select { |donasi| donasi["donatur"]["donasi_id"]["waktu_berakhir"].strftime('%B') == params_month }
       response_data =  month_filter
     else
-      response_data = {
-        response_code: Constants::RESPONSE_SUCCESS, 
-        response_message: "Success", 
-        data: data_donasi
-      }
+      response_data = data_donasi
     end
   
     return return_json ? render_success_response(Constants::RESPONSE_SUCCESS, response_data, Constants::STATUS_OK) : month_filter

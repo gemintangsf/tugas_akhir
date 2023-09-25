@@ -2,7 +2,7 @@ class V1::AuthenticationController < ApplicationController
     before_action :authorize_request, except: :login
 
     def login
-        admin = User::Admin.where(username: params[:username]).first
+        admin = Admin.where(username: params[:username]).first
         if admin.blank?
           render json: { 
             response_code: 401, 
@@ -10,7 +10,7 @@ class V1::AuthenticationController < ApplicationController
             }, status: :unauthorized
         else
             if admin.authenticate(params[:password])
-                token = JsonWebToken.encode(admin_id: admin._id)
+                token = JsonWebToken.encode(admin_id: admin.id)
                 time = Time.now + 24.hours.to_i
                 render json: { 
                   response_code: Constants::RESPONSE_SUCCESS, 

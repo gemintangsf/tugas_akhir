@@ -14,11 +14,6 @@ class ApplicationController < ActionController::API
         @current_admin = User::Admin.find(@decoded[:admin_id])
         # rescue ActiveRecord::RecordNotFound => e
         #   render json: { errors: e.message + '. admin yang anda cari tidak dapat ditemukan!' }, status: :unauthorized
-        rescue Mongo::Error::NoSRVRecords => error
-          render json: { 
-            response_code: 401, 
-            response_message: 'Tidak ada akses internet!' 
-            }, status: :unauthorized
         rescue JWT::DecodeError => e
           if e.message.match(/Nil/)
             render json: { 

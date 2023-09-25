@@ -33,14 +33,10 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   #Untuk membuat pengajuan bantuan dana beasiswa
   def createPengajuanBeasiswa
     getDurasiPengajuanBeasiswa(return_json: false)
-    pengajuan_beasiswa_by_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.first
+    pengajuan_beasiswa_by_admin = PengajuBantuan.pengajuan_baru_admin.first
   
     if !pengajuan_beasiswa_by_admin.present?
       render_error_response("Pendaftaran Pengajuan Bantuan Dana Beasiswa belum dibuka!")
-    end
-  
-    if @duration_pengajuan < 1
-      render_error_response("Pengajuan Bantuan Dana Beasiswa sudah ditutup!")
     end
   
     is_civitas = CivitasAkademika.where(nomor_induk: params[:no_identitas_pengaju]).first
@@ -49,21 +45,23 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       render_error_response("NIM tidak dapat ditemukan!")
     end
   
-    is_pengajuan = Pengajuan::PengajuanBantuan.not.where(status_pengajuan: Enums::StatusPengajuan::DONE)
+    is_pengajuan = PengajuBantuan.not.where(status_pengajuan: Enums::StatusPengajuan::DONE)
                                          .where(no_identitas_pengaju: params[:no_identitas_pengaju])
                                          .where(jenis: "Beasiswa").first
   
     if is_pengajuan.present?
       return render_error_response("Pengajuan Bantuan Dana Beasiswa sudah dilakukan!")
+    elsif @duration_pengajuan < 1
+      return render_error_response("Pengajuan Bantuan Dana Beasiswa sudah ditutup!")
     end
   
-    beasiswa = Pengajuan::Beasiswa.new(beasiswa_params)
-    pengajuan_beasiswa = Pengajuan::PengajuanBantuan.new(pengajuan_bantuan_beasiswa_params)
-    bank = Bank.new(bank_params)
+    beasiswa = Beasiswa.new(beasiswa_params)
+    pengajuan_beasiswa = PengajuBantuan.new(pengajuan_bantuan_beasiswa_params)
+    rekening = Rekening.new(rekening_params)
   
     pengajuan_beasiswa.assign_attributes({ 
       nama: is_civitas.nama,
-      bank: bank,
+      rekening: rekening,
       no_identitas_pengaju: params[:no_identitas_pengaju],
       judul_galang_dana: pengajuan_beasiswa_by_admin.judul_galang_dana,
       waktu_galang_dana: pengajuan_beasiswa_by_admin.waktu_galang_dana,
@@ -74,10 +72,10 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       status_penyaluran: Enums::StatusPenyaluran::NULL
     })
   
-    if beasiswa.save && pengajuan_beasiswa.save && bank.save
-      render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_beasiswa: pengajuan_beasiswa, beasiswa: beasiswa, bank: bank }, Constants::STATUS_CREATED)
+    if beasiswa.save && pengajuan_beasiswa.save && rekening.save
+      render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_beasiswa: pengajuan_beasiswa, beasiswa: beasiswa, rekening: rekening }, Constants::STATUS_CREATED)
     else
-      render_error_response({ pengajuan_beasiswa: pengajuan_beasiswa.errors.full_messages, beasiswa: beasiswa.errors.full_messages, bank: bank.errors.full_messages })
+      render_error_response({ pengajuan_beasiswa: pengajuan_beasiswa.errors.full_messages, beasiswa: beasiswa.errors.full_messages, rekening: rekening.errors.full_messages })
     end
   end
 
@@ -96,10 +94,10 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       return render_error_response("Penanggung Jawab harus berbeda!")
     end
   
-    non_beasiswa = Pengajuan::NonBeasiswa.new(non_beasiswa_params)
+    non_beasiswa = NonBeasiswa.new(non_beasiswa_params)
     non_beasiswa.assign_attributes(nama_penerima: is_civitas_penerima.nama)
-    pengajuan_bantuan = Pengajuan::PengajuanBantuan.new(pengajuan_bantuan_params)
-    bank = Bank.new(bank_params)
+    pengajuan_bantuan = PengajuBantuan.new(pengajuan_bantuan_params)
+    rekening = Rekening.new(rekening_params)
     waktu_galang_dana = DateTime.parse(params[:waktu_galang_dana])
   
     if (waktu_galang_dana - DateTime.now).to_i + 1 < 1
@@ -108,7 +106,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   
     pengajuan_bantuan.assign_attributes({ 
       nama: is_civitas_pengaju.nama,
-      bank: bank,
+      rekening: rekening,
       jenis: "NonBeasiswa",
       non_beasiswa: non_beasiswa,
       waktu_galang_dana: waktu_galang_dana,                                    
@@ -116,10 +114,10 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       status_penyaluran: Enums::StatusPenyaluran::NULL             
     })
   
-    if non_beasiswa.save && pengajuan_bantuan.save && bank.save
-      render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_bantuan: pengajuan_bantuan, non_beasiswa: non_beasiswa, bank: bank },Constants::STATUS_CREATED)
+    if non_beasiswa.save && pengajuan_bantuan.save && rekening.save
+      render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_bantuan: pengajuan_bantuan, non_beasiswa: non_beasiswa, rekening: rekening },Constants::STATUS_CREATED)
     else
-      render_error_response({ pengajuan_bantuan: pengajuan_bantuan.errors.full_messages, non_beasiswa: non_beasiswa.errors.full_messages, bank: bank.errors.full_messages })
+      render_error_response({ pengajuan_bantuan: pengajuan_bantuan.errors.full_messages, non_beasiswa: non_beasiswa.errors.full_messages, rekening: rekening.errors.full_messages })
     end
   end
 
@@ -231,16 +229,15 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   
     beasiswa.assign_attributes(penilaian_esai: penilaian_esai)
   
-    if beasiswa.save
+    if beasiswa.save!(:validate => false)
       render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_bantuan: pengajuan_bantuan, beasiswa: beasiswa }, Constants::STATUS_CREATED)
     else
-      render_error_response(pengajuan_bantuan.errors.full_messages)
+      render_error_response(beasiswa.errors.full_messages)
     end
   end
 
   #Untuk melakukan approval pengajuan beasiswa
   def selectNewPengajuan
-    getDurasiPengajuanBeasiswa(return_json: false)
     if params[:id].blank?
       return render_error_response("id tidak boleh kosong!")
     end
@@ -263,6 +260,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     status_penyaluran = params[:is_approve] == "true" ? Enums::StatusPenyaluran::NEW : Enums::StatusPenyaluran::NULL
   
     if pengajuan_bantuan.jenis == "Beasiswa"
+      getDurasiPengajuanBeasiswa(return_json: false)
       pengajuan_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.first
       penggalangan_dana_beasiswa = Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: pengajuan_admin).first
       beasiswa = Pengajuan::Beasiswa.where(id: pengajuan_bantuan.beasiswa_id).first
@@ -347,13 +345,13 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
         beasiswa = Pengajuan::Beasiswa.where(id: data_pengajuan.beasiswa_id).first
         penerima_data = data_pengajuan.attributes.merge({
           beasiswa_id: beasiswa,
-          bank_id: Bank.where(id: data_pengajuan.bank_id).first
+          rekening_id: Rekening.where(id: data_pengajuan.rekening_id).first
         })
       else
         non_beasiswa = Pengajuan::NonBeasiswa.where(id: data_pengajuan.non_beasiswa_id).first
         penerima_data = data_pengajuan.attributes.merge({
           non_beasiswa_id: non_beasiswa,
-          bank_id: Bank.where(id: data_pengajuan.bank_id).first
+          rekening_id: Rekening.where(id: data_pengajuan.rekening_id).first
         })
       end
       data_array << penerima_data
@@ -393,10 +391,10 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     pengajuan_bantuan.each_with_index do |data_pengajuan, index_pengajuan_bantuan|
       non_beasiswa_new.each_with_index do |data_non_beasiswa, index_non_beasiswa|
         if index_pengajuan_bantuan == index_non_beasiswa
-          bank = Bank.where(id: data_pengajuan.bank_id).first
+          rekening = rekening.where(id: data_pengajuan.rekening_id).first
           data_pengajuan_non_beasiswa << data_pengajuan.attributes.merge({
             non_beasiswa_id: data_non_beasiswa,
-            bank_id: bank
+            rekening_id: rekening
           })
         end
       end
@@ -501,7 +499,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     )
   end
 
-  def bank_params
+  def rekening_params
     params.permit(:nama_bank, :nomor_rekening, :nama_pemilik_rekening)
   end
 
