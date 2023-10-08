@@ -50,7 +50,7 @@ function LaporanRekapitulasiBeasiswa() {
 	const [dataTableDonatur, setDataTableDonatur] = useState([])
 	const [dataTablePenerima, setDataTablePenerima] = useState([])
 	const [month, setMonth] = useState([])
-	const [status, setStatus] = useState('true')
+	const [status, setStatus] = useState('')
 	const [nominal, setNominal] = useState('')
 	const [id, setId] = useState('')
 	const [jenis, setJenis] = useState('Beasiswa')
@@ -91,7 +91,7 @@ function LaporanRekapitulasiBeasiswa() {
 		{ title: 'No Telepon Mahasiswa', id: 'no_telepon' },
 		{ title: 'Nomor Rekening', id: 'nomor_rekening', parentId: 'bank_id' },
 		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id' },
-		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'bank_id' },
+		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'bank_id' }
 	]
 
 	useEffect(() => {
@@ -186,18 +186,41 @@ function LaporanRekapitulasiBeasiswa() {
 			})
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data.data);
+				let arrayData = []
+				arrayData.push(data.data.nominal_penyaluran)
+				console.log(data.data.nominal_penyaluran);
 
 			})
-
 			.catch((err) => {
 				console.log(err.message);
 			})
+
 	}
+
 	// useEffect(() => {
 	// 	getApprovedDonasi()
 	// }, [id])
+	const getApprovedDonasi = async () => {
+		await fetch(
+			'http://localhost:8000/v1/rekapitulasi/getApprovedDonasiByPenggalanganDana',
 
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: id,
+					month: month
+				})
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data)
+			})
+	}
 	return (
 		<Container
 			disableGutters
@@ -230,7 +253,7 @@ function LaporanRekapitulasiBeasiswa() {
 						<TextField select variant="outlined" size="small" label='Pilih bulan' sx={{ minWidth: 200 }} onChange={(val) => getRekapitulasiBeasiswa(val.target.value)}>
 							{
 								month.map((option) => (
-									<MenuItem key={option.value} value={option.value}>
+									<MenuItem key={option.value} value={option.value} onClick={(val) => getApprovedDonasi(val.target.value)}>
 										{option.name}
 									</MenuItem>
 								))
@@ -273,17 +296,14 @@ function LaporanRekapitulasiBeasiswa() {
 														: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
 													}</StyledTableCell>
 												))}
-												<StyledTableCell>
-													<TextField label="Cth: 400000" variant='outlined' sx={{ minWidth: 150 }} onChange={(val) => { handleNominalChange(parseInt(val.target.value)) }}>
 
-													</TextField>
+												<StyledTableCell>
+													<TextField label="Cth: 400000" variant='outlined' sx={{ minWidth: 150 }} onChange={(val) => { handleNominalChange(parseInt(val.target.value)) }} />
 												</StyledTableCell>
 												<StyledTableCell sx={{ display: 'flex' }} >
-													{console.log(row._id.$oid)}
 													<Button onClick={(val) => { selectPenyaluranDanaBeasiswa(row._id.$oid, val.target.value) }}>
 														<TaskAltIcon sx={{ mr: 2 }} color='primary' />
 													</Button>
-
 													<DeleteOutlineIcon sx={{ color: red[500] }} />
 												</StyledTableCell>
 											</StyledTableRow>
@@ -293,8 +313,10 @@ function LaporanRekapitulasiBeasiswa() {
 						</Table>
 					</TableContainer>
 				</Box>
-
-				<Box sx={{ mt: 2 }}>
+				<Box sx={{ mt: 3 }}>
+					<Typography variant='h4'>List Donatur</Typography>
+				</Box>
+				<Box sx={{ mt: 1 }}>
 					<TableContainer component={Paper}>
 						<Table sx={{ minWidth: 700 }} aria-label="customized table">
 							<TableHead >

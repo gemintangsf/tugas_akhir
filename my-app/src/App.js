@@ -20,15 +20,24 @@ import LaporanRekapitulasiDonasi from './views_adm/DaftarDonasi';
 import FormulirDonasi from './components/form/FormDonasi';
 import FormulirBeasiswa from './components/form/FormBeasiswa';
 import FormulirNonBeasiswa from './components/form/FormNonBeasiswa';
+import LoginUser from './views_user/LoginUser';
 // import Item from '@mui/material';
 
 function App() {
+	var user = {
+		name: '',
+		role: '',
+	};
+	if (localStorage.getItem('token')) {
+		user.name = localStorage.getItem('nama');
+		user.password = localStorage.getItem('password');
+	}
 	return (
 		<React.Fragment>
 			<Routes>
 				<Route path='/login' element={<Login />}></Route>
-				<Route path='/' element={<Layout isAdmin={true} />}>
-					<Route path='/' element={<Dashboard />} />
+				<Route path='/' element={<Layout />}>
+					<Route path='' element={<Dashboard />} />
 					<Route path='/penerima-dana' element={<PenerimaBeasiswa />} />
 					<Route path='/penerima-dana/beasiswa' element={<PenerimaBeasiswa />} />
 					<Route path='/penerima-dana/non-beasiswa' element={<PenerimaNonBeasiswa />} />
@@ -40,6 +49,7 @@ function App() {
 					<Route path='/rekapitulasi-donasi' element={<LaporanRekapitulasiDonasi />}></Route>
 				</Route>
 				<Route path='/' element={<LayoutUser />}>
+					<Route path='/login-user' element={<LoginUser />} />
 					<Route path='/beranda' element={<Beranda />} />
 					<Route path='/penggalangan-dana' element={<PenggalanganDana />} />
 					<Route path='/daftar-penggalangan-dana' element={<DaftarPenggalanganDana />} />

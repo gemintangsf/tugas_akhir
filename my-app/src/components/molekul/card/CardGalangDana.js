@@ -1,13 +1,13 @@
 import { Typography, CardContent, Button, Container, Card } from "@mui/material";
 import Diversity1OutlinedIcon from '@mui/icons-material/Diversity1Outlined';
-import WisudaImg from '../../../assets/image_beranda/wisuda.jpg'
+import FundraiseImg from '../../../assets/image_beranda/fundraising_img.jpg'
 
 function InfoCardGalangDana({ title, description, donaturs }) {
 	return (
 		<Card sx={{ mt: 2 }}>
 			<CardContent sx={{ display: 'flex' }}>
 				<div>
-					<img src={WisudaImg} alt="" style={{ borderRadius: '16px', height: '220px' }} />
+					<img src={FundraiseImg} alt="" style={{ borderRadius: '16px', height: '220px' }} />
 				</div>
 				<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '100%' }}>
 					<div>
@@ -20,7 +20,7 @@ function InfoCardGalangDana({ title, description, donaturs }) {
 							<Typography variant='body2' color={'grey'} sx={{ ml: 0.5 }}>{donaturs} Donatur</Typography>
 						</div>
 						<div>
-							<Button href='/form-donasi' size='small' variant='outlined'><Typography sx={{ textTransform: 'capitalize' }}>Donasi</Typography></Button>
+							<Button href='/form-donasi' size='small' variant='outlined' color="success"><Typography sx={{ textTransform: 'capitalize' }}>Donasi</Typography></Button>
 						</div>
 					</div>
 				</div>

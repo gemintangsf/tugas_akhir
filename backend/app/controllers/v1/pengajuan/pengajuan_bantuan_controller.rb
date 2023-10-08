@@ -39,10 +39,6 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       render_error_response("Pendaftaran Pengajuan Bantuan Dana Beasiswa belum dibuka!")
     end
   
-    if @duration_pengajuan < 1
-      render_error_response("Pengajuan Bantuan Dana Beasiswa sudah ditutup!")
-    end
-  
     is_civitas = CivitasAkademika.where(nomor_induk: params[:no_identitas_pengaju]).first
   
     if !is_civitas.present?
@@ -55,7 +51,9 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   
     if is_pengajuan.present?
       return render_error_response("Pengajuan Bantuan Dana Beasiswa sudah dilakukan!")
-    end
+	elsif @duration_pengajuan < 1
+	  return render_error_response("Pengajuan Bantuan Dana Beasiswa sudah ditutup!")
+	end
   
     beasiswa = Pengajuan::Beasiswa.new(beasiswa_params)
     pengajuan_beasiswa = Pengajuan::PengajuanBantuan.new(pengajuan_bantuan_beasiswa_params)
@@ -231,16 +229,16 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   
     beasiswa.assign_attributes(penilaian_esai: penilaian_esai)
   
-    if beasiswa.save
+    if beasiswa.save(:validate => false)
       render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_bantuan: pengajuan_bantuan, beasiswa: beasiswa }, Constants::STATUS_CREATED)
     else
-      render_error_response(pengajuan_bantuan.errors.full_messages)
+      render_error_response(beasiswa.errors.full_messages)
     end
   end
 
   #Untuk melakukan approval pengajuan beasiswa
   def selectNewPengajuan
-    getDurasiPengajuanBeasiswa(return_json: false)
+    
     if params[:id].blank?
       return render_error_response("id tidak boleh kosong!")
     end
@@ -263,6 +261,7 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     status_penyaluran = params[:is_approve] == "true" ? Enums::StatusPenyaluran::NEW : Enums::StatusPenyaluran::NULL
   
     if pengajuan_bantuan.jenis == "Beasiswa"
+		getDurasiPengajuanBeasiswa(return_json: false)
       pengajuan_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.first
       penggalangan_dana_beasiswa = Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: pengajuan_admin).first
       beasiswa = Pengajuan::Beasiswa.where(id: pengajuan_bantuan.beasiswa_id).first

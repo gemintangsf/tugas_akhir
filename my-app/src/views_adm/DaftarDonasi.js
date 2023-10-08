@@ -51,13 +51,7 @@ function LaporanRekapitulasiDonasi() {
 	const handleStatChange = (val) => {
 		setStat(val)
 	}
-	// const [judul, setJudul] = useState('');
-	// const [namaDonatur, setNamaDonatur] = useState('');
-	// const [noTelepon, setNoTelepon] = useState('');
-	// const [nominalDonasi, setNominalDonasi] = useState('');
-	// const [namaPemilikRekening, setNamaPemilikRekening] = useState('');
-	// const [status, setStatus] = useState('')
-	// const [strukPembayaran, setStrukPembayaran] = useState('')
+
 
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -146,6 +140,12 @@ function LaporanRekapitulasiDonasi() {
 
 						console.log(selectedArray)
 					}
+					else {
+						setDataTable([])
+					}
+				})
+				.catch((err) => {
+					console.log('error: ' + err.message)
 				})
 		}
 		getDaftarDonasi()

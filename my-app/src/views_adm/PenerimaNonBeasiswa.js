@@ -49,6 +49,7 @@ function NonBeasiswa() {
 	const [dataTable, setDataTable] = useState([])
 	const [kategori, setKategori] = useState('')
 	const [pengajuan, setPengajuan] = useState('false')
+	const [message, setMessage] = useState('')
 	const handleClose = () => {
 		setOpen(false);
 	};
@@ -73,6 +74,7 @@ function NonBeasiswa() {
 		{ title: 'Nomor Rekening', id: 'nomor_rekening', parentId: 'bank_id' },
 		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id' },
 		{ title: 'Dana yang Dibutuhkan', id: 'dana_yang_dibutuhkan' },
+		{ title: 'Status', id: 'status_pengajuan' }
 	]
 
 	const listKategori = [
@@ -104,11 +106,17 @@ function NonBeasiswa() {
 				})
 				.then((response) => response.json())
 				.then((data) => {
-					let arrayData = []
-					for (let i = 0; i < data.data.length; i++) {
-						arrayData.push(data.data[i])
+					if (data.response_code === 200) {
+						let arrayData = []
+						for (let i = 0; i < data.data.length; i++) {
+							arrayData.push(data.data[i])
+						}
+						setDataTable(arrayData)
+					} else {
+						setMessage(data.response_message)
+						console.log(data.response_message)
 					}
-					setDataTable(arrayData)
+
 				})
 				.catch((err) => {
 					console.log(err.message);
@@ -155,7 +163,6 @@ function NonBeasiswa() {
 							{headers.map((header) =>
 								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
 							)}
-							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
 						</TableHead>
 						<TableBody>
 							{
@@ -172,15 +179,16 @@ function NonBeasiswa() {
 														val.id === 'dokumen_bantuan' ? <Button onClick={handleOpen}>
 															<u style={{ textTransform: "capitalize" }}>Lihat Dokumen</u>
 														</Button>
-															: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+															: val.id === 'status_pengajuan' ?
+																<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+																	<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approved!</Typography>
+																</Button>
+																: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
 													}
 												</StyledTableCell>
 											))
 											}
-											<StyledTableCell sx={{ display: 'flex', py: 5 }}>
-												<TaskAltIcon color='primary' />
-												<DeleteOutlineIcon sx={{ ml: 1, color: red[500] }} />
-											</StyledTableCell>
+
 										</StyledTableRow>
 									)
 									)}

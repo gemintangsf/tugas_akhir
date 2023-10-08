@@ -2,7 +2,7 @@ import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography';
 import InfoCardGalangDana from "../components/molekul/card/CardGalangDana";
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -37,14 +37,17 @@ function DaftarPenggalanganDana() {
 				.then((response) => response.json())
 				.then((data) => {
 					let arrayData = []
+					let arrayId = []
 					for (let i = 0; i < data.data.length; i++) {
 						arrayData.push(data.data[i].pengajuan_bantuan_id)
 					}
 					setKategori(arrayData)
+
 					console.log(data.data)
 				})
 		}
 		getPenggalanganDanaNonBeasiswa()
+		setStep(0)
 	}, [])
 
 	const selectPenggalanganDanaNonBeasiswa = async (id) => {
@@ -65,86 +68,92 @@ function DaftarPenggalanganDana() {
 	}
 
 	const renderDaftarPenggalanganDana = () => {
-
-		{
-			kategori.map((info, index) =>
-			(
-				<InfoCardGalangDana title={info.judul_galang_dana} description={info.deskripsi} donaturs={info.total_donatur} index={index} />
-			))
-		}
+		return (
+			<Box>
+				{
+					kategori.map((info, index) =>
+					(
+						<Link to='/penggalangan-dana' state={info._id.$oid} style={{ textDecoration: 'none' }}>
+							<InfoCardGalangDana title={info.judul_galang_dana} description={info.deskripsi} donaturs={info.total_donatur} key={index} />
+						</Link>
+					))
+				}
+			</Box>
+		)
 	}
 
 	const renderPenggalanganDanaDetail = () => {
-		<Box sx={{ mt: 2, mb: 2 }}>
-			<Typography variant="h3">Judul Penggalangan Dana</Typography>
-			<div style={{ display: 'flex', marginTop: '8px' }}>
-
-				<Box sx={{ width: '75%', marginRight: '32px' }}>
-					<img src={GalangImage} style={{ width: '100%', height: '350px' }}></img>
-					<Typography variant="body1" sx={{ color: 'grey' }}>3 hari lagi</Typography>
-					<Typography variant="body1" sx={{ mt: 2, textAlign: 'justify' }}>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-						Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type
-						and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic
-						typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing
-						Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-					</Typography>
-					<Typography variant="h5" sx={{ mt: 4 }}>Penanggung Jawab dan Penerima Dana</Typography>
-					<Box sx={{ display: 'flex', mt: 1 }}>
-						<div style={{ display: 'flex' }}>
-							<PersonOutlineIcon />
-							<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-								<Typography variant="body1">Gemintang</Typography>
-								<Typography variant="body2" sx={{ color: 'grey' }}>Penanggung Jawab</Typography>
+		return (
+			<Box sx={{ mt: 2, mb: 2 }}>
+				<Typography variant="h3">Judul Penggalangan Dana</Typography>
+				<div style={{ display: 'flex', marginTop: '8px' }}>
+					<Box sx={{ width: '75%', marginRight: '32px' }}>
+						<img src={GalangImage} style={{ width: '100%', height: '350px' }}></img>
+						<Typography variant="body1" sx={{ color: 'grey' }}>3 hari lagi</Typography>
+						<Typography variant="body1" sx={{ mt: 2, textAlign: 'justify' }}>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+							Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type
+							and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic
+							typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing
+							Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+						</Typography>
+						<Typography variant="h5" sx={{ mt: 4 }}>Penanggung Jawab dan Penerima Dana</Typography>
+						<Box sx={{ display: 'flex', mt: 1 }}>
+							<div style={{ display: 'flex' }}>
+								<PersonOutlineIcon />
+								<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
+									<Typography variant="body1">Gemintang</Typography>
+									<Typography variant="body2" sx={{ color: 'grey' }}>Penanggung Jawab</Typography>
+								</div>
 							</div>
-						</div>
-						<ArrowForwardIcon sx={{ ml: 6 }} />
-						<div style={{ display: 'flex', marginLeft: '48px' }}>
-							<PersonOutlineIcon />
-							<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-								<Typography variant="body1">Hasbi</Typography>
-								<Typography variant="body2" sx={{ color: 'grey' }}>Penerima Dana</Typography>
+							<ArrowForwardIcon sx={{ ml: 6 }} />
+							<div style={{ display: 'flex', marginLeft: '48px' }}>
+								<PersonOutlineIcon />
+								<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
+									<Typography variant="body1">Hasbi</Typography>
+									<Typography variant="body2" sx={{ color: 'grey' }}>Penerima Dana</Typography>
+								</div>
 							</div>
-						</div>
+						</Box>
 					</Box>
-				</Box>
-				<Card sx={{ width: 360, height: '100%' }}>
-					<CardContent>
-						<Typography><b>Rp100.000</b> dari Rp170.000</Typography>
-						<Typography sx={{ color: 'Grey', mt: 3 }}>150 donations</Typography>
-						<Button href='/form-donasi' variant="contained" sx={{ mt: 2, width: '100%' }}><Typography sx={{ textTransform: 'capitalize' }}>Donasi Sekarang</Typography></Button>
-						<div style={{ display: 'flex', marginTop: '16px' }}>
-							<VolunteerActivismIcon />
-							<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-								<Typography>Nama Donatur</Typography>
-								<Typography>Rp100.000</Typography>
+					<Card sx={{ width: 360, height: '100%' }}>
+						<CardContent>
+							<Typography><b>Rp100.000</b> dari Rp170.000</Typography>
+							<Typography sx={{ color: 'Grey', mt: 3 }}>150 donations</Typography>
+							<Button href='/form-donasi' variant="contained" sx={{ mt: 2, width: '100%' }}><Typography sx={{ textTransform: 'capitalize' }}>Donasi Sekarang</Typography></Button>
+							<div style={{ display: 'flex', marginTop: '16px' }}>
+								<VolunteerActivismIcon />
+								<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
+									<Typography>Nama Donatur</Typography>
+									<Typography>Rp100.000</Typography>
+								</div>
 							</div>
-						</div>
-						<div style={{ display: 'flex', marginTop: '8px' }}>
-							<VolunteerActivismIcon />
-							<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-								<Typography>Nama Donatur</Typography>
-								<Typography>Rp100.000</Typography>
+							<div style={{ display: 'flex', marginTop: '8px' }}>
+								<VolunteerActivismIcon />
+								<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
+									<Typography>Nama Donatur</Typography>
+									<Typography>Rp100.000</Typography>
+								</div>
 							</div>
-						</div>
-						<div style={{ display: 'flex', marginTop: '8px' }}>
-							<VolunteerActivismIcon />
-							<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-								<Typography>Nama Donatur</Typography>
-								<Typography>Rp100.000</Typography>
+							<div style={{ display: 'flex', marginTop: '8px' }}>
+								<VolunteerActivismIcon />
+								<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
+									<Typography>Nama Donatur</Typography>
+									<Typography>Rp100.000</Typography>
+								</div>
 							</div>
-						</div>
-						<div style={{ display: 'flex', marginTop: '24px' }}>
-							<Button variant="outlined"><Typography sx={{ textTransform: 'capitalize' }}>Lihat Semua</Typography></Button>
-							<Button variant="outlined" sx={{ ml: 2 }}><Typography sx={{ textTransform: 'capitalize' }}>Donasi Teratas</Typography></Button>
-						</div>
-					</CardContent>
-				</Card>
-			</div>
-		</Box>
+							<div style={{ display: 'flex', marginTop: '24px' }}>
+								<Button variant="outlined"><Typography sx={{ textTransform: 'capitalize' }}>Lihat Semua</Typography></Button>
+								<Button variant="outlined" sx={{ ml: 2 }}><Typography sx={{ textTransform: 'capitalize' }}>Donasi Teratas</Typography></Button>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+			</Box>
+		)
 	}
 	return (
 		<Container>
-			<Typography fontWeight='bold' variant='h3' sx={{ mt: 2, color: '#212121' }}>Daftar Penggalangan Dana {state === 'Medis' ? 'Medis' : 'Bencana' ? 'Bencana' : 'Beasiswa'}</Typography>
+			<Typography fontWeight='bold' variant='h3' sx={{ mt: 2, color: '#212121' }}>Daftar Penggalangan Dana {state === 'Medis' ? 'Medis' : 'Bencana'}</Typography>
 			{
 				step === 0 ? renderDaftarPenggalanganDana() : renderPenggalanganDanaDetail()
 			}

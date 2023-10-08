@@ -31,18 +31,27 @@ class V1::User::AdminController < ApplicationController
     end
   end
 
-  def getBankByAdmin
+  def getBankByAdmin(return_json: true)
     admin = User::Admin.where(role: "AdminJTKBerbagi").first
-    if not admin.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Admin JTK Berbagi tidak ada!"
-        }, status: :unprocessable_entity
+    if return_json
+      if not admin.present?
+        render json: {
+          response_code: Constants::ERROR_CODE_VALIDATION,
+          response_message: "Admin JTK Berbagi tidak ada!"
+          }, status: :unprocessable_entity
+      else
+        bank = Bank.where(:id => admin.bank_id).first
+        render_success_response(Constants::RESPONSE_SUCCESS, bank, Constants::STATUS_OK)
+      end
     else
-      bank = Bank.where(:id => admin.bank_id).first
+      if not admin.present?
+        bank = []
+      else
+        bank = Bank.where(:id => admin.bank_id).first
+      end
       return bank
-    end
-  end
+	end
+end
 
   private
     # Use callbacks to share common setup or constraints between actions.

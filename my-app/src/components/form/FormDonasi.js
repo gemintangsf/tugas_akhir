@@ -7,7 +7,7 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 
@@ -32,8 +32,12 @@ function FormulirDonasi() {
 	const [namaBank, setNamaBank] = useState('')
 	const [namaPemilikRekening, setNamaPemilikRekening] = useState('')
 	const [strukPembayaran, setStrukPembayaran] = useState('')
+	const [bankAdmin, setBankAdmin] = useState([])
+	const [pendingDonasi, setPendingDonasi] = useState([])
+	const [idDonasi, setIdDonasi] = useState('')
 
 	const [step, setStep] = useState(0);
+
 	const handleNamaDonaturChange = (val) => {
 		setNamaDonatur(val)
 	}
@@ -55,6 +59,30 @@ function FormulirDonasi() {
 	const handleStrukPembayaranChange = (val) => {
 		setStrukPembayaran(val)
 	}
+
+	useEffect(() => {
+		const getBankAdmin = async () => {
+			await fetch('http://localhost:8000/v1/user/admin/getBankByAdmin',
+				{
+					mode: 'cors',
+					method: 'GET',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+				})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data.data)
+					let arrayData = []
+					arrayData.push(data.data)
+					setBankAdmin(arrayData)
+				})
+		}
+		getBankAdmin()
+	}, [])
+
 	const createDonasi = async () => {
 		await fetch('http://localhost:8000/v1/penggalangan/donasi/createDonasi',
 			{
@@ -77,8 +105,8 @@ function FormulirDonasi() {
 			})
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data.data);
-
+				console.log(data.data.donasi._id.$oid);
+				setIdDonasi(data.data.donasi._id.$oid)
 			})
 
 			.catch((err) => {
@@ -86,6 +114,35 @@ function FormulirDonasi() {
 			})
 		setStep(1)
 	}
+
+
+	useEffect(() => {
+		const getPendingDonasi = async () => {
+			await fetch('http://localhost:8000/v1/penggalangan/donasi/getPendingDonasi',
+				{
+					mode: 'cors',
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},
+					body: JSON.stringify({
+						id: idDonasi
+					})
+				})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data.data)
+					let arrayData = []
+					arrayData.push(data.data)
+					setPendingDonasi(arrayData)
+				})
+		}
+		if (step === 1) {
+			getPendingDonasi()
+		}
+	}, [step])
 
 	const uploadStrukPembayaran = async () => {
 		await fetch('http://localhost:8000/v1/penggalangan/donasi/uploadStrukPembayaran',
@@ -98,14 +155,15 @@ function FormulirDonasi() {
 					'Access-Control-Allow-Origin': '*',
 				},
 				body: JSON.stringify({
+					"id": idDonasi,
 					"struk_pembayaran": strukPembayaran
 				})
-			}
-				.then((response) => response.json())
-				.then((data) => {
-					console.log(data)
-				})
-		)
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data);
+
+			})
 	}
 	const renderDataPribadiSection = () => {
 		return (
@@ -155,6 +213,7 @@ function FormulirDonasi() {
 							<TextField variant="outlined" size="small" label='cth: 1300046121001' onChange={(val) => handleNomorRekeningChange(val.target.value)} />
 							<Typography variant="body1" sx={{ mt: 2 }}>Nama Pemilik Rekening</Typography>
 							<TextField variant="outlined" size="small" label='cth: HASBI' onChange={(val) => handleNamaPemilikRekeningChange(val.target.value)} />
+
 							<Button size="medium" variant="contained" color="success" onClick={createDonasi} sx={{ mt: 4, textTransform: 'capitalize' }}>Lanjut Pembayaran</Button>
 						</CardContent>
 					</Card>
@@ -199,29 +258,41 @@ function FormulirDonasi() {
 				<Box sx={{ display: 'flex', justifyContent: 'center' }}>
 					<Card sx={{ width: 400, my: 3 }}>
 						<CardContent sx={{ display: "flex", flexDirection: 'column' }}>
-							<Box sx={{ display: 'flex', flexDirection: 'column', backgroundColor: '#F2F2F2', p: 1, borderRadius: '8px' }}>
-								<div>
-									<Typography variant="body2" color={'grey'}>Batas waktu pembayaran</Typography>
-									<Typography variant="body1" fontWeight={'bold'}>Senin, 12 Juni 2023 19.20 WIB</Typography>
-								</div>
-								<div style={{ display: "flex", justifyContent: 'space-between', marginTop: '16px' }}>
-									<div style={{ display: 'flex', alignItems: 'center' }}>
-										<Typography variant='body2' sx={{}}>Status :</Typography>
-										<Box border={1} borderRadius={8} borderColor={'red'} px={1} sx={{ ml: 1 }}>
-											<Typography variant='caption' sx={{ color: 'red' }}>Pending</Typography>
+							{
+								pendingDonasi
+									.map((info, index) => (
+										<Box sx={{ display: 'flex', flexDirection: 'column', backgroundColor: '#F2F2F2', p: 1, borderRadius: '8px' }}>
+											<div>
+												<Typography variant="body2" color={'grey'}>Batas waktu pembayaran</Typography>
+												<Typography variant="body1" fontWeight={'bold'}>{info.waktu_berakhir}</Typography>
+											</div>
+											<div style={{ display: "flex", justifyContent: 'space-between', marginTop: '16px' }}>
+												<div style={{ display: 'flex', alignItems: 'center' }}>
+													<Typography variant='body2' sx={{}}>Status :</Typography>
+													<Box border={1} borderRadius={8} borderColor={'red'} px={1} sx={{ ml: 1 }}>
+														<Typography variant='caption' sx={{ color: 'red' }}>Pending</Typography>
+													</Box>
+												</div>
+												<div style={{ display: "flex", alignItems: 'center' }}>
+													<TimerOutlinedIcon fontSize="small" />
+													<Typography variant="body2" sx={{ ml: 0.5 }}>{ }</Typography>
+												</div>
+											</div>
 										</Box>
-									</div>
-									<div style={{ display: "flex", alignItems: 'center' }}>
-										<TimerOutlinedIcon fontSize="small" />
-										<Typography variant="body2" sx={{ ml: 0.5 }}>{ }</Typography>
-									</div>
-								</div>
-							</Box>
+									))
+							}
 							<Typography sx={{ mt: 2 }}>Nomor Rekening Tujuan</Typography>
-							<Box sx={{ borderRadius: '8px', backgroundColor: '#F2F2F2', p: 1 }}>
-								<Typography variant="body2" >Bank Mandiri</Typography>
-								<Typography>130000461239010</Typography>
-							</Box>
+							{
+								bankAdmin
+									.map((info, index) => (
+										<Box sx={{ borderRadius: '8px', backgroundColor: '#F2F2F2', p: 1 }}>
+											<Typography variant="body2" >{info.nama_bank}</Typography>
+											<Typography>{info.nomor_rekening}</Typography>
+											<Typography>{info.nama_pemilik_rekening}</Typography>
+										</Box>
+									))
+							}
+
 							<Typography sx={{ mt: 2 }}>Jumlah Donasi</Typography>
 							<Box sx={{ borderRadius: '8px', backgroundColor: '#F2F2F2', p: 1 }}>
 								<Typography variant="body1" fontWeight={'bold'} >{nominalDonasi}</Typography>

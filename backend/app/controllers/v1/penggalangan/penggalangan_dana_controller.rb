@@ -325,7 +325,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     }, status: :ok
   end
 
-  def getDataDonaturByPenggalanganDana(penggalangan_dana_id)
+def getDataDonaturByPenggalanganDana(penggalangan_dana_id)
     penggalangan_dana = Penggalangan::PenggalanganDana.where(id: penggalangan_dana_id).first
     
     return {} unless penggalangan_dana.present? && penggalangan_dana.donasi_id.present?
@@ -333,32 +333,36 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
     donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
     donatur = User::Donatur.donatur_registered.where(:donasi_id.in => donasi.pluck(:id))
     
-    if donatur.length > 1
-      array_of_data_donatur = donatur.map do |data_donatur|
-        data_donasi = Penggalangan::Donasi.approved.where(:id.in => data_donatur.donasi_id)
-        {
-          id: data_donatur.id,
-          nama: data_donatur.nama,
-          donasi_id: data_donasi.pluck(:nominal).inject(0, :+)
-        }
-      end
-  
-      total_donasi = donasi.length
-  
-      sorted_data_donatur = array_of_data_donatur.sort_by { |item| -item[:donasi_id] }
-      sorted_data_donatur << { total_donasi: total_donasi }
-  
-      sorted_data_donatur
-    else
-      donatur_data = donatur.first
-      total_donasi = donasi.length
-      data_donatur = donatur_data.attributes.merge({
-        donasi_id: donasi.pluck(:nominal).inject(0, :+),
-        total_donasi: total_donasi
-      })
-      [data_donatur]
-    end
-  end
+	if !donatur.present?
+		return []
+	else
+	  	if donatur.length > 1
+			array_of_data_donatur = donatur.map do |data_donatur|
+				data_donasi = Penggalangan::Donasi.approved.where(:id.in => data_donatur.donasi_id)
+				{
+					id: data_donatur.id,
+					nama: data_donatur.nama,
+					donasi_id: data_donasi.pluck(:nominal).inject(0, :+)
+				}
+			end
+	
+			total_donasi = donasi.length
+	
+			sorted_data_donatur = array_of_data_donatur.sort_by { |item| -item[:donasi_id] }
+			sorted_data_donatur << { total_donasi: total_donasi }
+	
+			sorted_data_donatur
+		else
+			donatur_data = donatur.first
+			total_donasi = donasi.length
+			data_donatur = donatur_data.attributes.merge({
+				donasi_id: donasi.pluck(:nominal).inject(0, :+),
+				total_donasi: total_donasi
+			})
+			[data_donatur]
+		end
+	end
+end
 
   private
   #form pengaju

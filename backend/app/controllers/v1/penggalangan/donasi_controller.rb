@@ -42,7 +42,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
       waktu_berakhir: waktu_berakhir,
       status: status_donasi,
       jumlah_donasi: donasi.nominal,
-      bank: V1::User::AdminController.new.getBankByAdmin
+      bank: V1::User::AdminController.new.getBankByAdmin(return_json: false)
       },
       Constants::STATUS_OK
     )

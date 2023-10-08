@@ -116,10 +116,7 @@ function CalonPenerimaBeasiswa() {
 			})
 			.then((response) => response.json())
 			.then((data) => {
-				// for (let i = 0; i < data.data.length; i++) {
-				// 	onchange(val) = handlePenilaianEsaiChange(val.target.data_mhs)
 
-				// }
 				console.log(data.data)
 			})
 	}
@@ -146,6 +143,14 @@ function CalonPenerimaBeasiswa() {
 	}
 	const nilaiEsai = [
 		{
+			label: 'Kurang',
+			value: 'Kurang',
+		},
+		{
+			label: 'Cukup',
+			value: 'Cukup',
+		},
+		{
 			label: 'Baik',
 			value: 'Baik',
 		},
@@ -170,6 +175,7 @@ function CalonPenerimaBeasiswa() {
 		{ title: 'Biaya Konsumsi', id: 'biaya_konsumsi', parentId: 'beasiswa_id' },
 		{ title: 'Biaya Internet', id: 'biaya_internet', parentId: 'beasiswa_id' },
 		{ title: 'Biaya Kos', id: 'biaya_kos', parentId: 'beasiswa_id' },
+		{ title: 'Status', id: 'status_pengajuan' }
 	]
 
 	const style = {
@@ -258,13 +264,17 @@ function CalonPenerimaBeasiswa() {
 																	</MenuItem>
 																))
 															}
-														</TextField> :
+														</TextField>
+														:
 														val.id === 'kuitansi_pembayaran_ukt' || val.id === 'bukti_slip_gaji_orang_tua' || val.id === 'esai' ?
 															<Button onClick={handleOpenModal}>
 																<u style={{ textTransform: "capitalize" }}>Details</u>
 															</Button>
-															:
-															<span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+															: val.id === 'status_pengajuan' ?
+																<Button size='small' variant='outlined' color='error' sx={{ backgroundColor: '#CFACAD' }}>
+																	<Typography style={{ textTransform: "capitalize", color: '#A30D11', fontSize: '12px' }}>Pending</Typography>
+																</Button> :
+																<span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
 												}
 													<Modal
 														open={openModal}
@@ -288,7 +298,6 @@ function CalonPenerimaBeasiswa() {
 												<Button onClick={(val) => { approvePengajuanBeasiswa(row._id.$oid, val.target.value) }}>
 													<TaskAltIcon sx={{ mr: 1 }} color='primary' />
 												</Button>
-												<DeleteOutlineIcon sx={{ color: red[500] }} />
 											</StyledTableCell>
 										</StyledTableRow>
 									)

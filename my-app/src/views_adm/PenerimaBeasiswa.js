@@ -101,6 +101,7 @@ function BantuanBeasiswa() {
 		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id' },
 		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'bank_id' },
 		{ title: 'Dokumen Kehadiran Perkuliahan', id: 'dokumen_kehadiran' },
+		{ title: 'Status', id: 'status_pengajuan' }
 	]
 
 	return (
@@ -132,7 +133,7 @@ function BantuanBeasiswa() {
 							{headers.map((header) =>
 								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
 							)}
-							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
+
 						</TableHead>
 						<TableBody>
 							{
@@ -148,14 +149,16 @@ function BantuanBeasiswa() {
 													<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'dokumen_kehadiran' ? <Button onClick={handleOpen}>
 														<u style={{ textTransform: "capitalize" }}>Lihat Dokumen</u>
 													</Button>
-														: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+														: val.id === 'status_pengajuan' ?
+
+															<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+																<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approved!</Typography>
+															</Button>
+															: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
 													}</StyledTableCell>
 												))
 											}
-											<StyledTableCell sx={{ display: 'flex', py: 4.5 }}>
-												<TaskAltIcon sx={{ mr: 1 }} color='primary' />
-												<DeleteOutlineIcon sx={{ color: red[500] }} />
-											</StyledTableCell>
+
 										</StyledTableRow>
 									)
 									)}

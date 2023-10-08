@@ -12,18 +12,13 @@ import Button from '@mui/material/Button'
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
-import { json } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 // import Item from '@mui/material';
 
 
 function Dashboard() {
 
-	const cardList = [
-		{ title: 'List Calon Penerima Beasiswa', description: 'Mahasiswa', value: 6 },
-		{ title: 'Pengajuan Bantuan Dana Tersedia', description: 'Pengajuan', value: 6 },
-		{ title: 'Pengajuan Bantuan Dana Diterima', description: 'Pengajuan', value: 6 },
-		{ title: 'Dana Terkumpul', description: 'Total Dana Terkumpul', value: 50000000 }
-	]
+
 	const styleBox = {
 		position: 'absolute',
 		top: '50%',
@@ -39,8 +34,17 @@ function Dashboard() {
 	const [deskripsi, setDeskripsi] = React.useState('');
 	const [kuotaBeasiswa, setKuotaBeasiswa] = React.useState('');
 	const [tanggalBerakhir, setTanggalBerakhir] = React.useState('');
-	const [id, setId] = React.useState('64997232e21fac364c2d0d51');
-	const [jumlahPenerimaBantuan, setJumlahPenerimaBantuan] = React.useState([])
+	const [id, setId] = React.useState('64f8c7c1e21fac129c8e33cc');
+	const [jumlahPenerimaBantuan, setJumlahPenerimaBantuan] = React.useState('')
+	const [jumlahDonasi, setJumlahDonasi] = React.useState('')
+	const [openModal, setOpenModal] = React.useState(false);
+	const [openModalImportData, setOpenModalImportData] = React.useState(false);
+	const [openModalNonBeasiswa, setOpenModalNonBeasiswa] = React.useState(false);
+	const [openModalGalangDana, setOpenModalGalangDana] = React.useState(false);
+	const [anchorEl, setAnchorEl] = React.useState(null);
+	const [jenis, setJenis] = React.useState('NonBeasiswa')
+	const [jumlahPengajuan, setJumlahPengajuan] = React.useState('')
+	const [jumlahDana, setJumlahDana] = React.useState('')
 	const handleJudulChange = (val) => {
 		setJudulGalangDana(val)
 	}
@@ -53,10 +57,7 @@ function Dashboard() {
 	const handleTanggalBerakhirChange = (val) => {
 		setTanggalBerakhir(val)
 	}
-	// const handleJenisBeasiswa = (val) => {
-	// 	setJenisBeasiswa(val)
-	// }
-	const [anchorEl, setAnchorEl] = React.useState(null);
+
 	const open = Boolean(anchorEl)
 	const handleCloseMenu = () => setAnchorEl(null)
 
@@ -64,7 +65,16 @@ function Dashboard() {
 		setAnchorEl(event.currentTarget);
 	};
 
-	const [openModal, setOpenModal] = React.useState(false);
+	const cardList = [
+		{ title: 'Pengajuan Bantuan Dana Non Beasiswa', description: 'Pengajuan', value: jumlahPengajuan },
+		{ title: 'Penggalangan Dana Berlangsung', description: 'Penggalangan Dana', value: jumlahPenerimaBantuan },
+		{ title: 'Daftar Donasi', description: 'Donatur', value: jumlahDonasi },
+		{ title: 'Dana Terkumpul', description: 'Total Dana Terkumpul', value: jumlahDana }
+	]
+
+	var menuList = cardList;
+	const location = useLocation()
+	const currentLocationData = menuList.reduce((result, item) => item.url === location.pathname ? [...result, item] : result, []);
 	const handleOpen = () => {
 		setOpenModal(true);
 		setAnchorEl(null);
@@ -72,41 +82,107 @@ function Dashboard() {
 		console.log(jenisBeasiswa, 'test1')
 	};
 
-	const [openModalNonBeasiswa, setOpenModalNonBeasiswa] = React.useState(false)
 	const handleOpenNonBeasiswa = () => {
 		setOpenModalNonBeasiswa(true);
 		setAnchorEl(null);
 	}
-
-	const [openModalGalangDana, setOpenModalGalangDana] = React.useState(false)
 	const handleOpenGalangDana = () => {
 		setOpenModalGalangDana(true);
 		setOpenModalNonBeasiswa(false);
 	}
+	const handleOpenImportData = () => {
+		setOpenModalImportData(true)
+	}
 	const handleCloseModalGalangDana = () => setOpenModalGalangDana(false);
 	const handleCloseModal = () => setOpenModal(false);
+	const handleCloseModalImportData = () => setOpenModalImportData(false);
 
+	const getTotalCalonPengajuan = async () => {
+		await fetch(
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getTotalCalonPengajuan',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					jenis: jenis
+				})
+			}
+		)
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data)
+				let arrayData = []
+				arrayData.push(data.data)
+				setJumlahPengajuan(arrayData)
+			})
+
+	}
+	const getTotalDanaTerkumpul = async () => {
+		await fetch(
+			'http://localhost:8000/v1/penggalangan/donasi/getTotalAllDonasi',
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data)
+				let arrayData = []
+				arrayData.push(data.data)
+				setJumlahDana(arrayData)
+			})
+	}
+	const getTotalNewDonasi = async () => {
+		await fetch(
+			'http://localhost:8000/v1/penggalangan/donasi/getTotalNewDonasi',
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data)
+				let arrayData = []
+				arrayData.push(data.data)
+				setJumlahDonasi(arrayData)
+			})
+	}
+	const getTotalPenerimaBantuan = async () => {
+		await fetch(
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getTotalPenerimaBantuan',
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data.penerima_bantuan_admin)
+				let arrayData = []
+				arrayData.push(data.data.penerima_bantuan_admin)
+				setJumlahPenerimaBantuan(arrayData)
+			})
+	}
 	React.useEffect(() => {
-		const getTotalPenerimaBantuan = async () => {
-			await fetch(
-				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getTotalPenerimaBantuan',
-				{
-					method: 'GET',
-					headers: {
-						Accept: 'application/json',
-						'Content-Type': 'application/json',
-						'Access-Control-Allow-Origin': '*',
-					},
-				})
-				.then((response) => response.json())
-				.then((data) => {
-					console.log(data.data)
-					let arrayData = []
-					arrayData.push(data.data)
-					setJumlahPenerimaBantuan(arrayData)
-				})
-		}
 		getTotalPenerimaBantuan()
+		getTotalNewDonasi()
+		getTotalCalonPengajuan()
+		getTotalDanaTerkumpul()
 	}, [])
 	const createPenggalanganDana = async () => {
 		await fetch('http://localhost:8000/v1/penggalangan/penggalangan_dana/createPenggalanganDanaBeasiswa',
@@ -122,7 +198,6 @@ function Dashboard() {
 					id: id,
 					judul_galang_dana: judulGalangDana,
 					deskripsi: deskripsi,
-					waktu_galang_dana: tanggalBerakhir,
 					total_pengajuan: kuotaBeasiswa
 				}),
 			})
@@ -148,31 +223,50 @@ function Dashboard() {
 				<DashboardIcon fontSize='small'></DashboardIcon>
 				<Typography variant='h4' sx={{ ml: 1 }}>Dashboard</Typography>
 			</Box>
-			<Box sx={{ display: 'flex', mt: 2, justifyContent: 'space-between' }}>
-				<Typography variant="h3">
-					Selamat Datang, Admin!
-				</Typography>
-				<Button variant='contained'
-					id="basic-button"
-					aria-controls={open ? 'basic-menu' : undefined}
-					aria-haspopup="true"
-					aria-expanded={open ? 'true' : undefined}
-					onClick={handleClick}
+			<Box sx={{ mt: 2 }}>
+				<Box>
+					<Typography variant="h3">
+						Selamat Datang, Admin!
+					</Typography>
+				</Box>
+				<Box sx={{ mt: 6, display: 'flex', justifyContent: 'center' }}>
+					<Button variant='contained'
+						id="basic-button"
+						aria-controls={open ? 'basic-menu' : undefined}
+						aria-haspopup="true"
+						aria-expanded={open ? 'true' : undefined}
+						onClick={handleClick}
+					>
+						<Typography>Buat Galang Dana!</Typography>
+					</Button>
+					<Menu
+						id="basic-menu"
+						anchorEl={anchorEl}
+						open={open}
+						MenuListProps={{
+							'aria-labelledby': 'basic-button',
+						}}
+					>
+						<MenuItem onClick={handleOpen}>Beasiswa</MenuItem>
+						<MenuItem onClick={handleOpenNonBeasiswa}>Non Beasiswa</MenuItem>
+					</Menu>
+					<Button variant='outlined' sx={{ ml: 2 }} onClick={handleOpenImportData}>
+						<Typography>Import Data</Typography>
+					</Button>
+				</Box>
+				<Modal
+					open={openModalImportData}
+					onClose={handleCloseModalImportData}
 				>
-					<Typography>Buat Galang Dana!</Typography>
-				</Button>
-				<Menu
-					id="basic-menu"
-					anchorEl={anchorEl}
-					open={open}
-					MenuListProps={{
-						'aria-labelledby': 'basic-button',
-
-					}}
-				>
-					<MenuItem onClick={handleOpen}>Beasiswa</MenuItem>
-					<MenuItem onClick={handleOpenNonBeasiswa}>Non Beasiswa</MenuItem>
-				</Menu>
+					<Box sx={styleBox}>
+						<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
+							<Typography variant='h3' color={'white'}>Import Data Civitas Akademika JTK POLBAN</Typography>
+						</Box>
+						<Box>
+							<TextField type='file'></TextField>
+						</Box>
+					</Box>
+				</Modal>
 				<Modal
 					open={openModal}
 					onClose={handleCloseModal}
@@ -312,12 +406,11 @@ function Dashboard() {
 					</Box>
 				</Modal>
 			</Box>
-			<Box sx={{ mt: 2 }}>
+			<Box >
 				<Grid container spacing={2}>
 					{cardList.map((info, index) =>
 					(
 						<Grid item md={6} >
-
 							<CardInfo title={info.title} description={info.description} value={info.value} index={index} />
 						</Grid>
 					))}

@@ -13,11 +13,11 @@ import { useNavigate } from 'react-router-dom';
 
 function Login() {
 	const [showPassword, setShowPassword] = React.useState(false);
-	const [username, setUsername] = React.useState('hasbiishlahyazam')
+	const [username, setUsername] = React.useState('')
 	const handleUsernameChange = (event) => {
 		setUsername(event.target.value);
 	};
-	const [password, setPassword] = React.useState('hasbi123');
+	const [password, setPassword] = React.useState('');
 	const handlePasswordChange = (event) => {
 		setPassword(event.target.value);
 	};
@@ -28,14 +28,14 @@ function Login() {
 		event.preventDefault();
 	};
 
-	const tryLogin = () => {
-		if (username === 'hasbiishlahyazm') {
-			navigate('/Dashboard')
-		}
-		else {
-			setEmailPasswordValidation(false)
-		}
-	}
+	// const tryLogin = () => {
+	// 	if (username === 'hasbiishlahyazm') {
+	// 		navigate('/Dashboard')
+	// 	}
+	// 	else {
+	// 		setEmailPasswordValidation(false)
+	// 	}
+	// }
 	const handleLogin = (e) => {
 		setIsLoading(true);
 		console.log(username + password);
@@ -43,6 +43,39 @@ function Login() {
 		tryLogin();
 	};
 	const navigate = useNavigate();
+
+	const tryLogin = async () => {
+		await fetch(
+			'http://localhost:8000/v1/authentication/login',
+			{
+				method: 'POST',
+				body: JSON.stringify({
+					username: username,
+					password: password
+				}),
+				headers: {
+					'Accept': 'application/json',
+					'X-Requested-With': 'application/json',
+					'Content-type': 'application/json; charset=UTF-8',
+					'Access-Control-Allow-Origin': '*'
+				},
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				setIsLoading(false);
+				if (data.response_code === 200) {
+					setEmailPasswordValidation(true)
+					console.log(data.data);
+					navigate("/")
+				} else {
+					setEmailPasswordValidation(false);
+					console.log('token not found');
+				}
+			})
+			.catch((err) => {
+				console.log(err.message);
+			});
+	}
 	return (
 		<Box sx={{ width: '100%' }}>
 			<Grid
@@ -102,6 +135,7 @@ function Login() {
 								}}
 								className="TextField"
 								value={username}
+								onChange={handleUsernameChange}
 							/>
 							<TextField
 								fullWidth
@@ -129,7 +163,7 @@ function Login() {
 								variant="contained"
 								fullWidth
 								disableElevation
-								href='/'
+								onClick={isLoading ? null : handleLogin}
 							>
 								<Typography variant="button">{isLoading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Login"}</Typography>
 							</Button>

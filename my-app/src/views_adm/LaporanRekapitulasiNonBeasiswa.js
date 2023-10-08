@@ -45,6 +45,7 @@ function LaporanRekapitulasiNonBeasiswa() {
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [dataTable, setDataTable] = useState([])
 	const [dataTableDetails, setDataTableDetails] = useState([])
+	const [month, setMonth] = useState('')
 
 	const [step, setStep] = useState(0)
 
@@ -78,14 +79,14 @@ function LaporanRekapitulasiNonBeasiswa() {
 		{ title: 'Status', id: 'status' }
 	]
 	const headersDetails = [
-		{ title: 'Nama Donatur', id: 'nama' },
-		{ title: 'Nomor Telepon', id: 'nomor_telepon' },
-		{ title: 'Nominal Donasi (Rp)', id: 'nominal_donasi' },
+		{ title: 'Nama Donatur', id: 'donatur', parentId: 'nama' },
+		{ title: 'Nomor Telepon', id: 'nomor_telepon', parentId: 'donatur' },
+		{ title: 'Nominal Donasi (Rp)', id: 'nominal_donasi', },
 		{ title: 'Status', id: 'status' }
 	]
 	const getRekapitulasiNonBeasiswa = async () => {
 		await fetch(
-			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getRekapitulasiNonBeasiswa',
+			'http://localhost:8000/v1/rekapitulasi/getRekapitulasiNonBeasiswa',
 			{
 				method: 'GET',
 				headers: {
@@ -97,12 +98,13 @@ function LaporanRekapitulasiNonBeasiswa() {
 		)
 			.then((response) => response.json())
 			.then((data) => {
+				console.log(data.data)
 				if (data.response_code === 200) {
 					let arrayData = []
 					for (let i = 0; i < data.data.length; i++) {
 						arrayData.push(data.data[i])
 					}
-					console.log(data.data)
+					console.log(arrayData)
 					setDataTable(arrayData)
 				}
 				else {
@@ -117,7 +119,7 @@ function LaporanRekapitulasiNonBeasiswa() {
 
 	const getRekapitulasiNonBeasiswaDetails = async (id) => {
 		await fetch(
-			'http://localhost:8000/v1/penggalangan/penggalangan_dana/getApprovedDonasiByPenggalanganDana',
+			'http://localhost:8000/v1/rekapitulasi/getApprovedDonasiByPenggalanganDana',
 			{
 				method: 'POST',
 				headers: {
@@ -126,24 +128,19 @@ function LaporanRekapitulasiNonBeasiswa() {
 					'Access-Control-Allow-Origin': '*',
 				},
 				body: JSON.stringify({
-					id: id
+					id: id,
+					month: month
 				})
 			})
 			.then((response) => response.json())
 			.then((data) => {
-				if (data.response_code === 200) {
-					let arrayDataDonatur = []
-					for (let i = 0; i < data.data.length; i++) {
-						arrayDataDonatur.push(data.data[i])
-					}
-					setDataTableDetails(arrayDataDonatur)
-					console.log(data.id)
-				} else {
-					console.log(data.response_message)
+				console.log(data.data)
+				let arrayDataDonatur = []
+				for (let i = 0; i < data.data.length; i++) {
+					arrayDataDonatur.push(data.data[i])
 				}
-			})
-			.catch((err) => {
-				console.log('error : ' + err.message);
+				setDataTableDetails(arrayDataDonatur)
+				console.log(arrayDataDonatur)
 			})
 		setStep(1)
 	}
@@ -227,7 +224,7 @@ function LaporanRekapitulasiNonBeasiswa() {
 									.map((row, index) => (
 										<StyledTableRow key={index}>
 											<StyledTableCell>{index + 1}</StyledTableCell>
-											{Object.entries(headers).map(([key, val]) => (
+											{Object.entries(headersDetails).map(([key, val]) => (
 												<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
 													<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
 														<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Delivered</Typography>

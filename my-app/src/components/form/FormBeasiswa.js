@@ -1,5 +1,4 @@
 import { Typography, TextField, Container, Card, CardContent, Box, Button, MenuItem } from "@mui/material";
-import axios from "axios";
 import Timeline from '@mui/lab/Timeline';
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
@@ -223,11 +222,11 @@ function FormulirBeasiswa() {
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Nomor Telepon</Typography>
 					<TextField variant="outlined" size="small" label='cth: 082121445524' onChange={(val) => { handleNoTeleponChange(val.target.value) }}></TextField>
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Nama Pemilik Rekening</Typography>
-					<TextField variant="outlined" size="small" label='cth: 082121445524' onChange={(val) => { handlePemilikRekeningChange(val.target.value) }}></TextField>
+					<TextField variant="outlined" size="small" label='cth: JOHN DOE' onChange={(val) => { handlePemilikRekeningChange(val.target.value) }}></TextField>
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Nama Bank</Typography>
-					<TextField variant="outlined" size="small" label='cth: 082121445524' onChange={(val) => { handleNamaBankChange(val.target.value) }}></TextField>
+					<TextField variant="outlined" size="small" label='cth: Mandiri' onChange={(val) => { handleNamaBankChange(val.target.value) }}></TextField>
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Nomor Rekening</Typography>
-					<TextField variant="outlined" size="small" label='cth: 082121445524' onChange={(val) => { handleNoRekeningChange(val.target.value) }}></TextField>
+					<TextField variant="outlined" size="small" label='cth: 1300046201001' onChange={(val) => { handleNoRekeningChange(val.target.value) }}></TextField>
 					<div>
 						<Button size="medium" variant="contained" sx={{ mt: 4, textTransform: 'capitalize' }} onClick={() => setStep(1)}>Selanjutnya</Button>
 					</div>

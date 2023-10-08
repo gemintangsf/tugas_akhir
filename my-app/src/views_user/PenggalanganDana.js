@@ -11,30 +11,10 @@ function PenggalanganDana() {
 	const { state } = useLocation()
 	const data = state || ''
 	const [info, setInfo] = useState([])
-	const [identitas, setIdentitas] = useState('')
+	const [identitas, setIdentitas] = useState(data)
 	const [jumlahDonatur, setJumlahDonatur] = useState([])
 	const [penerima, setPenerima] = useState([])
-	useEffect(() => {
-		const getAllPenggalanganDana = async () => {
-			await fetch(
-				'http://localhost:8000/v1/penggalangan/penggalangan_dana/getAllPenggalanganDana',
-				{
-					method: 'GET',
-					headers: {
-						Accept: 'application/json',
-						'Content-Type': 'application/json',
-						'Access-Control-Allow-Origin': '*',
-					}
-				}
-			)
-				.then((response) => response.json())
-				.then((data) => {
-					setIdentitas(data.data[0]._id.$oid)
-				}
-				)
-		}
-		getAllPenggalanganDana()
-	}, [])
+
 	useEffect(() => {
 		const selectPenggalanganDanaBeasiswa = async () => {
 			await fetch('http://localhost:8000/v1/penggalangan/penggalangan_dana/selectPenggalanganDana',
@@ -56,12 +36,14 @@ function PenggalanganDana() {
 					let arrayDonatur = []
 					let arrayPenerima = []
 					arrayData.push(data.data)
-					console.log(data.data)
+					console.log('test', data.data)
 					arrayDonatur.push(data.data.data_donatur)
-					for (let i; i < data.data.penerima_bantuan.length; i++) {
+					for (let i = 0; i < data.data.penerima_bantuan.length; i++) {
 						arrayPenerima.push(data.data.penerima_bantuan[i])
+						console.log('katakata', data.data.penerima_bantuan[i])
+
 					}
-					console.log(data.data.penerima_bantuan)
+					console.log('katekate', arrayPenerima)
 					setInfo(arrayData)
 					setJumlahDonatur(arrayDonatur)
 					setPenerima(arrayPenerima)
@@ -97,39 +79,31 @@ function PenggalanganDana() {
 									</div>
 								</Box>
 								<Typography variant="h5" sx={{ mt: 1 }}>Daftar Penerima Dana</Typography>
-								<Box>
-									<div style={{ display: 'flex' }}>
-										<PersonOutlineOutlinedIcon />
-										<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-											<Typography variant="body1">{data.penerima_bantuan[0].nama}</Typography>
-											<Typography variant="body2" sx={{ color: 'grey' }}>Penerima Dana</Typography>
-											<Typography>"{data.penerima_bantuan[0].deskripsi}"</Typography>
-										</div>
-									</div>
-								</Box>
-								<Box>
-									<div style={{ display: 'flex' }}>
-										<PersonOutlineOutlinedIcon />
-										<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-											<Typography variant="body1">{data.penerima_bantuan[0].nama}</Typography>
-											<Typography variant="body2" sx={{ color: 'grey' }}>Penerima Dana</Typography>
-										</div>
-									</div>
-								</Box>
-								<Box>
-									<div style={{ display: 'flex' }}>
-										<PersonOutlineOutlinedIcon />
-										<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-											<Typography variant="body1">{data.penerima_bantuan[0].nama}</Typography>
-											<Typography variant="body2" sx={{ color: 'grey' }}>Penerima Dana</Typography>
-										</div>
-									</div>
-								</Box>
+								{
+									penerima
+										.map((info, index) => (
+											<Box>
+												<div style={{ display: 'flex' }}>
+													<PersonOutlineOutlinedIcon />
+													<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
+														<Typography variant="body1">{info.nama}</Typography>
+														<Typography variant="body2" sx={{ color: 'grey' }}>Penerima Dana</Typography>
+														<Typography>"{info.deskripsi}"</Typography>
+													</div>
+												</div>
+											</Box>
+										))
+								}
 							</Box>
 							<Card sx={{ width: 360, height: '100%' }}>
 								<CardContent>
 									<Typography><b>{'Rp' + data.total_nominal_terkumpul}</b> dari {data.penanggung_jawab.dana_yang_dibutuhkan}</Typography>
-									<Typography sx={{ color: 'Grey', mt: 3 }}>{data.data_donatur[data.data_donatur.length - 1].total_donasi + ' Donations'}</Typography>
+									{
+										data.data_donatur === null ?
+											<Typography>Belum ada donatur</Typography> :
+											<Typography sx={{ color: 'Grey', mt: 3 }}>{data.data_donatur[data.data_donatur.length - 1].total_donasi + ' Donations'}</Typography>
+									}
+
 									<Link to='/form-donasi' state={identitas}>
 										<Button variant="contained" sx={{ mt: 2, width: '100%' }}><Typography sx={{ textTransform: 'capitalize' }}>Donasi Sekarang</Typography></Button>
 									</Link>
@@ -151,9 +125,7 @@ function PenggalanganDana() {
 													}
 												</div>
 											))
-
 									}
-
 									<div style={{ display: 'flex', marginTop: '24px' }}>
 										<Button variant="outlined"><Typography sx={{ textTransform: 'capitalize' }}>Lihat Semua</Typography></Button>
 										<Button variant="outlined" sx={{ ml: 2 }}><Typography sx={{ textTransform: 'capitalize' }}>Donasi Teratas</Typography></Button>
@@ -164,10 +136,7 @@ function PenggalanganDana() {
 					</Box>
 				))
 			}
-
-
 		</Container>
 	)
-
 }
 export default PenggalanganDana;
