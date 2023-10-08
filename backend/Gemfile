@@ -36,6 +36,7 @@ gem 'rswag'
 gem 'rswag-api'
 gem 'rswag-ui'
 gem 'rexml'
+gem 'rspec-rails'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'

@@ -9,10 +9,8 @@ describe 'Penggalangan Dana API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            id: {type: :string, example: "64c988c5e21fac0ab0a04ec5"},
-            judul_galang_dana: {type: :string, example: "Penggalangan Dana untuk Beasiswa"},
+            judul: {type: :string, example: "Penggalangan Dana untuk Beasiswa"},
             deskripsi: {type: :string, example: "Penggalangan Dana untuk Beasiswa Mahasiswa JTK"},
-            total_pengajuan: {type: :integer, example: 6},
         },
         required: []
       }
@@ -47,17 +45,19 @@ describe 'Penggalangan Dana API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-          nama: {type: :string, example: "Gemintang"},
-          no_telepon: {type: :string, example: "082118397901"},
+          nama_penanggung_jawab: {type: :string, example: "Gemintang"},
+          nomor_induk_penanggung_jawab: {type: :string, example: "191524009"},
+          nomor_telepon_penanggung_jawab: {type: :string, example: "082118397901"},
           nomor_rekening: {type: :string, example: "21312214"},
           nama_pemilik_rekening: {type: :string, example: "Gemintang"},
           nama_bank: {type: :string, example: "BSI"},
           judul_galang_dana: {type: :string, example: "Galang Dana untuk Pengobatan"},
-          waktu_galang_dana: {type: :string, example: "30-06-2023"},
-          deskripsi: {type: :string, example: "Membutuhkan biaya untuk pengobatan"},
+          waktu_galang_dana: {type: :string, example: "02-10-2023"},
+          deskripsi_galang_dana: {type: :string, example: "Membutuhkan biaya untuk pengobatan"},
           dana_yang_dibutuhkan: {type: :integer, example: 1000000},
           nama_penerima: {type: :string, example: "Tatang"},
-          no_telepon_penerima: {type: :string, example: "082118397901"},
+          nomor_induk_penerima: {type: :string, example: "191524024"},
+          nomor_telepon_penerima: {type: :string, example: "082118397901"},
           kategori: {type: :string, example: "Medis"},
         },
         required: []
@@ -127,7 +127,7 @@ describe 'Penggalangan Dana API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            id: {type: :string, example: "649ad853e21fac364c2d0da6"},
+            id: {type: :integer, example: 729245},
         },
         required: []
       }

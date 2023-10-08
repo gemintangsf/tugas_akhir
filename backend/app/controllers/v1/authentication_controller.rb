@@ -2,7 +2,7 @@ class V1::AuthenticationController < ApplicationController
     before_action :authorize_request, except: :login
 
     def login
-        admin = Admin.where(username: params[:username]).first
+        admin = PenanggungJawab.where(username: params[:username]).first
         if admin.blank?
           render json: { 
             response_code: 401, 

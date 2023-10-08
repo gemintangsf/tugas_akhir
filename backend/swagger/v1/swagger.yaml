@@ -23,8 +23,8 @@ paths:
               type: string
               example: Admin JTK Berbagi
             role:
-              type: string
-              example: AdminJTKBerbagi
+              type: integer
+              example: 0
             username:
               type: string
               example: AdminJTKBerbagi
@@ -286,15 +286,15 @@ paths:
           type: object
           properties:
             id:
-              type: string
-              example: 649982e0e21fac364c2d0d54
+              type: integer
+              example: 729245
             nama:
               type: string
               example: Donatur1
             nomor_telepon:
               type: string
               example: '082118397901'
-            nominal:
+            nominal_donasi:
               type: integer
               example: 100000
             nomor_rekening:
@@ -349,9 +349,9 @@ paths:
         schema:
           type: object
           properties:
-            id:
+            nomor_referensi:
               type: string
-              example: 64afa051e21fac273c87bf2c
+              example: '162018131519'
             struk_pembayaran:
               type: string
               example: path
@@ -386,9 +386,6 @@ paths:
         schema:
           type: object
           properties:
-            id:
-              type: string
-              example: 649dee71e21fac1f60f56d4d
             nomor_referensi:
               type: string
               example: '141719192019'
@@ -438,9 +435,9 @@ paths:
         schema:
           type: object
           properties:
-            id:
+            nomor_referensi:
               type: string
-              example: 649dd899e21fac1f60f56d45
+              example: '162018131519'
           required: []
       responses:
         '201':
@@ -687,10 +684,10 @@ paths:
             nama:
               type: string
               example: Gemintang
-            no_identitas_pengaju:
+            nim:
               type: string
               example: '191524009'
-            no_telepon:
+            nomor_telepon:
               type: string
               example: '082118397901'
             nomor_rekening:
@@ -702,7 +699,7 @@ paths:
             nama_bank:
               type: string
               example: BSI
-            deskripsi:
+            alasan_butuh_bantuan:
               type: string
               example: membutuhkan bantuan dana untuk kuliah
             golongan_ukt:
@@ -781,13 +778,13 @@ paths:
         schema:
           type: object
           properties:
-            nama:
+            nama_penanggung_jawab:
               type: string
               example: Gemintang
-            no_identitas_pengaju:
+            nomor_induk_penanggung_jawab:
               type: string
               example: '191524009'
-            no_telepon:
+            nomor_telepon_penanggung_jawab:
               type: string
               example: '082118397901'
             nomor_rekening:
@@ -804,8 +801,8 @@ paths:
               example: Galang Dana untuk Pengobatan
             waktu_galang_dana:
               type: string
-              example: 30-06-2023
-            deskripsi:
+              example: 02-10-2023
+            deskripsi_galang_dana:
               type: string
               example: Membutuhkan biaya untuk pengobatan
             dana_yang_dibutuhkan:
@@ -814,10 +811,10 @@ paths:
             nama_penerima:
               type: string
               example: Tatang
-            no_identitas_penerima:
+            nomor_induk_penerima:
               type: string
               example: '191524024'
-            no_telepon_penerima:
+            nomor_telepon_penerima:
               type: string
               example: '082118397901'
             bukti_butuh_bantuan:
@@ -870,8 +867,8 @@ paths:
           type: object
           properties:
             id:
-              type: string
-              example: 638235b0e21fac0354b16976
+              type: integer
+              example: 763850
             penilaian_esai:
               type: string
               example: Baik
@@ -1001,7 +998,7 @@ paths:
               response_code:
                 type: integer
                 example: 401
-  "/v1/pengajuan/pengajuan_bantuan/selectNewPengajuan":
+  "/v1/pengajuan/pengajuan_bantuan/approvalPengajuanBeasiswa":
     post:
       summary: Approval Pengajuan Baru
       tags:
@@ -1017,8 +1014,57 @@ paths:
           type: object
           properties:
             id:
+              type: integer
+              example: 763850
+            is_approve:
               type: string
-              example: 638235b0e21fac0354b16976
+              example: 'true'
+          required: []
+      responses:
+        '200':
+          description: Successfull
+          schema:
+            type: object
+        '422':
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Pengajuan Beasiswa tidak dapat ditemukan!
+              response_code:
+                type: integer
+                example: 422
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              response_message:
+                type: string
+                example: Tidak memiliki akses!
+              response_code:
+                type: integer
+                example: 401
+  "/v1/pengajuan/pengajuan_bantuan/approvalPengajuanNonBeasiswa":
+    post:
+      summary: Approval Pengajuan Baru
+      tags:
+      - Pengajuan Bantuan
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 763850
             is_approve:
               type: string
               example: 'true'
@@ -1265,18 +1311,12 @@ paths:
         schema:
           type: object
           properties:
-            id:
-              type: string
-              example: 64c988c5e21fac0ab0a04ec5
-            judul_galang_dana:
+            judul:
               type: string
               example: Penggalangan Dana untuk Beasiswa
             deskripsi:
               type: string
               example: Penggalangan Dana untuk Beasiswa Mahasiswa JTK
-            total_pengajuan:
-              type: integer
-              example: 6
           required: []
       responses:
         '201':
@@ -1320,10 +1360,13 @@ paths:
         schema:
           type: object
           properties:
-            nama:
+            nama_penanggung_jawab:
               type: string
               example: Gemintang
-            no_telepon:
+            nomor_induk_penanggung_jawab:
+              type: string
+              example: '191524009'
+            nomor_telepon_penanggung_jawab:
               type: string
               example: '082118397901'
             nomor_rekening:
@@ -1340,8 +1383,8 @@ paths:
               example: Galang Dana untuk Pengobatan
             waktu_galang_dana:
               type: string
-              example: 30-06-2023
-            deskripsi:
+              example: 02-10-2023
+            deskripsi_galang_dana:
               type: string
               example: Membutuhkan biaya untuk pengobatan
             dana_yang_dibutuhkan:
@@ -1350,7 +1393,10 @@ paths:
             nama_penerima:
               type: string
               example: Tatang
-            no_telepon_penerima:
+            nomor_induk_penerima:
+              type: string
+              example: '191524024'
+            nomor_telepon_penerima:
               type: string
               example: '082118397901'
             kategori:
@@ -1446,8 +1492,8 @@ paths:
           type: object
           properties:
             id:
-              type: string
-              example: 649ad853e21fac364c2d0da6
+              type: integer
+              example: 729245
           required: []
       responses:
         '201':

@@ -43,7 +43,8 @@ Rails.application.routes.draw do
         post "selectLanjutBeasiswa" => "pengajuan_bantuan#selectLanjutBeasiswa"
         post "/createPengajuanBeasiswa" => "pengajuan_bantuan#createPengajuanBeasiswa"
         post "/createPengajuanNonBeasiswa" => "pengajuan_bantuan#createPengajuanNonBeasiswa"
-        post "/selectNewPengajuan" => "pengajuan_bantuan#selectNewPengajuan"
+        post "/approvalPengajuanBeasiswa" => "pengajuan_bantuan#approvalPengajuanBeasiswa"
+        post "/approvalPengajuanNonBeasiswa" => "pengajuan_bantuan#approvalPengajuanNonBeasiswa"
         post "/createPenilaianEsai" => "pengajuan_bantuan#createPenilaianEsai"
         get "/getTotalPenerimaBantuan" => "pengajuan_bantuan#getTotalPenerimaBantuan"
       end

@@ -6,16 +6,16 @@ class V1::User::AdminController < ApplicationController
   end
 
   def createAdmin
-    admin_registered = Admin.where(role: params[:role])
+    admin_registered = PenanggungJawab.where(role: params[:role])
     if admin_registered.present?
       render json: {
         response_code: Constants::ERROR_CODE_VALIDATION,
         response_message: "Admin dengan Role #{params[:role]} sudah terdaftar!"
         }, status: :unprocessable_entity
     else
-      admin = Admin.new(admin_params)
-      rekening = Rekening.new(rekening_params)
-      admin.assign_attributes(rekening: rekening)
+      admin = PenanggungJawab.new(admin_params)
+      rekening = RekeningBank.new(rekening_params)
+      rekening.assign_attributes(penanggung_jawab: admin)
       if admin.save and rekening.save
         render json: {
             response_code: Constants::RESPONSE_CREATED, 
@@ -31,21 +31,14 @@ class V1::User::AdminController < ApplicationController
     end
   end
 
-  def getRekeningByAdmin
-    admin = User::Admin.where(role: "AdminJTKBerbagi").first
+  def getRekeningBankByAdmin
+    admin = PenanggungJawab.penanggung_jawab_jtk_berbagi.first
     if not admin.present?
-      render json: {
-        response_code: Constants::ERROR_CODE_VALIDATION,
-        response_message: "Admin JTK Berbagi tidak ada!"
-        }, status: :unprocessable_entity
+      rekening_bank = []
     else
-      rekening = Rekening.where(:id => admin.rekening_id).first
-      render json: {
-        response_code: Constants::RESPONSE_SUCCESS,
-        response_message: "Success!",
-        data: rekening,
-        }, status: :ok
+      rekening_bank = RekeningBank.where(penanggung_jawab_id: admin.role).first
     end
+    return rekening_bank
   end
 
   private

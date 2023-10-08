@@ -10,7 +10,7 @@ describe 'Admin API' do
         type: :object,
         properties: {
             nama: {type: :string, example: "Admin JTK Berbagi"},
-            role: {type: :string, example: "AdminJTKBerbagi"},
+            role: {type: :integer, example: 0},
             username: {type: :string, example: "AdminJTKBerbagi"},
             nama_bank: {type: :string, example: "BSI"},
             nomor_rekening: {type: :string, example: "219382932"},

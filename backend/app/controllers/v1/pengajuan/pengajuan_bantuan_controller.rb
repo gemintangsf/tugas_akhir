@@ -1,21 +1,20 @@
 class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   #mendapatkan durasi pendaftaran
   def getDurasiPengajuanBeasiswa(return_json: true)
-    pengajuan_beasiswa_by_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.first
+    penggalangan_dana_beasiswa_on_going = PenggalanganDanaBeasiswa.where(status: 0).first
   
-    if not pengajuan_beasiswa_by_admin.present?
+    if not penggalangan_dana_beasiswa_on_going.present?
       @duration_pengajuan = 0
       @error_message = "Pendaftaran Pengajuan Bantuan Dana Beasiswa belum dibuka!"
-    end
-  
-    start_date = pengajuan_beasiswa_by_admin.created_at.to_datetime
-    last_day_of_month = Date.new(start_date.year, start_date.month, -1)
-  
-    if start_date.month != DateTime.now.month or start_date.year != DateTime.now.year
-      @duration_pengajuan = 0
-      @error_message = "Pengajuan Bantuan Dana Beasiswa sudah ditutup!"
     else
-      @duration_pengajuan = last_day_of_month.day - DateTime.now.day + 1
+      start_date = penggalangan_dana_beasiswa_on_going.waktu_dimulai
+      last_day_of_month = Date.new(start_date.year, start_date.month, -1)
+      if start_date.month != DateTime.now.month or start_date.year != DateTime.now.year
+        @duration_pengajuan = -1
+        @error_message = "Pengajuan Bantuan Dana Beasiswa sudah ditutup!"
+      else
+        @duration_pengajuan = last_day_of_month.day - DateTime.now.day + 1
+      end
     end
   
   
@@ -33,56 +32,80 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   #Untuk membuat pengajuan bantuan dana beasiswa
   def createPengajuanBeasiswa
     getDurasiPengajuanBeasiswa(return_json: false)
-    pengajuan_beasiswa_by_admin = PengajuBantuan.pengajuan_baru_admin.first
   
-    if !pengajuan_beasiswa_by_admin.present?
-      render_error_response("Pendaftaran Pengajuan Bantuan Dana Beasiswa belum dibuka!")
-    end
-  
-    is_civitas = CivitasAkademika.where(nomor_induk: params[:no_identitas_pengaju]).first
-  
-    if !is_civitas.present?
-      render_error_response("NIM tidak dapat ditemukan!")
-    end
-  
-    is_pengajuan = PengajuBantuan.not.where(status_pengajuan: Enums::StatusPengajuan::DONE)
-                                         .where(no_identitas_pengaju: params[:no_identitas_pengaju])
-                                         .where(jenis: "Beasiswa").first
-  
-    if is_pengajuan.present?
-      return render_error_response("Pengajuan Bantuan Dana Beasiswa sudah dilakukan!")
-    elsif @duration_pengajuan < 1
+    if @duration_pengajuan == 0
+      return render_error_response("Pendaftaran Pengajuan Bantuan Dana Beasiswa belum dibuka!")
+    elsif @duration_pengajuan == -1
       return render_error_response("Pengajuan Bantuan Dana Beasiswa sudah ditutup!")
     end
   
-    beasiswa = Beasiswa.new(beasiswa_params)
-    pengajuan_beasiswa = PengajuBantuan.new(pengajuan_bantuan_beasiswa_params)
-    rekening = Rekening.new(rekening_params)
+    penggalangan_dana_beasiswa_on_going = PenggalanganDanaBeasiswa.on_going.first
   
-    pengajuan_beasiswa.assign_attributes({ 
-      nama: is_civitas.nama,
-      rekening: rekening,
-      no_identitas_pengaju: params[:no_identitas_pengaju],
-      judul_galang_dana: pengajuan_beasiswa_by_admin.judul_galang_dana,
-      waktu_galang_dana: pengajuan_beasiswa_by_admin.waktu_galang_dana,
-      dana_yang_dibutuhkan: pengajuan_beasiswa_by_admin.dana_yang_dibutuhkan,
-      jenis: pengajuan_beasiswa_by_admin.jenis,
-      beasiswa: beasiswa,
+    if !penggalangan_dana_beasiswa_on_going.present?
+      return render_error_response("Pendaftaran Pengajuan Bantuan Dana Beasiswa belum dibuka!")
+    end
+  
+    is_civitas = CivitasAkademika.where(nomor_induk: params[:nim]).first
+  
+    if !is_civitas.present?
+      return render_error_response("NIM tidak dapat ditemukan!")
+    end
+
+    list_bantuan_dana_beasiswa_on_going = BantuanDanaBeasiswa.pengajuan_on_going.where(penggalangan_dana_beasiswa_id: penggalangan_dana_beasiswa_on_going.penggalangan_dana_beasiswa_id)
+    if list_bantuan_dana_beasiswa_on_going.present?
+      is_pengajuan = list_bantuan_dana_beasiswa_on_going.pengajuan_on_going.where(mahasiswa_id: params[:nim]).first
+    end
+  
+    if is_pengajuan.present?
+      return render_error_response("Pengajuan Bantuan Dana Beasiswa sudah dilakukan")
+    end
+
+    bantuan_dana_beasiswa = BantuanDanaBeasiswa.new(bantuan_dana_beasiswa_params)
+    mahasiswa_registered = Mahasiswa.where(nim: params[:nim]).first
+    if mahasiswa_registered.present?
+      mahasiswa = mahasiswa_registered
+    else
+      mahasiswa = Mahasiswa.new(mahasiswa_params)
+      mahasiswa.assign_attributes(nama: is_civitas.nama)
+    end
+
+    rekening_bank_owned = RekeningBank.where(nomor_rekening: params[:nomor_rekening]).first
+    rekening_bank_registered = RekeningBank.where(mahasiswa_id: params[:nim]).first
+    if rekening_bank_registered.present?
+      rekening_bank = rekening_bank_registered
+    elsif rekening_bank_owned.present?
+      return render_error_response("Nomor Rekening sudah terdaftar!")
+    else
+      rekening_bank = RekeningBank.new(rekening_bank_params)
+      rekening_bank.assign_attributes({
+        mahasiswa_id: mahasiswa
+      })
+    end
+    bantuan_dana_beasiswa.assign_attributes({ 
+      bantuan_dana_beasiswa_id: randomize_bantuan_dana_beasiswa_id(),
+      mahasiswa: mahasiswa,
+      penggalangan_dana_beasiswa: penggalangan_dana_beasiswa_on_going,
       status_pengajuan: Enums::StatusPengajuan::NEW,
       status_penyaluran: Enums::StatusPenyaluran::NULL
     })
   
-    if beasiswa.save && pengajuan_beasiswa.save && rekening.save
-      render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_beasiswa: pengajuan_beasiswa, beasiswa: beasiswa, rekening: rekening }, Constants::STATUS_CREATED)
+    rekening_bank.assign_attributes({
+      mahasiswa: mahasiswa
+    })
+  
+    if bantuan_dana_beasiswa.save && mahasiswa.save && rekening_bank.save
+      render_success_response(Constants::RESPONSE_SUCCESS, { mahasiswa: mahasiswa, bantuan_dana_beasiswa: bantuan_dana_beasiswa, rekening_bank: rekening_bank }, Constants::STATUS_CREATED)
     else
-      render_error_response({ pengajuan_beasiswa: pengajuan_beasiswa.errors.full_messages, beasiswa: beasiswa.errors.full_messages, rekening: rekening.errors.full_messages })
+      render_error_response({ mahasiswa: mahasiswa.errors.full_messages, bantuan_dana_beasiswa: bantuan_dana_beasiswa.errors.full_messages, rekening_bank: rekening_bank.errors.full_messages })
     end
   end
+  
+  
 
   #Untuk membuat pengajuan bantuan non dana beasiswa
   def createPengajuanNonBeasiswa
-    is_civitas_pengaju = CivitasAkademika.where(nomor_induk: params[:no_identitas_pengaju]).first
-    is_civitas_penerima = CivitasAkademika.where(nomor_induk: params[:no_identitas_penerima]).first
+    is_civitas_pengaju = CivitasAkademika.where(nomor_induk: params[:nomor_induk_penanggung_jawab]).first
+    is_civitas_penerima = CivitasAkademika.where(nomor_induk: params[:nomor_induk_penerima]).first
   
     if !is_civitas_pengaju.present? && !is_civitas_penerima.present?
       return render_error_response("NIM/NIP Penanggung Jawab dan Penerima tidak dapat ditemukan!")
@@ -93,31 +116,83 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     elsif is_civitas_pengaju == is_civitas_penerima
       return render_error_response("Penanggung Jawab harus berbeda!")
     end
-  
-    non_beasiswa = NonBeasiswa.new(non_beasiswa_params)
-    non_beasiswa.assign_attributes(nama_penerima: is_civitas_penerima.nama)
-    pengajuan_bantuan = PengajuBantuan.new(pengajuan_bantuan_params)
-    rekening = Rekening.new(rekening_params)
+
+    penerima_non_beasiswa_registered = PenerimaNonBeasiswa.where(nomor_induk: params[:nomor_induk_penerima]).first
+    penanggung_jawab_non_beasiswa_registered = PenanggungJawabNonBeasiswa.where(nomor_induk: params[:nomor_induk_penanggung_jawab]).first
+    
+    if !penerima_non_beasiswa_registered.present?
+      penerima_non_beasiswa = PenerimaNonBeasiswa.new(
+        nama: is_civitas_penerima.nama,
+        nomor_induk: params[:nomor_induk_penerima],
+        nomor_telepon: params[:nomor_telepon_penerima]
+      )
+    else
+      penerima_non_beasiswa = penerima_non_beasiswa_registered
+    end
+
+    if !penanggung_jawab_non_beasiswa_registered.present?
+      penanggung_jawab_non_beasiswa = PenanggungJawabNonBeasiswa.new(
+        nama: is_civitas_pengaju.nama,
+        nomor_induk: params[:nomor_induk_penanggung_jawab],
+        nomor_telepon: params[:nomor_induk_penanggung_jawab]
+      )
+    else
+      penanggung_jawab_non_beasiswa = penanggung_jawab_non_beasiswa_registered
+    end
+
+    penanggungjawabnonbeasiswa_has_penerimanonbeasiswa_registered = PenanggungJawabNonBeasiswaHasPenerimaNonBeasiswa.where(penanggung_jawab_non_beasiswa_id: params[:nomor_induk_penanggung_jawab]).first
+    penerimanonbeasiswa_has_penanggungjawabnonbeasiswa_registered = PenanggungJawabNonBeasiswaHasPenerimaNonBeasiswa.where(penerima_non_beasiswa_id: params[:nomor_induk_penerima]).first
+    if !penanggungjawabnonbeasiswa_has_penerimanonbeasiswa_registered.present? and penerimanonbeasiswa_has_penanggungjawabnonbeasiswa_registered.present?
+      if penerimanonbeasiswa_has_penanggungjawabnonbeasiswa_registered.penanggung_jawab_non_beasiswa_id != params[:nomor_induk_penanggung_jawab]
+        penerima_non_beasiswa.penanggung_jawab_non_beasiswa << penanggung_jawab_non_beasiswa
+      end
+    elsif !penerimanonbeasiswa_has_penanggungjawabnonbeasiswa_registered.present? and penanggungjawabnonbeasiswa_has_penerimanonbeasiswa_registered.present?
+      if penanggungjawabnonbeasiswa_has_penerimanonbeasiswa_registered.penerima_non_beasiswa_id != params[:nomor_induk_penerima]
+        penanggung_jawab_non_beasiswa.penerima_non_beasiswa << penerima_non_beasiswa
+      end
+    else
+      penanggung_jawab_non_beasiswa.penerima_non_beasiswa << penerima_non_beasiswa
+    end
+
+    rekening_bank_owned = RekeningBank.where(nomor_rekening: params[:nomor_rekening]).first
+    rekening_bank_registered = RekeningBank.where(penerima_non_beasiswa_id: params[:nomor_induk_penerima]).first
+    if rekening_bank_registered.present?
+      rekening_bank = rekening_bank_registered
+    elsif rekening_bank_owned.present?
+      return render_error_response("Nomor Rekening sudah terdaftar!")
+    else
+      rekening_bank = RekeningBank.new(rekening_bank_params)
+      rekening_bank.assign_attributes({
+        penerima_non_beasiswa: penerima_non_beasiswa
+      })
+    end
+
+    
     waktu_galang_dana = DateTime.parse(params[:waktu_galang_dana])
   
     if (waktu_galang_dana - DateTime.now).to_i + 1 < 1
       return render_error_response("Tanggal harus lebih dari hari sekarang!")
     end
   
-    pengajuan_bantuan.assign_attributes({ 
-      nama: is_civitas_pengaju.nama,
-      rekening: rekening,
-      jenis: "NonBeasiswa",
-      non_beasiswa: non_beasiswa,
-      waktu_galang_dana: waktu_galang_dana,                                    
+    bantuan_dana_non_beasiswa = BantuanDanaNonBeasiswa.new(bantuan_dana_non_beasiswa_params)
+
+    bantuan_dana_non_beasiswa.assign_attributes({
+      bantuan_dana_non_beasiswa_id: randomize_bantuan_dana_non_beasiswa_id(),
+      waktu_galang_dana: waktu_galang_dana,
+      penanggung_jawab_non_beasiswa: penanggung_jawab_non_beasiswa,
       status_pengajuan: Enums::StatusPengajuan::NEW,
-      status_penyaluran: Enums::StatusPenyaluran::NULL             
+      status_penyaluran: Enums::StatusPenyaluran::NULL
     })
   
-    if non_beasiswa.save && pengajuan_bantuan.save && rekening.save
-      render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_bantuan: pengajuan_bantuan, non_beasiswa: non_beasiswa, rekening: rekening },Constants::STATUS_CREATED)
+    if penerima_non_beasiswa.save && penanggung_jawab_non_beasiswa.save && rekening_bank.save && bantuan_dana_non_beasiswa.save
+      render_success_response(Constants::RESPONSE_SUCCESS,{ penerima_non_beasiswa: penerima_non_beasiswa, penanggung_jawab_non_beasiswa: penanggung_jawab_non_beasiswa, rekening_bank: rekening_bank, bantuan_dana_non_beasiswa: bantuan_dana_non_beasiswa}, Constants::STATUS_CREATED)
     else
-      render_error_response({ pengajuan_bantuan: pengajuan_bantuan.errors.full_messages, non_beasiswa: non_beasiswa.errors.full_messages, rekening: rekening.errors.full_messages })
+      render_error_response({ 
+        penerima_non_beasiswa: penerima_non_beasiswa.errors.full_messages, 
+        penanggung_jawab_non_beasiswa: penanggung_jawab_non_beasiswa.errors.full_messages, 
+        rekening_bank: rekening_bank.errors.full_messages,
+        bantuan_dana_non_beasiswa: bantuan_dana_non_beasiswa.errors.full_messages
+        })
     end
   end
 
@@ -199,15 +274,13 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       return render_error_response("id tidak boleh kosong!")
     end
   
-    pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_baru.where(jenis: "Beasiswa").where(id: params[:id]).first
+    bantuan_dana_beasiswa = BantuanDanaBeasiswa.where(bantuan_dana_beasiswa_id: params[:id]).first
   
-    if !pengajuan_bantuan.present?
-      return render_error_response("Pengajuan Bantuan tidak dapat ditemukan!")
+    if !bantuan_dana_beasiswa.present?
+      return render_error_response("Bantuan Dana Beasiswa tidak dapat ditemukan!")
     end
   
-    beasiswa = Pengajuan::Beasiswa.where(id: pengajuan_bantuan.beasiswa_id).first
-
-    if beasiswa.penilaian_esai.present?
+    if bantuan_dana_beasiswa.penilaian_esai.present?
       return render_error_response("Penilaian Esai sudah dilakukan!")
     end
   
@@ -226,86 +299,97 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
                      when "Baik" then Enums::PenilaianEsai::GOOD
                      when "SangatBaik" then Enums::PenilaianEsai::VERYGOOD
                      end
-  
-    beasiswa.assign_attributes(penilaian_esai: penilaian_esai)
-  
-    if beasiswa.save!(:validate => false)
-      render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_bantuan: pengajuan_bantuan, beasiswa: beasiswa }, Constants::STATUS_CREATED)
+    bantuan_dana_beasiswa.assign_attributes({penilaian_esai: penilaian_esai})
+
+    if bantuan_dana_beasiswa.save
+      render_success_response(Constants::RESPONSE_SUCCESS, { bantuan_dana_beasiswa: bantuan_dana_beasiswa }, Constants::STATUS_CREATED)
     else
-      render_error_response(beasiswa.errors.full_messages)
+      render_error_response(bantuan_dana_beasiswa.errors.full_messages)
     end
   end
 
-  #Untuk melakukan approval pengajuan beasiswa
-  def selectNewPengajuan
+  def approvalPengajuanBeasiswa
+    getDurasiPengajuanBeasiswa(return_json: false)
+    if @duration_pengajuan > 1
+      return render_error_response("Pendaftaran Beasiswa masih dibuka!")
+    end
+
     if params[:id].blank?
       return render_error_response("id tidak boleh kosong!")
     end
-  
-    pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_baru.where(id: params[:id]).first
-  
-    if !pengajuan_bantuan.present?
-      return render_error_response("Data Pengajuan Baru tidak ditemukan!")
+
+    bantuan_dana_beasiswa = BantuanDanaBeasiswa.where(bantuan_dana_beasiswa_id: params[:id]).first
+
+    if !bantuan_dana_beasiswa.present?
+      return render_error_response("Pengajuan Bantuan Dana Beasiswa tidak dapat ditemukan!")
     end
-    penggalangan_dana = Penggalangan::PenggalanganDana.where(:pengajuan_bantuan_id => pengajuan_bantuan.id).first
+
+    if !bantuan_dana_beasiswa.penilaian_esai.present?
+      return render_error_response("Penilaian Esai tidak boleh kosong!")
+    end
+
     if params[:is_approve].blank?
       return render_error_response("is_approve tidak boleh kosong!")
     end
-  
+    
     unless %w[true false].include?(params[:is_approve])
       return render_error_response("is_approve hanya dapat true atau false!")
     end
 
     status_pengajuan = params[:is_approve] == "true" ? Enums::StatusPengajuan::APPROVED : Enums::StatusPengajuan::REJECTED
     status_penyaluran = params[:is_approve] == "true" ? Enums::StatusPenyaluran::NEW : Enums::StatusPenyaluran::NULL
-  
-    if pengajuan_bantuan.jenis == "Beasiswa"
-      getDurasiPengajuanBeasiswa(return_json: false)
-      pengajuan_admin = Pengajuan::PengajuanBantuan.pengajuan_baru_admin.first
-      penggalangan_dana_beasiswa = Penggalangan::PenggalanganDana.where(pengajuan_bantuan_id: pengajuan_admin).first
-      beasiswa = Pengajuan::Beasiswa.where(id: pengajuan_bantuan.beasiswa_id).first
-  
-      if beasiswa.penilaian_esai.nil?
-        return render_error_response("Penilaian Esai tidak boleh kosong!")
-      end
 
-      if @duration_pengajuan > 1
-        return render_error_response("Pendaftaran Beasiswa masih dibuka!")
-      end
-      beasiswa.assign_attributes(nominal_penyaluran: Constants::NOMINAL_PENYALURAN)
-  
-      pengajuan_bantuan.assign_attributes({ 
-        status_pengajuan: status_pengajuan,
-        status_penyaluran: status_penyaluran
-      })
-  
-      array_of_pengajuan_bantuan_id = penggalangan_dana_beasiswa.pengajuan_bantuan_id.kind_of?(Array) ? penggalangan_dana_beasiswa.pengajuan_bantuan_id : [penggalangan_dana_beasiswa.pengajuan_bantuan_id]
-      array_of_pengajuan_bantuan_id << pengajuan_bantuan.id
-      penggalangan_dana_beasiswa.assign_attributes({ pengajuan_bantuan_id: array_of_pengajuan_bantuan_id })
-  
-      if penggalangan_dana_beasiswa.save!(:validate => false) && pengajuan_bantuan.save && beasiswa.save
-        getBulanPenyaluran(beasiswa)
-        render_success_response(Constants::RESPONSE_SUCCESS, { pengajuan_bantuan: pengajuan_bantuan, beasiswa: beasiswa }, Constants::STATUS_OK)
-      else
-        render_error_response({ penggalangan_dana: penggalangan_dana.errors.full_messages, pengajuan_bantuan: pengajuan_bantuan.errors.full_messages, beasiswa: beasiswa.errors.full_messages })
-      end
-    else  
-      pengajuan_bantuan.assign_attributes({ 
-        status_pengajuan: status_pengajuan,
-        status_penyaluran: status_penyaluran
-      })
-  
-      penggalangan_dana = Penggalangan::PenggalanganDana.new(
-        total_pengajuan: "1",
-        total_nominal_terkumpul: 0,
-        pengajuan_bantuan: pengajuan_bantuan
-      )
-  
-      if pengajuan_bantuan.save && penggalangan_dana.save
-        render_success_response(Constants::RESPONSE_SUCCESS, { penggalangan_dana: penggalangan_dana, pengajuan_bantuan: pengajuan_bantuan }, Constants::STATUS_OK)
-      else
-        render_error_response(pengajuan_non_beasiswa.errors.full_messages)
-      end
+    bantuan_dana_beasiswa.assign_attributes({
+      status_pengajuan: status_pengajuan,
+      status_penyaluran: [status_penyaluran],
+      nominal_penyaluran: [Constants::NOMINAL_PENYALURAN],
+    })
+
+    if bantuan_dana_beasiswa.save
+      render_success_response(Constants::RESPONSE_SUCCESS, bantuan_dana_beasiswa, Constants::STATUS_OK)
+    else
+      render_error_response(bantuan_dana_beasiswa: bantuan_dana_beasiswa.errors.full_messages)
+    end
+  end
+
+  def approvalPengajuanNonBeasiswa
+    if params[:id].blank?
+      return render_error_response("id tidak boleh kosong!")
+    end
+
+    bantuan_dana_non_beasiswa = BantuanDanaNonBeasiswa.where(bantuan_dana_non_beasiswa_id: params[:id]).first
+
+    if !bantuan_dana_non_beasiswa.present?
+      return render_error_response("Pengajuan Bantuan Dana Non Beasiswa tidak dapat ditemukan!")
+    end
+
+    if params[:is_approve].blank?
+      return render_error_response("is_approve tidak boleh kosong!")
+    end
+    
+    unless %w[true false].include?(params[:is_approve])
+      return render_error_response("is_approve hanya dapat true atau false!")
+    end
+
+    is_approval = (bantuan_dana_non_beasiswa.waktu_galang_dana - DateTime.now).to_i
+
+    if is_approval < 1
+      return render_error_response("waktu berakhir penggalangan dana sudah lebih dari tanggal approval!")
+    end
+
+    status_pengajuan = params[:is_approve] == "true" ? Enums::StatusPengajuan::APPROVED : Enums::StatusPengajuan::REJECTED
+    status_penyaluran = params[:is_approve] == "true" ? Enums::StatusPenyaluran::NEW : Enums::StatusPenyaluran::NULL
+
+    bantuan_dana_non_beasiswa.assign_attributes({
+      status_pengajuan: status_pengajuan,
+      status_penyaluran: status_penyaluran,
+      total_nominal_terkumpul: Constants::NOMINAL_PENGGALANGAN_DANA_BARU
+    })
+
+    if bantuan_dana_non_beasiswa.save
+      render_success_response(Constants::RESPONSE_SUCCESS, bantuan_dana_non_beasiswa, Constants::STATUS_OK)
+    else
+      render_error_response(bantuan_dana_beasiswa: bantuan_dana_non_beasiswa.errors.full_messages)
     end
   end
 
@@ -317,52 +401,101 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     beasiswa.save
   end
 
+  def getPengajuanBeasiswa(status_pengajuan)
+    penggalangan_dana_beasiswa_on_going = PenggalanganDanaBeasiswa.on_going.first
+    list_bantuan_dana_beasiswa_baru = BantuanDanaBeasiswa.where(status_pengajuan: status_pengajuan).where(penggalangan_dana_beasiswa_id: penggalangan_dana_beasiswa_on_going.penggalangan_dana_beasiswa_id)
+    if !list_bantuan_dana_beasiswa_baru.present?
+      error_message = "Tidak ada data Pengajuan Bantuan Dana Beasiswa!"
+    else
+      array_of_pengajuan_beasiswa_baru = []
+      if list_bantuan_dana_beasiswa_baru.length > 1
+        list_bantuan_dana_beasiswa_baru.each do |data|
+          array_of_pengajuan_beasiswa_baru << data.attributes.merge({
+            mahasiswa_id: Mahasiswa.where(nim: data.mahasiswa_id).first,
+          })
+        end
+      else
+        bantuan_dana_beasiswa = list_bantuan_dana_beasiswa_baru.first
+        array_of_pengajuan_beasiswa_baru << bantuan_dana_beasiswa.attributes.merge({
+          mahasiswa_id: Mahasiswa.where(nim: bantuan_dana_beasiswa.mahasiswa_id).first,
+        })
+      end
+    end
+    return [error_message, array_of_pengajuan_beasiswa_baru]
+  end
+
+  def getPengajuanNonBeasiswa(status_pengajuan)
+    list_bantuan_dana_non_beasiswa = BantuanDanaNonBeasiswa.where(status_pengajuan: status_pengajuan)
+    if !list_bantuan_dana_non_beasiswa.present?
+      error_message = "Tidak ada data Pengajuan Bantuan Dana Non Beasiswa!"
+    else
+      array_of_pengajuan_non_beasiswa_baru = []
+      if list_bantuan_dana_non_beasiswa.length > 0
+        list_bantuan_dana_non_beasiswa.each do |data|
+          penanggung_jawab_penerima_non_beasiswa = PenanggungJawabNonBeasiswaHasPenerimaNonBeasiswa.where(penanggung_jawab_non_beasiswa_id: data.penanggung_jawab_non_beasiswa_id).first
+          array_of_pengajuan_non_beasiswa_baru << data.attributes.merge({
+            penanggung_jawab_non_beasiswa_id: PenanggungJawabNonBeasiswa.where(nomor_induk: data.penanggung_jawab_non_beasiswa_id).first,
+            penerima_non_beasiswa: PenerimaNonBeasiswa.where(nomor_induk: penanggung_jawab_penerima_non_beasiswa.penerima_non_beasiswa_id).first
+          })
+        end
+      else
+        bantuan_dana_non_beasiswa = list_bantuan_dana_non_beasiswa.first
+        penanggung_jawab_penerima_non_beasiswa = PenanggungJawabNonBeasiswaHasPenerimaNonBeasiswa.where(penanggung_jawab_non_beasiswa_id: bantuan_dana_non_beasiswa.penanggung_jawab_non_beasiswa_id).first
+        array_of_pengajuan_non_beasiswa_baru << bantuan_dana_non_beasiswa.attributes.merge({
+          penanggung_jawab_non_beasiswa_id: PenanggungJawabNonBeasiswa.where(nomor_induk: bantuan_dana_non_beasiswa.penanggung_jawab_non_beasiswa_id).first,
+          penerima_non_beasiswa: PenerimaNonBeasiswa.where(nomor_induk: penanggung_jawab_penerima_non_beasiswa.penerima_non_beasiswa_id).first
+        })
+      end
+    end
+    return [error_message, array_of_pengajuan_non_beasiswa_baru]
+  end
+
   def getPengajuanBantuan
-    jenis = params[:jenis]
-    is_pengajuan = params[:is_pengajuan] == "true"
-  
     valid_jenis = ["Beasiswa", "NonBeasiswa"]
+    valid_is_pengajuan = ["true", "false"]
     
-    if jenis.blank?
+    if params[:jenis].blank?
       return render_error_response("Jenis tidak boleh kosong!")
     end
     
-    unless valid_jenis.include?(jenis)
-      return render_error_response("Jenis #{jenis} tidak ada!, Jenis hanya Beasiswa atau NonBeasiswa")
+    unless valid_jenis.include?(params[:jenis])
+      return render_error_response("Jenis #{params[:jenis]} tidak ada!, Jenis hanya Beasiswa atau NonBeasiswa")
+    end
+
+    if params[:is_pengajuan].blank?
+      return render_error_response("is_pengajuan tidak boleh kosong!")
     end
     
-    pengajuan_bantuan = is_pengajuan ? Pengajuan::PengajuanBantuan.pengajuan_baru : Pengajuan::PengajuanBantuan.pengajuan_approved
-    pengajuan_bantuan = pengajuan_bantuan.where(jenis: jenis)
-    
-    if pengajuan_bantuan.empty?
-      return render_error_response(is_pengajuan ? "Tidak ada data Pengajuan Baru Bantuan Dana #{jenis}!" : "Tidak ada data Penerima Bantuan Dana #{jenis}!")
+    unless valid_is_pengajuan.include?(params[:is_pengajuan])
+      return render_error_response("Is_pengajuan hanya true atau false")
+    end
+
+    if params[:is_pengajuan] == "true"
+      status_pengajuan = Enums::StatusPengajuan::NEW
+    else
+      status_pengajuan = Enums::StatusPengajuan::APPROVED
+    end
+    error_message_beasiswa, array_of_pengajuan_beasiswa_baru = getPengajuanBeasiswa(status_pengajuan)
+    error_message_non_beasiswa, array_of_pengajuan_non_beasiswa_baru = getPengajuanNonBeasiswa(status_pengajuan)
+
+    if params[:jenis] == "Beasiswa" and error_message_beasiswa != nil
+      return render_error_response(error_message_beasiswa)
+    end
+    if params[:jenis] == "NonBeasiswa" and error_message_non_beasiswa != nil
+      return render_error_response(error_message_non_beasiswa)
     end
     
-    data_array = []
-    
-    pengajuan_bantuan.each do |data_pengajuan|
-      if jenis == "Beasiswa"
-        beasiswa = Pengajuan::Beasiswa.where(id: data_pengajuan.beasiswa_id).first
-        penerima_data = data_pengajuan.attributes.merge({
-          beasiswa_id: beasiswa,
-          rekening_id: Rekening.where(id: data_pengajuan.rekening_id).first
-        })
-      else
-        non_beasiswa = Pengajuan::NonBeasiswa.where(id: data_pengajuan.non_beasiswa_id).first
-        penerima_data = data_pengajuan.attributes.merge({
-          non_beasiswa_id: non_beasiswa,
-          rekening_id: Rekening.where(id: data_pengajuan.rekening_id).first
-        })
-      end
-      data_array << penerima_data
+    if params[:jenis] == "Beasiswa"
+      render_success_response(Constants::RESPONSE_SUCCESS, array_of_pengajuan_beasiswa_baru, Constants::STATUS_OK)
+    else
+      render_success_response(Constants::RESPONSE_SUCCESS, array_of_pengajuan_non_beasiswa_baru, Constants::STATUS_OK)
     end
-    
-    render_success_response(Constants::RESPONSE_SUCCESS, data_array.reverse, Constants::STATUS_OK)
   end
 
   def getNonBeasiswaByKategori
     kategori = params[:kategori]
     valid_kategoris = ["Medis", "Bencana", "Duka"]
+    valid_is_pengajuan = ["true", "false"]
   
     if kategori.blank?
       return render_error_response("Kategori tidak boleh kosong!")
@@ -371,38 +504,29 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     unless valid_kategoris.include?(kategori)
       return render_error_response("Kategori #{kategori} tidak ada!, Kategori hanya Medis/Bencana/Duka")
     end
-  
-    non_beasiswa = Pengajuan::NonBeasiswa.where(kategori: kategori)
-  
-    if non_beasiswa.empty?
-      return render_error_response("Tidak ada data Pengajuan Bantuan Dana Non Beasiswa berdasarkan kategori #{kategori}!")
+
+    if params[:is_pengajuan].blank?
+      return render_error_response("is_pengajuan tidak boleh kosong!")
     end
   
-    pengajuan_bantuan = params[:is_pengajuan] == "true" ? Pengajuan::PengajuanBantuan.pengajuan_baru : Pengajuan::PengajuanBantuan.pengajuan_approved
-    pengajuan_bantuan = pengajuan_bantuan.where(:non_beasiswa_id.in => non_beasiswa.pluck(:id))
-  
-    if pengajuan_bantuan.empty?
-      return render_error_response(params[:is_pengajuan] == "true" ? "Tidak ada data pengajuan baru Non Beasiswa berdasarkan kategori #{kategori}!" : "Tidak ada data Penerima Bantuan Dana Non Beasiswa berdasarkan kategori #{kategori}!")
+    unless valid_is_pengajuan.include?(params[:is_pengajuan])
+      return render_error_response("is_pengajuan hanya true atau false")
+    end
+
+    if params[:is_pengajuan] == "true"
+      status_pengajuan = Enums::StatusPengajuan::NEW
+    else
+      status_pengajuan = Enums::StatusPengajuan::APPROVED
     end
   
-    non_beasiswa_new = Pengajuan::NonBeasiswa.where(:id.in => pengajuan_bantuan.pluck(:non_beasiswa_id))
-    data_pengajuan_non_beasiswa = []
-  
-    pengajuan_bantuan.each_with_index do |data_pengajuan, index_pengajuan_bantuan|
-      non_beasiswa_new.each_with_index do |data_non_beasiswa, index_non_beasiswa|
-        if index_pengajuan_bantuan == index_non_beasiswa
-          rekening = rekening.where(id: data_pengajuan.rekening_id).first
-          data_pengajuan_non_beasiswa << data_pengajuan.attributes.merge({
-            non_beasiswa_id: data_non_beasiswa,
-            rekening_id: rekening
-          })
-        end
-      end
+    error_message, array_of_pengajuan_non_beasiswa_baru = getPengajuanNonBeasiswa(status_pengajuan)
+    
+    if error_message != nil
+      return render_error_response(error_message)
     end
-  
-    new_data_pengajuan = data_pengajuan_non_beasiswa.reverse
-  
-    render_success_response(Constants::RESPONSE_SUCCESS, new_data_pengajuan, Constants::STATUS_OK)
+
+    filter_by_kategori = array_of_pengajuan_non_beasiswa_baru.select { |item| item['kategori'] == params[:kategori] }
+    render_success_response(Constants::RESPONSE_SUCCESS, filter_by_kategori, Constants::STATUS_OK)
   end
 
   def selectLanjutBeasiswa
@@ -461,26 +585,25 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     unless valid_jenis.include?(jenis)
       return render_error_response("Jenis #{jenis} tidak ada!, Jenis hanya Beasiswa atau NonBeasiswa")
     end
-  
-    pengajuan_bantuan = Pengajuan::PengajuanBantuan.pengajuan_baru.where(jenis: jenis)
-    total_calon_pengajuan = pengajuan_bantuan.length
-  
-    render_success_response(Constants::RESPONSE_SUCCESS, total_calon_pengajuan, Constants::STATUS_OK)
+
+    bantuan_dana_non_beasiswa = BantuanDanaNonBeasiswa.pengajuan_baru
+    render_success_response(Constants::RESPONSE_SUCCESS, bantuan_dana_non_beasiswa.length, Constants::STATUS_OK)
   end
 
   def getTotalPenerimaBantuan
-    pengajuan_bantuan_approved = Pengajuan::PengajuanBantuan.pengajuan_approved
-    total_pengajuan_approved = pengajuan_bantuan_approved.length
+    bantuan_dana_beasiswa_approved = BantuanDanaBeasiswa.pengajuan_approved
+    bantuan_dana_non_beasiswa_approved = BantuanDanaNonBeasiswa.pengajuan_approved
+    total_penerima_bantuan_on_going = bantuan_dana_beasiswa_approved.length + bantuan_dana_non_beasiswa_approved.length
+    bantuan_dana_beasiswa_done = BantuanDanaBeasiswa.pengajuan_done
+    bantuan_dana_non_beasiswa_done = BantuanDanaNonBeasiswa.pengajuan_done
+    total_penerima_bantuan_done = bantuan_dana_beasiswa_done.length + bantuan_dana_non_beasiswa_done.length
   
-    pengajuan_bantuan_done = Pengajuan::PengajuanBantuan.done
-    total_pengajuan_done = pengajuan_bantuan_done.length
-  
-    total_pengajuan = total_pengajuan_approved + total_pengajuan_done
+    total_all_penerima_bantuan = total_penerima_bantuan_on_going+ total_penerima_bantuan_done
     render_success_response(
       Constants::RESPONSE_SUCCESS,
       {
-        penerima_bantuan_admin: total_pengajuan_approved,
-        penerima_bantuan_penggalangan_dana: total_pengajuan
+        penerima_bantuan_admin: total_penerima_bantuan_on_going,
+        penerima_bantuan_penggalangan_dana: total_all_penerima_bantuan
       },
       Constants::STATUS_OK
     )
@@ -488,31 +611,22 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
 
   private
   #form pengaju
-  def pengajuan_bantuan_params
-    params.permit(:nama, 
-      :no_identitas_pengaju, 
-      :no_telepon,
-      :judul_galang_dana,
-      :waktu_galang_dana,
-      :deskripsi,
-      :dana_yang_dibutuhkan,
-    )
-  end
-
-  def rekening_params
+  def rekening_bank_params
     params.permit(:nama_bank, :nomor_rekening, :nama_pemilik_rekening)
   end
 
-  def pengajuan_bantuan_beasiswa_params
+  def mahasiswa_params
     params.permit(
-      :nama , 
-      :no_telepon,
-      :deskripsi,
+      :nim, 
+      :nama,
+      :nomor_telepon
     )
   end
   #form beasiswa
-  def beasiswa_params
-    params.permit(:golongan_ukt, 
+  def bantuan_dana_beasiswa_params
+    params.permit(
+      :alasan_butuh_bantuan,
+      :golongan_ukt, 
       :kuitansi_pembayaran_ukt, 
       :gaji_orang_tua, 
       :bukti_slip_gaji_orang_tua, 
@@ -526,16 +640,26 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     )
   end
   #form non beasiswa
-  def non_beasiswa_params
-    params.permit(:nama_penerima, 
-      :no_identitas_penerima, 
-      :no_telepon_penerima, 
+  def bantuan_dana_non_beasiswa_params
+    params.permit(
+      :judul_galang_dana, 
+      :waktu_galang_dana, 
+      :deskripsi_galang_dana, 
+      :dana_yang_dibutuhkan,
       :bukti_butuh_bantuan,
       :kategori,
     )
   end
 
-  def calculate_duration_pengajuan_beasiswa
+  def randomize_bantuan_dana_beasiswa_id
+    begin
+      return bantuan_dana_beasiswa_id = SecureRandom.random_number(1_000_000)
+    end while BantuanDanaBeasiswa.where(bantuan_dana_beasiswa_id: bantuan_dana_beasiswa_id).exists?
+  end
 
+  def randomize_bantuan_dana_non_beasiswa_id
+    begin
+      return bantuan_dana_beasiswa_id = SecureRandom.random_number(1_000_000)
+    end while BantuanDanaNonBeasiswa.where(bantuan_dana_non_beasiswa_id: bantuan_dana_non_beasiswa_id).exists?
   end
 end
