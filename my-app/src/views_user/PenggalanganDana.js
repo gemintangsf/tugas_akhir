@@ -38,9 +38,14 @@ function PenggalanganDana() {
 					arrayData.push(data.data)
 					console.log('test', data.data)
 					arrayDonatur.push(data.data.data_donatur)
-					for (let i = 0; i < data.data.penerima_bantuan.length; i++) {
-						arrayPenerima.push(data.data.penerima_bantuan[i])
-						console.log('katakata', data.data.penerima_bantuan[i])
+					for (let i = 0; i < data.data.penerima_beasiswa.length; i++) {
+						arrayPenerima.push(data.data.penerima_beasiswa[i])
+						console.log('katakata', data.data.penerima_beasiswa[i])
+
+					}
+					for (let i = 0; i < data.data.data_donatur.length; i++) {
+						arrayPenerima.push(data.data.data_donatur[i])
+						console.log('katakata', data.data.data_donatur[i])
 
 					}
 					console.log('katekate', arrayPenerima)
@@ -59,21 +64,21 @@ function PenggalanganDana() {
 			{
 				info.map((data, index) => (
 					<Box sx={{ mt: 2, mb: 2 }} key={index}>
-						<Typography variant="h3">{data.penanggung_jawab.judul_galang_dana}</Typography>
+						<Typography variant="h3">{data.judul}</Typography>
 						<div style={{ display: 'flex', marginTop: '8px' }}>
 
 							<Box sx={{ width: '75%', marginRight: '32px' }}>
 								<img src={GalangImage} style={{ width: '100%', height: '350px' }}></img>
 								<Typography variant="body1" sx={{ color: 'grey' }}>{data.durasi + ' hari lagi'}</Typography>
 								<Typography variant="body1" sx={{ mt: 2, textAlign: 'justify' }}>
-									{data.penerima_bantuan.deskripsi}
+									{data.deskripsi}
 								</Typography>
 								<Typography variant="h5" sx={{ mt: 4 }}>Penanggung Jawab</Typography>
 								<Box sx={{ display: 'flex' }}>
 									<div style={{ display: 'flex' }}>
 										<PersonOutlineOutlinedIcon />
 										<div style={{ display: 'flex', flexDirection: 'column', marginLeft: '8px' }}>
-											<Typography variant="body1">{data.penanggung_jawab.nama}</Typography>
+											<Typography variant="body1">{data.penanggung_jawab_id}</Typography>
 											<Typography variant="body2" sx={{ color: 'grey' }}>Penanggung Jawab</Typography>
 										</div>
 									</div>
@@ -97,13 +102,12 @@ function PenggalanganDana() {
 							</Box>
 							<Card sx={{ width: 360, height: '100%' }}>
 								<CardContent>
-									<Typography><b>{'Rp' + data.total_nominal_terkumpul}</b> dari {data.penanggung_jawab.dana_yang_dibutuhkan}</Typography>
+									<Typography><b>{'Rp' + data.total_nominal_terkumpul}</b> dari {data.target_dana}</Typography>
 									{
-										data.data_donatur === null ?
-											<Typography>Belum ada donatur</Typography> :
-											<Typography sx={{ color: 'Grey', mt: 3 }}>{data.data_donatur[data.data_donatur.length - 1].total_donasi + ' Donations'}</Typography>
+										data.data_donatur.length < 1 ?
+											<Typography sx={{mt:1}}>0 Donations</Typography> :
+											<Typography sx={{ color: 'Grey', mt: 1 }}>{data.data_donatur[data.data_donatur.length - 1] + ' Donations'}</Typography>
 									}
-
 									<Link to='/form-donasi' state={identitas}>
 										<Button variant="contained" sx={{ mt: 2, width: '100%' }}><Typography sx={{ textTransform: 'capitalize' }}>Donasi Sekarang</Typography></Button>
 									</Link>

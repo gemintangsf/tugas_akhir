@@ -78,8 +78,8 @@ function Beranda() {
 					arrayData.push(data.data[i])
 				}
 				for (let i = 0; i < data.data.length; i++) {
-					arrayId.push(data.data[i]._id.$oid)
-					console.log(data.data[i]._id.$oid)
+					arrayId.push(data.data[i])
+					console.log(data.data[i])
 				}
 				setPenggalanganDana(arrayData)
 				setId(arrayId)
@@ -263,13 +263,13 @@ function Beranda() {
 							penggalanganDana.map((info, index) => {
 								return (
 									<SwiperSlide >
-										<Link to="/penggalangan-dana" state={info._id.$oid} style={{ textDecoration: 'none' }}>
+										<Link to="/penggalangan-dana" state={info.penggalangan_dana_beasiswa_id} style={{ textDecoration: 'none' }}>
 											<Card>
 												<InfoCarousel
-													title={info.pengajuan_bantuan_id.judul_galang_dana}
-													description={info.pengajuan_bantuan_id.deskripsi}
+													title={info.judul}
+													description={info.deskripsi}
 													dana_terkumpul={info.total_nominal_terkumpul}
-													dana_dibutuhkan={info.pengajuan_bantuan_id.dana_yang_dibutuhkan}
+													dana_dibutuhkan={info.dana_yang_dibutuhkan}
 													durasi={info.durasi}
 													jumlah_donatur={info.total_donatur}
 													kategori={info.kategori}

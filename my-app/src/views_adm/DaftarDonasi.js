@@ -153,13 +153,13 @@ function LaporanRekapitulasiDonasi() {
 
 
 	const headers = [
-		{ title: 'Judul Galang Dana', id: 'judul_galang_dana', parentId: 'pengajuan_bantuan_id' },
-		{ title: 'Nama Donatur', id: 'nama', parentId: 'donatur', grandParentId: 'donatur' },
-		{ title: 'No Telepon Donatur', id: 'nomor_telepon', parentId: 'donatur', grandParentId: 'donatur' },
-		{ title: 'Nominal Donasi', id: 'nominal', parentId: 'donasi_id', grandParentId: 'donatur' },
-		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'bank_id', grandParentId: 'donatur' },
-		{ title: 'Nomor Referensi', id: 'nomor_referensi', parentId: 'donasi_id', grandParentId: 'donatur' },
-		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id', grandParentId: 'donatur' },
+		{ title: 'Judul Galang Dana', id: 'judul_galang_dana'},
+		{ title: 'Nama Donatur', id: 'nama', parentId: 'donatur' },
+		{ title: 'No Telepon Donatur', id: 'nomor_telepon', parentId: 'donatur'},
+		{ title: 'Nominal Donasi', id: 'nominal_donasi' },
+		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'rekening_bank' },
+		{ title: 'Nomor Referensi', id: 'nomor_referensi' },
+		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'rekening_bank' },
 		{ title: 'Status', id: 'status' },
 	]
 	return (

@@ -62,6 +62,7 @@ const Layout = () => {
 				display: 'flex',
 				flexDirection: 'row',
 				height: '100%',
+				minWidth: '100%'
 			}}
 		>
 			<Sidebar menu={menuLists} size={sidebarSize} />

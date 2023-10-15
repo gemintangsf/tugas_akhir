@@ -9,10 +9,10 @@ describe 'Donasi API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            id: {type: :string, example: "649982e0e21fac364c2d0d54"},
+            id: {type: :integer, example: 729245},
             nama: {type: :string, example: "Donatur1"},
             nomor_telepon: {type: :string, example: "082118397901"},
-            nominal: {type: :integer, example: 100000},
+            nominal_donasi: {type: :integer, example: 100000},
             nomor_rekening: {type: :string, example: "210931929"},
             nama_pemilik_rekening: {type: :string, example: "Gemintang"},
             nama_bank: {type: :string, example: "BSI"},
@@ -50,7 +50,7 @@ describe 'Donasi API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-          id: {type: :string, example: "64afa051e21fac273c87bf2c"},
+          nomor_referensi: {type: :string, example: "162018131519"},
           struk_pembayaran: {type: :string, example: "path"},
         }
       }
@@ -77,7 +77,6 @@ describe 'Donasi API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            id: {type: :string, example: "649dee71e21fac1f60f56d4d"},
             nomor_referensi: {type: :string, example: "141719192019"},
             is_approve: {type: :string, example: "true"},
         },
@@ -114,7 +113,7 @@ describe 'Donasi API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-            id: {type: :string, example: "649dd899e21fac1f60f56d45"},
+            nomor_referensi: {type: :string, example: "162018131519"},
         },
         required: []
       }

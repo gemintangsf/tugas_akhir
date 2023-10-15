@@ -6,7 +6,7 @@ class V1::User::DonaturController < ApplicationController
   end
 
   def getTotalDonatur
-    donatur = User::Donatur.donatur_registered
+    donatur = Donatur.donatur_registered
     render json: {
       response_code: Constants::RESPONSE_SUCCESS, 
       response_message: "Success", 

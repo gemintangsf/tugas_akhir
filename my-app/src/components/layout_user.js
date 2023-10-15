@@ -17,21 +17,44 @@ import { Outlet } from "react-router-dom";
 
 
 import Header from '../components/header/HeaderBerandaUser'
+// import HeaderLogin from '../components/header/HeaderBerandaUserLogin'
+
 
 
 const LayoutUser = () => {
+	// const [step, setStep] = React.useState(0);
+	// const renderLayout = () => {
+	// 	<Box>
+	// 			<Header />
+	// 			<Box sx={{ width: '100%', overflowY: 'auto', pt: '53px' }}>
+	// 				<Outlet />
+	// 			</Box>
+	// 		</Box>
+	// }
+	
+	// const renderLayoutLogin = () => {
+	// 	<Box>
+	// 			<HeaderLogin />
+	// 			<Box sx={{ width: '100%', overflowY: 'auto', pt: '53px' }}>
+	// 				<Outlet />
+	// 			</Box>
+	// 		</Box>
+	// }
 	return (
 		<Container
-			disableGutters
-			sx={{
-				display: 'flex',
-				flexDirection: 'column',
-			}}
-		>
+				disableGutters
+				sx={{
+					display: 'flex',
+					flexDirection: 'column',
+					minWidth: '100%'
+				}}
+			>
+		
 			<Header />
 			<Box sx={{ width: '100%', overflowY: 'auto', pt: '53px' }}>
 				<Outlet />
 			</Box>
+		
 		</Container>
 	)
 }

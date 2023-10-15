@@ -34,7 +34,7 @@ function FormulirDonasi() {
 	const [strukPembayaran, setStrukPembayaran] = useState('')
 	const [bankAdmin, setBankAdmin] = useState([])
 	const [pendingDonasi, setPendingDonasi] = useState([])
-	const [idDonasi, setIdDonasi] = useState('')
+	const [nomorReferensi, setNomorReferensi] = useState('')
 
 	const [step, setStep] = useState(0);
 
@@ -60,29 +60,6 @@ function FormulirDonasi() {
 		setStrukPembayaran(val)
 	}
 
-	useEffect(() => {
-		const getBankAdmin = async () => {
-			await fetch('http://localhost:8000/v1/user/admin/getBankByAdmin',
-				{
-					mode: 'cors',
-					method: 'GET',
-					headers: {
-						Accept: 'application/json',
-						'Content-Type': 'application/json',
-						'Access-Control-Allow-Origin': '*',
-					},
-				})
-				.then((response) => response.json())
-				.then((data) => {
-					console.log(data.data)
-					let arrayData = []
-					arrayData.push(data.data)
-					setBankAdmin(arrayData)
-				})
-		}
-		getBankAdmin()
-	}, [])
-
 	const createDonasi = async () => {
 		await fetch('http://localhost:8000/v1/penggalangan/donasi/createDonasi',
 			{
@@ -97,7 +74,7 @@ function FormulirDonasi() {
 					"id": state,
 					"nama": namaDonatur,
 					"nomor_telepon": noTeleponDonatur,
-					"nominal": nominalDonasi,
+					"nominal_donasi": nominalDonasi,
 					"nomor_rekening": nomorRekening,
 					"nama_pemilik_rekening": namaPemilikRekening,
 					"nama_bank": namaBank
@@ -105,10 +82,9 @@ function FormulirDonasi() {
 			})
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data.data.donasi._id.$oid);
-				setIdDonasi(data.data.donasi._id.$oid)
+				console.log(data.data.donasi.nomor_referensi);
+				setNomorReferensi(data.data.donasi.nomor_referensi)
 			})
-
 			.catch((err) => {
 				console.log(err.message);
 			})
@@ -128,7 +104,7 @@ function FormulirDonasi() {
 						'Access-Control-Allow-Origin': '*',
 					},
 					body: JSON.stringify({
-						id: idDonasi
+						nomor_referensi: nomorReferensi
 					})
 				})
 				.then((response) => response.json())
@@ -155,7 +131,7 @@ function FormulirDonasi() {
 					'Access-Control-Allow-Origin': '*',
 				},
 				body: JSON.stringify({
-					"id": idDonasi,
+					"nomor_referensi": nomorReferensi,
 					"struk_pembayaran": strukPembayaran
 				})
 			})
@@ -205,7 +181,7 @@ function FormulirDonasi() {
 							<TextField variant="outlined" size="small" label='cth: John Doe' onChange={(val) => { handleNamaDonaturChange(val.target.value) }} />
 							<Typography variant="body1" sx={{ mt: 2 }}>Nomor Telepon Donatur</Typography>
 							<TextField variant="outlined" size="small" label='cth: 082121445524' onChange={(val) => { handleNoTeleponDonaturChange(val.target.value) }} />
-							<Typography variant="body1" sx={{ mt: 2 }}>Masukkan Nominal Donasi</Typography>
+							<Typography variant="body1" sx={{ mt: 2 }}>Nominal Donasi</Typography>
 							<TextField variant="outlined" size="small" label='cth: 50000 (Rp)' onChange={(val) => handleNominalDonasiChange(val.target.value)} />
 							<Typography variant="body1" sx={{ mt: 2 }}>Nama Bank</Typography>
 							<TextField variant="outlined" size="small" label='cth: Mandiri' onChange={(val) => handleNamaBankChange(val.target.value)} />
@@ -286,9 +262,9 @@ function FormulirDonasi() {
 								bankAdmin
 									.map((info, index) => (
 										<Box sx={{ borderRadius: '8px', backgroundColor: '#F2F2F2', p: 1 }}>
-											<Typography variant="body2" >{info.nama_bank}</Typography>
-											<Typography>{info.nomor_rekening}</Typography>
-											<Typography>{info.nama_pemilik_rekening}</Typography>
+											<Typography variant="body2" >{info.rekening_bank.nama_bank}</Typography>
+											<Typography>{info.rekening_bank.nomor_rekening}</Typography>
+											<Typography>{info.rekening_bank.nama_pemilik_rekening}</Typography>
 										</Box>
 									))
 							}

@@ -17,24 +17,17 @@ import { useLocation, Link } from 'react-router-dom';
 
 
 function Dashboard() {
-
-
 	const styleBox = {
 		position: 'absolute',
 		top: '50%',
 		left: '50%',
 		transform: 'translate(-50%, -50%)',
-		width: 500,
+		width: 'auto',
 		bgcolor: 'background.paper',
 		boxShadow: 24,
 		borderRadius: '4px 4px 4px 4px'
 	}
-	const [jenisBeasiswa, setJenisBeasiswa] = React.useState('Beasiswa');
-	const [judulGalangDana, setJudulGalangDana] = React.useState('');
 	const [deskripsi, setDeskripsi] = React.useState('');
-	const [kuotaBeasiswa, setKuotaBeasiswa] = React.useState('');
-	const [tanggalBerakhir, setTanggalBerakhir] = React.useState('');
-	const [id, setId] = React.useState('64f8c7c1e21fac129c8e33cc');
 	const [jumlahPenerimaBantuan, setJumlahPenerimaBantuan] = React.useState('')
 	const [jumlahDonasi, setJumlahDonasi] = React.useState('')
 	const [openModal, setOpenModal] = React.useState(false);
@@ -42,46 +35,91 @@ function Dashboard() {
 	const [openModalNonBeasiswa, setOpenModalNonBeasiswa] = React.useState(false);
 	const [openModalGalangDana, setOpenModalGalangDana] = React.useState(false);
 	const [anchorEl, setAnchorEl] = React.useState(null);
-	const [jenis, setJenis] = React.useState('NonBeasiswa')
 	const [jumlahPengajuan, setJumlahPengajuan] = React.useState('')
 	const [jumlahDana, setJumlahDana] = React.useState('')
-	const handleJudulChange = (val) => {
+	const [namaPenanggungJawab, setNamaPenanggungJawab] = React.useState([]);
+	const [nomorIndukPenanggungJawab, setNomorIndukPenanggungJawab] = React.useState([]);
+	const [nomorTeleponPenanggungJawab, setNomorTeleponPenanggungJawab] = React.useState([]);
+	const [nomorRekening, setNomorRekening] = React.useState([]);
+	const [namaPemilikRekening, setNamaPemilikRekening] = React.useState([]);
+	const [namaBank, setNamaBank] = React.useState([]);
+	const [judul, setJudul] = React.useState([]);
+	const [waktuBerakhir, setWaktuBerakhir] = React.useState([]);
+	const [kebutuhanDana, setKebutuhanDana] = React.useState([]);
+	const [namaPenerima, setNamaPenerima] = React.useState([]);
+	const [nomorIndukPenerima, setNomorIndukPenerima] = React.useState([]);
+	const [nomorTeleponPenerima, setNomorTeleponPenerima] = React.useState([]);
+	const [kategori, setKategori] = React.useState([]);
+	const [judulGalangDana, setJudulGalangDana] = React.useState([]);
+	const [targetDana, setTargetDana] = React.useState('');
+	const [targetPenerima, setTargetPenerima] = React.useState('');
+
+	const handleJudulGalangDanaChange = (val) => {
 		setJudulGalangDana(val)
 	}
 	const handleDeskripsiChange = (val) => {
 		setDeskripsi(val)
 	}
-	const handleKuotaBeasiswaChange = (val) => {
-		setKuotaBeasiswa(val)
+	const handleTargetPenerimaChange = (val) => {
+		setTargetPenerima(val)
 	}
-	const handleTanggalBerakhirChange = (val) => {
-		setTanggalBerakhir(val)
+	const handleTargetDana = (val) => {
+		setTargetDana(val)
 	}
-
+	const handleNamaPenanggungJawabChange = (val) => {
+		setNamaPenanggungJawab(val)
+	}
+	const handleNomorIndukPenanggungJawabChange = (val) => {
+		setNomorIndukPenanggungJawab(val)
+	}
+	const handleNomorTeleponPenanggungJawabChange = (val) => {
+		setNomorTeleponPenanggungJawab(val)
+	}
+	const handleNomorRekeningChange = (val) => {
+		setNomorRekening(val)
+	}
+	const handleNamaPemilikRekeningChange = (val) => {
+		setNamaPemilikRekening(val)
+	}
+	const handleNamaBankChange = (val) => {
+		setNamaBank(val)
+	}
+	const handleWaktuBerakhirChange = (val) => {
+		setWaktuBerakhir(val)
+	}
+	const handleKebutuhanDanaChange = (val) => {
+		setKebutuhanDana(val)
+	}
+	const handleNamaPenerimaChange = (val) => {
+		setNamaPenerima(val)
+	}
+	const handleNomorIndukPenerimaChange = (val) => {
+		setNomorIndukPenerima(val)
+	}
+	const handleNomorTeleponPenerimaChange = (val) => {
+		setNomorTeleponPenerima(val)
+	}
+	const handleKategoriChange = (val) => {
+		setKategori(val)
+	}
 	const open = Boolean(anchorEl)
 	const handleCloseMenu = () => setAnchorEl(null)
-
 	const handleClick = (event) => {
 		setAnchorEl(event.currentTarget);
 	};
-
 	const cardList = [
 		{ title: 'Pengajuan Bantuan Dana Non Beasiswa', description: 'Pengajuan', value: jumlahPengajuan },
 		{ title: 'Penggalangan Dana Berlangsung', description: 'Penggalangan Dana', value: jumlahPenerimaBantuan },
 		{ title: 'Daftar Donasi', description: 'Donatur', value: jumlahDonasi },
 		{ title: 'Dana Terkumpul', description: 'Total Dana Terkumpul', value: jumlahDana }
 	]
-
 	var menuList = cardList;
 	const location = useLocation()
 	const currentLocationData = menuList.reduce((result, item) => item.url === location.pathname ? [...result, item] : result, []);
 	const handleOpen = () => {
 		setOpenModal(true);
 		setAnchorEl(null);
-		setJenisBeasiswa();
-		console.log(jenisBeasiswa, 'test1')
 	};
-
 	const handleOpenNonBeasiswa = () => {
 		setOpenModalNonBeasiswa(true);
 		setAnchorEl(null);
@@ -97,30 +135,30 @@ function Dashboard() {
 	const handleCloseModal = () => setOpenModal(false);
 	const handleCloseModalImportData = () => setOpenModalImportData(false);
 
-	const getTotalCalonPengajuan = async () => {
-		await fetch(
-			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getTotalCalonPengajuan',
-			{
-				method: 'POST',
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-					'Access-Control-Allow-Origin': '*',
-				},
-				body: JSON.stringify({
-					jenis: jenis
-				})
-			}
-		)
-			.then((response) => response.json())
-			.then((data) => {
-				console.log(data.data)
-				let arrayData = []
-				arrayData.push(data.data)
-				setJumlahPengajuan(arrayData)
-			})
+	// const getTotalCalonPengajuan = async () => {
+	// 	await fetch(
+	// 		'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getTotalCalonPengajuan',
+	// 		{
+	// 			method: 'POST',
+	// 			headers: {
+	// 				Accept: 'application/json',
+	// 				'Content-Type': 'application/json',
+	// 				'Access-Control-Allow-Origin': '*',
+	// 			},
+	// 			body: JSON.stringify({
+	// 				jenis: jenis
+	// 			})
+	// 		}
+	// 	)
+	// 		.then((response) => response.json())
+	// 		.then((data) => {
+	// 			console.log(data.data)
+	// 			let arrayData = []
+	// 			arrayData.push(data.data)
+	// 			setJumlahPengajuan(arrayData)
+	// 		})
 
-	}
+	// }
 	const getTotalDanaTerkumpul = async () => {
 		await fetch(
 			'http://localhost:8000/v1/penggalangan/donasi/getTotalAllDonasi',
@@ -181,10 +219,10 @@ function Dashboard() {
 	React.useEffect(() => {
 		getTotalPenerimaBantuan()
 		getTotalNewDonasi()
-		getTotalCalonPengajuan()
+		// getTotalCalonPengajuan()
 		getTotalDanaTerkumpul()
 	}, [])
-	const createPenggalanganDana = async () => {
+	const createPenggalanganDanaBeasiswa = async () => {
 		await fetch('http://localhost:8000/v1/penggalangan/penggalangan_dana/createPenggalanganDanaBeasiswa',
 			{
 				mode: 'cors',
@@ -195,10 +233,10 @@ function Dashboard() {
 					'Access-Control-Allow-Origin': '*',
 				},
 				body: JSON.stringify({
-					id: id,
-					judul_galang_dana: judulGalangDana,
+					judul: judulGalangDana,
 					deskripsi: deskripsi,
-					total_pengajuan: kuotaBeasiswa
+					target_dana: targetDana,
+					target_penerima: targetPenerima
 				}),
 			})
 			.then((response) => response.json())
@@ -209,13 +247,83 @@ function Dashboard() {
 				console.log(err.message);
 			})
 	}
+	const createPenggalanganDanaNonBeasiswa = async () => {
+		await fetch('http://localhost:8000/v1/penggalangan/penggalangan_dana/createPenggalanganDanaNonBeasiswa',
+			{
+				mode: 'cors',
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					nama_penanggung_jawab: namaPenanggungJawab,
+					nomor_induk_penanggung_jawab: nomorIndukPenanggungJawab,
+					nomor_telepon_penanggung_jawab: nomorTeleponPenanggungJawab,
+					nomor_rekening: nomorRekening,
+					nama_pemilik_rekening: namaPemilikRekening,
+					nama_bank: namaBank,
+					judul_galang_dana: judul,
+					waktu_galang_dana: waktuBerakhir,
+					deskripsi_galang_dana: deskripsi,
+					dana_yang_dibutuhkan: kebutuhanDana,
+					nama_penerima: namaPenerima,
+					nomor_induk_penerima: nomorIndukPenerima,
+					nomor_telepon_penerima: nomorTeleponPenerima,
+					kategori: kategori
+				}),
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.id, 'test id');
+			})
+			.catch((err) => {
+				console.log(err.message);
+			})
+	}
+	const kategoriSelect = [
+		{
+			value: 'Medis',
+			label: 'Medis'
+		},
+		{
+			value: 'Bencana',
+			label: 'Bencana',
+		},
+		{
+			value: 'Duka',
+			label: 'Duka'
+		}
+	]
+	const jumlahPenerima = [
+		{
+			value: 1,
+			label: '1',
+		},
+		{
+			value: 2,
+			label: '2',
+		},
+		{
+			value: 3,
+			label: '3',
+		},
+		{
+			value: 4,
+			label: '4',
+		},
+		{
+			value: 5,
+			label: '5',
+		},
+	]
 	return (
 		<Container
 			disableGutters
-			maxWidth={false}
 			sx={{
-				width: '100%',
-				height: '100%',
+				minWidth: '100%',
+				minHeight: '100%',
 				p: 2
 			}}
 		>
@@ -250,7 +358,7 @@ function Dashboard() {
 						<MenuItem onClick={handleOpen}>Beasiswa</MenuItem>
 						<MenuItem onClick={handleOpenNonBeasiswa}>Non Beasiswa</MenuItem>
 					</Menu>
-					<Button variant='outlined' sx={{ ml: 2 }} onClick={handleOpenImportData}>
+					<Button variant='outlined' sx={{ ml: 2}} onClick={handleOpenImportData}>
 						<Typography>Import Data</Typography>
 					</Button>
 				</Box>
@@ -277,36 +385,42 @@ function Dashboard() {
 						<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
 							<Typography variant='h3' color={'white'}>Formulir Galang Dana Beasiswa</Typography>
 						</Box>
-						<Box sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
-							<Box sx={{ display: 'flex' }}>
-								<Box>
+						<Box sx={{ p: 2, }}>
+							<Box sx={{display: 'flex'}}>
+								<Box sx={{ width: '100%'}}>
 									<Typography>Judul Galang Dana</Typography>
-									<TextField size='small' variant='outlined' label='cth: Beasiswa JTK' onChange={(val) => { handleJudulChange(val.target.value) }} />
+									<TextField size='small' variant='outlined' label='cth: Beasiswa JTK' onChange={(val) => { handleJudulGalangDanaChange(val.target.value) }} sx={{width: '100%'}} />
 								</Box>
-								<Box sx={{ ml: 2 }}>
-									<Typography>Kuota Beasiswa</Typography>
-									<TextField size='small' variant='outlined' label='cth: 8' onChange={(val) => { handleKuotaBeasiswaChange(val.target.value) }} />
+								<Box sx={{ml: 2, width: '100%'}}>
+									<Typography>Target Penerima</Typography>
+									<TextField select size='small' variant='outlined' label='cth: 6' onChange={(val) => { handleTargetPenerimaChange(val.target.value) }} sx={{width: '100%'}} >
+										{
+											jumlahPenerima.map((option) => (
+												<MenuItem key={option.value} value={option.value}>
+													{option.label}
+												</MenuItem>
+											))
+										}
+									</TextField>
 								</Box>
-								<Box sx={{ ml: 2 }}>
-									<Typography>Tanggal Berakhir</Typography>
-									<TextField size='small' type='date' variant='outlined' onChange={(val) => { handleTanggalBerakhirChange(val.target.value) }} />
+								<Box sx={{ml: 2, width: '100%'}}>
+									<Typography>Target Bantuan Dana</Typography>
+									<TextField size='small' variant='outlined' label='cth: 600000' onChange={(val) => { handleTargetDana(val.target.value)}} sx={{width: '100%'}}/>
 								</Box>
 							</Box>
 							<Box sx={{ display: 'flex', flexDirection: 'column', pt: 2 }}>
 								<Typography>Deskripsi Galang Dana</Typography>
-								<TextField variant='outlined' label='Deskprisi' onChange={(val) => { handleDeskripsiChange(val.target.value) }}></TextField>
-								<Typography sx={{ pt: 2 }}>Isi Redaksi</Typography>
-								<TextField variant='outlined' label='Isi Redaksi'></TextField>
+								<TextField size='small' variant='outlined' label='Deskprisi' onChange={(val) => { handleDeskripsiChange(val.target.value) }}/>
 							</Box>
 							<Box sx={{ pt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-								<Button variant='contained' onClick={createPenggalanganDana}>Submit</Button>
+								<Button variant='contained' onClick={createPenggalanganDanaBeasiswa}>Submit</Button>
 							</Box>
 						</Box>
 					</Box>
 				</Modal>
 				<Modal
 					open={openModalNonBeasiswa}
-					onClose={handleCloseModal}
+					onClose={handleCloseModalGalangDana}
 					aria-labelledby="modal-modal-title"
 					aria-describedby="modal-modal-description"
 				>
@@ -319,43 +433,52 @@ function Dashboard() {
 								<Typography variant='h3'>Identitas Penanggung Jawab</Typography>
 							</Box>
 							<Divider />
-							<Box sx={{ display: 'flex', pt: 1 }}>
+							<Box sx={{ pt: 1, display: 'flex', width: '100%' }}>
 								<Box>
 									<Typography>Nama</Typography>
-									<TextField size='small' variant='outlined' label='cth: Beasiswa JTK' sx={{ width: '226px' }} />
+									<TextField size='small' variant='outlined' label='cth: Hasbi' sx={{width: '100%'}} onChange={(val) => {handleNamaPenanggungJawabChange(val.target.value)}}/>
+								</Box>
+								<Box sx={{ ml: 2 }}>
+									<Typography>NIM/NIP</Typography>
+									<TextField size='small' variant='outlined' label='cth: 081424001' sx={{width: '100%'}} onChange={(val) => {handleNomorIndukPenanggungJawabChange(val.target.value)}}/>
 								</Box>
 								<Box sx={{ ml: 2 }}>
 									<Typography>No Telepon</Typography>
-									<TextField size='small' variant='outlined' label='cth: 082121441234' sx={{ width: '226px' }} />
+									<TextField size='small' variant='outlined' label='cth: 082121441234' sx={{width: '100%'}} onChange={(val) => {handleNomorTeleponPenanggungJawabChange(val.target.value)}} />
 								</Box>
 							</Box>
 							<Box sx={{ pb: 1, pt: 3 }}>
 								<Typography variant='h3'>Identitas Penerima Dana</Typography>
 							</Box>
 							<Divider />
-							<Box sx={{ display: 'flex', pt: 1 }}>
+							<Box sx={{ display: 'flex', mt: 1 }}>
 								<Box>
 									<Typography>Nama</Typography>
-									<TextField size='small' variant='outlined' label='cth: Beasiswa JTK' sx={{ width: '226px' }} />
+									<TextField size='small' variant='outlined' label='cth: John Doe' sx={{ width: '100%' }} onChange={(val) => {handleNamaPenerimaChange(val.target.value)}}/>
 								</Box>
-								<Box sx={{ ml: 2 }}>
+								<Box sx={{ml: 2}}>
+									<Typography>NIM/NIP</Typography>
+									<TextField size='small' variant='outlined' label='cth: 191524024' sx={{ width: '100%' }} onChange={(val) => {handleNomorIndukPenerimaChange(val.target.value)}}/>
+								</Box>
+								<Box sx={{ml: 2}}>
 									<Typography>No Telepon</Typography>
-									<TextField size='small' variant='outlined' label='cth: 082121441234' sx={{ width: '226px' }} />
+									<TextField size='small' variant='outlined' label='cth: 082121441234' sx={{ width: '100%' }} onChange={(val) => {handleNomorTeleponPenerimaChange(val.target.value)}}/>
 								</Box>
 							</Box>
-							<Box sx={{ display: 'flex', pt: 1 }}>
-								<Box>
+							<Box sx={{ display: 'flex', mt: 1}}>
+								<Box >
 									<Typography>Nama Pemilik Rekening</Typography>
-									<TextField size='small' variant='outlined' label='cth: Hasbi Islahi' sx={{ width: '226px' }} />
+									<TextField size='small' variant='outlined' label='cth: Hasbi Islahi' sx={{ width: '100%' }} onChange={(val) => {handleNamaPemilikRekeningChange(val.target.value)}}/>
+								</Box>
+								<Box sx={{ml: 2}}>
+									<Typography>Bank Rekening</Typography>
+									<TextField size='small' variant='outlined' label='cth: Mandiri' sx={{ width: '100%' }} onChange={(val) => {handleNamaBankChange(val.target.value)}}/>
 								</Box>
 								<Box sx={{ ml: 2 }}>
-									<Typography>Bank Rekening</Typography>
-									<TextField size='small' variant='outlined' label='cth: Mandiri' sx={{ width: '226px' }} />
+									<Typography>Nomor Rekening</Typography>
+									<TextField size='small' variant='outlined' label='cth: 13000462110001' sx={{ width: '100%' }} onChange={(val) => {handleNomorRekeningChange(val.target.value)}}/>
 								</Box>
-							</Box>
-							<Box sx={{ pt: 1 }}>
-								<Typography>Nomor Rekening</Typography>
-								<TextField size='small' variant='outlined' label='cth: 13000462110001' sx={{ width: '226px' }} />
+								
 							</Box>
 							<Box sx={{ pt: 2, display: 'flex', justifyContent: 'flex-end' }}>
 								<Button variant='contained' onClick={handleOpenGalangDana}>Selanjutnya</Button>
@@ -378,29 +501,41 @@ function Dashboard() {
 								<Typography variant='h3'>Informasi Galang Dana</Typography>
 							</Box>
 							<Divider />
-							<Box sx={{ display: 'flex', pt: 1 }}>
-								<Box >
+							<Box sx={{ display: 'flex', pt: 1, width: '100%' }}>
+								<Box sx={{width: '100%'}}>
 									<Typography>Judul Galang Dana</Typography>
-									<TextField size='small' variant='outlined' label='cth: Beasiswa JTK' sx={{ width: '468px' }} />
+									<TextField size='small' variant='outlined' label='cth: Bantuan Dana Penyakit Usus Buntu' sx={{ width: '100%' }} onChange={(val) => {handleJudulGalangDanaChange(val.target.value)}}/>
+								</Box>
+								<Box sx={{ml: 2, width: '100%'}}>
+									<Typography>Kategori Bantuan</Typography>
+									<TextField select size='small' variant='outlined' label='cth: Beasiswa JTK' sx={{ width: '100%' }} onChange={(val) => {handleKategoriChange(val.target.value)}}>
+									{
+											kategoriSelect.map((option) => (
+												<MenuItem key={option.value} value={option.value}>
+													{option.label}
+												</MenuItem>
+											))
+										}
+									</TextField>
 								</Box>
 							</Box>
 							<Box sx={{ pt: 1 }}>
 								<Typography>Deskripsi</Typography>
-								<TextField size='small' variant='outlined' label='cth: 5000000' sx={{ width: '468px' }} />
+								<TextField size='small' variant='outlined' label='cth: Bantuan dana untuk menanggulangi kebakaran rumah salah satu keluarga kita' sx={{ width: '468px' }} onChange={(val) => {handleDeskripsiChange(val.target.value)}}/>
 							</Box>
-							<Box sx={{ display: 'flex', pt: 1 }}>
-								<Box>
+							<Box sx={{ display: 'flex', pt: 1, width: '100%'}}>
+								<Box sx={{width: '100%'}}>
 									<Typography>Tanggal Berakhir</Typography>
-									<TextField size='small' type='date' sx={{ width: '226px' }} />
+									<TextField size='small' type='date' sx={{ width: '100%' }} onChange={(val) => {handleWaktuBerakhirChange(val.target.value)}}/>
 								</Box>
-								<Box sx={{ ml: 2 }}>
+								<Box sx={{ ml: 2, width: '100%' }}>
 									<Typography>Nominal Dana Dibutuhkan</Typography>
-									<TextField size='small' variant='outlined' label='cth: 5000000' sx={{ width: '226px' }} />
+									<TextField size='small' variant='outlined' label='cth: 5000000' sx={{ width: '100%' }} onChange={(val) => {handleKebutuhanDanaChange(val.target.value)}}/>
 								</Box>
 							</Box>
 						</Box>
 						<Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 2, pb: 2 }}>
-							<Button variant='contained' onClick={handleCloseModalGalangDana} sx={{ mr: 1 }}>Submit</Button>
+							<Button variant='contained' onClick={createPenggalanganDanaNonBeasiswa} sx={{ mr: 1 }}>Submit</Button>
 							<Button variant='outlined' onClick={handleOpenNonBeasiswa}>Sebelumnya</Button>
 						</Box>
 					</Box>
@@ -414,7 +549,6 @@ function Dashboard() {
 							<CardInfo title={info.title} description={info.description} value={info.value} index={index} />
 						</Grid>
 					))}
-
 				</Grid>
 			</Box>
 		</Container>

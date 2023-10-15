@@ -1,9 +1,3 @@
-class CivitasAkademika
-    include Mongoid::Document
-    include Mongoid::Timestamps
-    include Mongoid::Attributes::Dynamic
-
-    field :nama, type: String
-    field :nomor_induk, type: String
+class CivitasAkademika < ApplicationRecord
+    self.table_name = 'civitasakademika'
 end
-  

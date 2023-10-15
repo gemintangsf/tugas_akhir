@@ -1,11 +1,13 @@
 Rails.application.routes.draw do
+  resources :admins
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   namespace :v1 do
     resources :users, param: :username
     resource :authentication do
-      post '/login', to: 'authentication#login'
+      post '/loginPenanggungJawab', to: 'authentication#loginPenanggungJawab'
+      post '/loginDonatur', to: 'authentication#loginDonatur'
     end
     
     resource :civitas_akademika do
@@ -16,17 +18,18 @@ Rails.application.routes.draw do
 
     resource :rekapitulasi do
       post "/getRekapitulasiBeasiswa" => "rekapitulasi#getRekapitulasiBeasiswa"
+      post "/getBulanRekapitulasiBeasiswa" => "rekapitulasi#getBulanRekapitulasiBeasiswa"
       get "/getRekapitulasiNonBeasiswa" => "rekapitulasi#getRekapitulasiNonBeasiswa"
       post "/getApprovedDonasiByPenggalanganDana" => "rekapitulasi#getApprovedDonasiByPenggalanganDana"
       post "/selectPenyaluranBeasiswa" => "rekapitulasi#selectPenyaluranBeasiswa"
       post "/selectPenyaluranNonBeasiswa" => "rekapitulasi#selectPenyaluranNonBeasiswa"
-      get "/getAllRekapitulasiBeasiswa" => "rekapitulasi#getAllRekapitulasiBeasiswa"
+      get "/getAllBatchRekapitulasiBeasiswa" => "rekapitulasi#getAllBatchRekapitulasiBeasiswa"
     end
 
     namespace :user do
-      resource :admin do
-        post "/createAdmin" => "admin#createAdmin"
-        get "/getBankByAdmin" => "admin#getBankByAdmin"
+      resource :penanggung_jawab do
+        post "/createPenanggungJawab" => "penanggung_jawab#createPenanggungJawab"
+        get "/getBankByPenanggungJawab" => "penanggung_jawab#getBankByPenanggungJawab"
       end
       resource :donatur do
         get "/getTotalDonatur" => "donatur#getTotalDonatur"
@@ -42,9 +45,14 @@ Rails.application.routes.draw do
         post "selectLanjutBeasiswa" => "pengajuan_bantuan#selectLanjutBeasiswa"
         post "/createPengajuanBeasiswa" => "pengajuan_bantuan#createPengajuanBeasiswa"
         post "/createPengajuanNonBeasiswa" => "pengajuan_bantuan#createPengajuanNonBeasiswa"
-        post "/selectNewPengajuan" => "pengajuan_bantuan#selectNewPengajuan"
+        post "/approvalPengajuanBeasiswa" => "pengajuan_bantuan#approvalPengajuanBeasiswa"
+        post "/approvalPengajuanNonBeasiswa" => "pengajuan_bantuan#approvalPengajuanNonBeasiswa"
         post "/createPenilaianEsai" => "pengajuan_bantuan#createPenilaianEsai"
+        post "/createKuotaBeasiswa" => "pengajuan_bantuan#createKuotaBeasiswa"
+        post "/createKehadiranPerkuliahan" => "pengajuan_bantuan#createKehadiranPerkuliahan"
         get "/getTotalPenerimaBantuan" => "pengajuan_bantuan#getTotalPenerimaBantuan"
+        get "/getKuotaBeasiswa" => "pengajuan_bantuan#getKuotaBeasiswa"
+
       end
     end
     namespace :penggalangan do

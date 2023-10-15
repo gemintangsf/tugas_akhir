@@ -48,17 +48,18 @@ function Login() {
 		await fetch(
 			'http://localhost:8000/v1/authentication/login',
 			{
-				method: 'POST',
-				body: JSON.stringify({
-					username: username,
-					password: password
-				}),
 				headers: {
 					'Accept': 'application/json',
 					'X-Requested-With': 'application/json',
 					'Content-type': 'application/json; charset=UTF-8',
 					'Access-Control-Allow-Origin': '*'
 				},
+				method: 'POST',
+				body: JSON.stringify({
+					username: username,
+					password: password
+				}),
+				
 			})
 			.then((response) => response.json())
 			.then((data) => {
