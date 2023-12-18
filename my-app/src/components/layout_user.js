@@ -40,17 +40,22 @@ const LayoutUser = () => {
 	// 			</Box>
 	// 		</Box>
 	// }
+	const [headerSize, setHeaderSize] = React.useState(true);
+	const handleToggleSidebar = () => {
+		setHeaderSize(!headerSize);
+	}
 	return (
 		<Container
 				disableGutters
 				sx={{
 					display: 'flex',
 					flexDirection: 'column',
+					height: '100%',
 					minWidth: '100%'
 				}}
 			>
 		
-			<Header />
+			<Header size={headerSize}/>
 			<Box sx={{ width: '100%', overflowY: 'auto', pt: '53px' }}>
 				<Outlet />
 			</Box>

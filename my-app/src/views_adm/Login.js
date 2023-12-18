@@ -46,7 +46,7 @@ function Login() {
 
 	const tryLogin = async () => {
 		await fetch(
-			'http://localhost:8000/v1/authentication/login',
+			'http://localhost:8000/v1/authentication/loginPenanggungJawab',
 			{
 				headers: {
 					'Accept': 'application/json',
@@ -66,8 +66,21 @@ function Login() {
 				setIsLoading(false);
 				if (data.response_code === 200) {
 					setEmailPasswordValidation(true)
+					localStorage.setItem("token", data.data.token_access);
+                    localStorage.setItem("username", data.data.admin.username);
+                    localStorage.setItem("name", data.data.admin.nama);
+                    localStorage.setItem("role", data.data.admin.role);
 					console.log(data.data);
-					navigate("/")
+					if (data.data != undefined) {
+						if (data.data.admin.role === 0) {
+							navigate("/")
+						} else {
+							navigate("/penerima-dana")
+						}
+					} else {
+						setEmailPasswordValidation(false);
+						console.log('token not found!')
+					}
 				} else {
 					setEmailPasswordValidation(false);
 					console.log('token not found');
@@ -130,7 +143,7 @@ function Login() {
 								sx={{ width: '550px' }}
 								label="Username"
 								variant="filled"
-								type="usernmae"
+								type="username"
 								InputProps={{
 									disableUnderline: true
 								}}
@@ -167,6 +180,14 @@ function Login() {
 								onClick={isLoading ? null : handleLogin}
 							>
 								<Typography variant="button">{isLoading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Login"}</Typography>
+							</Button>
+							<Button
+								variant="outlined"
+								fullWidth
+								disableElevation
+								href='/registration'
+							>
+								<Typography variant="button">{isLoading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Daftar Akun Baru"}</Typography>
 							</Button>
 						</Stack>
 					</Box>

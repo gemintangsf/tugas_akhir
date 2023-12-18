@@ -81,9 +81,9 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
     end
 
     penggalangan_dana_beasiswa_on_going = PenggalanganDanaBeasiswa.on_going.first
-    list_bantuan_dana_beasiswa_on_going = BantuanDanaBeasiswa.pengajuan_on_going.where(penggalangan_dana_beasiswa_id: penggalangan_dana_beasiswa_on_going.penggalangan_dana_beasiswa_id)
+    list_bantuan_dana_beasiswa_on_going = BantuanDanaBeasiswa.where(penggalangan_dana_beasiswa_id: penggalangan_dana_beasiswa_on_going.penggalangan_dana_beasiswa_id)
     if list_bantuan_dana_beasiswa_on_going.present?
-      is_pengajuan = list_bantuan_dana_beasiswa_on_going.pengajuan_on_going.where(mahasiswa_id: params[:nim]).first
+      is_pengajuan = list_bantuan_dana_beasiswa_on_going.where(mahasiswa_id: params[:nim]).first
     end
   
     if is_pengajuan.present?
@@ -315,6 +315,9 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
       return render_error_response("Pengajuan Bantuan Dana Beasiswa belum sampai tahap Approval!")
     end
     penggalangan_dana_beasiswa_on_going = PenggalanganDanaBeasiswa.on_going.first
+    if penggalangan_dana_beasiswa_on_going.kuota_beasiswa.present?
+      return render_error_response("Pengisian Kuota Beasiswa sudah dilakukan!")
+    end
     penggalangan_dana_beasiswa_on_going.assign_attributes(kuota_beasiswa: params[:kuota_beasiswa])
     if penggalangan_dana_beasiswa_on_going.save
       render_success_response(Constants::RESPONSE_SUCCESS, penggalangan_dana_beasiswa_on_going, Constants::STATUS_OK)
@@ -466,18 +469,31 @@ class V1::Pengajuan::PengajuanBantuanController < ApplicationController
   end
 
   def getPengajuanBeasiswa(status_pengajuan)
+    durasi_pengajuan, error_message, status_penggalangan_dana_beasiswa = getDurasiPengajuanBeasiswa(return_json: false)
     penggalangan_dana_beasiswa_on_going = PenggalanganDanaBeasiswa.on_going
     array_of_bantuan_dana_beasiswa = []
     if !penggalangan_dana_beasiswa_on_going.present?
-      error_message = "Tidak ada data Pengajuan Bantuan Dana Beasiswa!"
-    else
+      error_message = "Tidak ada data Bantuan Dana Beasiswa!"
+    else 
       penggalangan_dana_beasiswa_on_going.each do |data_penggalangan_dana|
         bantuan_dana_beasiswa = data_penggalangan_dana.bantuan_dana_beasiswa
+        puts "cikan #{bantuan_dana_beasiswa}"
         if bantuan_dana_beasiswa.present?
-          bantuan_dana_beasiswa.where(status_pengajuan: status_pengajuan).each do |data_bantuan_dana_beasiswa|
-            array_of_bantuan_dana_beasiswa << data_bantuan_dana_beasiswa.attributes.merge({
-              mahasiswa: data_bantuan_dana_beasiswa.mahasiswa
-            })
+          if (status_penggalangan_dana_beasiswa == Enums::StatusPenggalanganDanaBeasiswa::APPROVAL_PERIOD or status_penggalangan_dana_beasiswa == Enums::StatusPenggalanganDanaBeasiswa::SUBMITION_PERIOD) and status_pengajuan == Enums::StatusPengajuan::NEW
+            puts "cikan"
+            bantuan_dana_beasiswa.where(status_pengajuan: status_pengajuan).each do |data_bantuan_dana_beasiswa|
+              array_of_bantuan_dana_beasiswa << data_bantuan_dana_beasiswa.attributes.merge({
+                mahasiswa: data_bantuan_dana_beasiswa.mahasiswa
+              })
+            end
+          elsif (status_penggalangan_dana_beasiswa == Enums::StatusPenggalanganDanaBeasiswa::DISTRIBUTION_PERIOD or status_penggalangan_dana_beasiswa == Enums::StatusPenggalanganDanaBeasiswa::APPROVAL_PERIOD) and  status_pengajuan == Enums::StatusPengajuan::APPROVED
+            bantuan_dana_beasiswa.where(status_pengajuan: status_pengajuan).each do |data_bantuan_dana_beasiswa|
+              array_of_bantuan_dana_beasiswa << data_bantuan_dana_beasiswa.attributes.merge({
+                mahasiswa: data_bantuan_dana_beasiswa.mahasiswa,
+                rekening_bank: data_bantuan_dana_beasiswa.mahasiswa.rekening_bank
+              })
+            end
+            puts "cikan"
           end
         end
       end

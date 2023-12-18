@@ -106,7 +106,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
     expired_donation = Donasi.expired.where(nomor_referensi: nomor_referensi).first
     donatur = Donatur.where(nomor_telepon: expired_donation.donatur_id).first
     penggalangan_dana_beasiswa = PenggalanganDanaBeasiswa.on_going.where(penggalangan_dana_beasiswa_id: expired_donation.penggalangan_dana_beasiswa_id).first
-    penggalangan_dana_non_beasiswa = BantuanDanaNonBeasiswa.pengajuan_approved.where(bantuan_dana_non_beasiswa_id: expired_donation.bantuan_dana_non_beasiswa_id).first
+    penggalangan_dana_non_beasiswa = BantuanDanaNonBeasiswa.where(bantuan_dana_non_beasiswa_id: expired_donation.bantuan_dana_non_beasiswa_id).first
     if is_approve == "true"
       if penggalangan_dana_beasiswa.present?
         donasi_approved = Donasi.approved.where(penggalangan_dana_beasiswa_id: penggalangan_dana_beasiswa.penggalangan_dana_beasiswa_id)
@@ -141,7 +141,7 @@ class V1::Penggalangan::DonasiController < ApplicationController
     new_donation = Donasi.new_donation.where(nomor_referensi: nomor_referensi).first
     donatur = Donatur.where(nomor_telepon: new_donation.donatur_id).first
     penggalangan_dana_beasiswa = PenggalanganDanaBeasiswa.on_going.where(penggalangan_dana_beasiswa_id: new_donation.penggalangan_dana_beasiswa_id).first
-    penggalangan_dana_non_beasiswa = BantuanDanaNonBeasiswa.pengajuan_approved.where(bantuan_dana_non_beasiswa_id: new_donation.bantuan_dana_non_beasiswa_id).first
+    penggalangan_dana_non_beasiswa = BantuanDanaNonBeasiswa.where(bantuan_dana_non_beasiswa_id: new_donation.bantuan_dana_non_beasiswa_id).first
     if is_approve == "true"
       if penggalangan_dana_beasiswa.present?
         donasi_approved = Donasi.approved.where(penggalangan_dana_beasiswa_id: penggalangan_dana_beasiswa.penggalangan_dana_beasiswa_id)
@@ -215,12 +215,10 @@ class V1::Penggalangan::DonasiController < ApplicationController
         array_of_donasi = []
         donasi.each do |data|
           if data.struk_pembayaran.present?
-            judul_galang_dana_beasiswa = PenggalanganDanaBeasiswa.on_going.where(penggalangan_dana_beasiswa_id: data.penggalangan_dana_beasiswa_id).first.judul
             donatur = Donatur.where(nomor_telepon: data.donatur_id).first
             rekening_bank = RekeningBank.where(donatur_id: donatur.nomor_telepon).first
             array_of_donasi << data.attributes.merge({
-              judul_galang_dana: judul_galang_dana_beasiswa.present? ? judul_galang_dana_beasiswa : 
-              BantuanDanaNonBeasiswa.pengajuan_approved.where(bantuan_dana_non_beasiswa_id: data.bantuan_dana_non_beasiswa_id).first.judul_galang_dana,
+              judul_galang_dana: PenggalanganDanaBeasiswa.on_going.where(penggalangan_dana_beasiswa_id: data.penggalangan_dana_beasiswa_id).present? ? PenggalanganDanaBeasiswa.on_going.where(penggalangan_dana_beasiswa_id: data.penggalangan_dana_beasiswa_id).first.judul : BantuanDanaNonBeasiswa.where(bantuan_dana_non_beasiswa_id: data.bantuan_dana_non_beasiswa_id).first.judul_galang_dana,
               donatur: donatur,
               rekening_bank: rekening_bank
             })

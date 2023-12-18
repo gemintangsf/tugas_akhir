@@ -93,19 +93,19 @@ function FormulirNonBeasiswa() {
 					'Access-Control-Allow-Origin': '*',
 				},
 				body: JSON.stringify({
-					"nama": namaPenanggungJawab,
-					"no_identitas_pengaju": noIdentitasPenanggungJawab,
-					"no_telepon": noTeleponPenanggungJawab,
+					"nama_penanggung_jawab": namaPenanggungJawab,
+					"nomor_induk_penanggung_jawab": noIdentitasPenanggungJawab,
+					"nomor_telepon_penanggung_jawab": noTeleponPenanggungJawab,
 					"nomor_rekening": nomorRekening,
 					"nama_pemilik_rekening": namaPemilikRekening,
 					"nama_bank": bankRekening,
 					"judul_galang_dana": judulGalangDana,
 					"waktu_galang_dana": tanggalBerakhir,
-					"deskripsi": deskripsi,
+					"deskripsi_galang_dana": deskripsi,
 					"dana_yang_dibutuhkan": danaBantuan,
 					"nama_penerima": namaPenerima,
-					"no_identitas_penerima": noIdentitasPenerima,
-					"no_telepon_penerima": noTeleponPenerima,
+					"nomor_induk_penerima": noIdentitasPenerima,
+					"nomor_telepon_penerima": noTeleponPenerima,
 					"bukti_butuh_bantuan": dokumenBantuan,
 					"kategori": kategori
 				}),
@@ -324,7 +324,7 @@ function FormulirNonBeasiswa() {
 					<Typography variant='body1' sx={{ mt: 3, color: '#636E72', fontWeight: 'bold' }}>Judul Galang Dana</Typography>
 					<TextField variant="outlined" size="small" label='cth: Bantuan Dana Untuk Operasi Jantung' onChange={(val) => { handleJudulGalangDanaChange(val.target.value) }}></TextField>
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Deskripsi</Typography>
-					<TextField variant="outlined" size="small" label='cth: Ceritakan alasanmu mengajukan bantuan dana' onChange={(val) => { handleDeskripsiChange(val.target.value) }}></TextField>
+					<TextField variant="outlined" size="small" label='Ceritakan alasanmu mengajukan bantuan dana' onChange={(val) => { handleDeskripsiChange(val.target.value) }}></TextField>
 					{
 						kategori === "Medis" ? formPersyaratanMedis() : formPersyaratanBencana()
 					}

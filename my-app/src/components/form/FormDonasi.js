@@ -259,7 +259,7 @@ function FormulirDonasi() {
 							}
 							<Typography sx={{ mt: 2 }}>Nomor Rekening Tujuan</Typography>
 							{
-								bankAdmin
+								pendingDonasi
 									.map((info, index) => (
 										<Box sx={{ borderRadius: '8px', backgroundColor: '#F2F2F2', p: 1 }}>
 											<Typography variant="body2" >{info.rekening_bank.nama_bank}</Typography>

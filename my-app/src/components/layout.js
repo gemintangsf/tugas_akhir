@@ -25,8 +25,9 @@ import GroupIcon from '@mui/icons-material/Group';
 import DescriptionIcon from '@mui/icons-material/Description';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 
-const Layout = () => {
-	const adminMenuList = [
+const Layout = ({isPenanggungJawabJtkBerbagi, isPenanggungJawabPihakJurusan}) => {
+	const navigate = useNavigate();
+	const penanggungJawabJtkBerbagiMenuList = [
 		{ name: 'Dashboard', url: '/', icon: <DashboardIcon /> },
 		{ name: 'Calon Beasiswa', url: '/calonpenerimabeasiswa', icon: <GroupIcon /> },
 		{ name: 'Calon Non Beasiswa', url: '/calonpenerimanonbeasiswa', icon: <GroupIcon /> },
@@ -46,8 +47,24 @@ const Layout = () => {
 		},
 		{ name: 'Daftar Donasi', url: '/rekapitulasi-donasi', icon: <VolunteerActivismIcon /> },
 	]
-	var menuLists = adminMenuList;
 
+	const penanggungJawabPihakJurusanMenuList = [
+		{ name: 'Dashboard', url: '/', icon: <DashboardIcon /> },
+		{
+			name: 'Penerima Dana', url: '/penerima-dana', icon: <GroupIcon />,
+			child: [
+				{ name: 'Penerima Beasiswa', url: 'penerima-dana/beasiswa' },
+				{ name: 'Penerima Non Beasiswa', url: 'penerima-dana/non-beasiswa' },
+			]
+		},
+	]
+	var menuLists = [];
+
+	if (isPenanggungJawabJtkBerbagi) {
+		menuLists = penanggungJawabJtkBerbagiMenuList
+	} else if (isPenanggungJawabPihakJurusan) {
+		menuLists = penanggungJawabPihakJurusanMenuList
+	}
 	const location = useLocation();
 	const currentLocationData = menuLists.reduce((result, item) => item.url === location.pathname ? [...result, item] : result, []);
 	const [sidebarSize, setSidebarSize] = useState(true);

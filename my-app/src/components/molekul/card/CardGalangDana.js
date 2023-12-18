@@ -20,7 +20,7 @@ function InfoCardGalangDana({ title, description, donaturs }) {
 							<Typography variant='body2' color={'grey'} sx={{ ml: 0.5 }}>{donaturs} Donatur</Typography>
 						</div>
 						<div>
-							<Button href='/form-donasi' size='small' variant='outlined' color="success"><Typography sx={{ textTransform: 'capitalize' }}>Donasi</Typography></Button>
+							<Button href='/penggalangan-dana' size='small' variant='outlined' color="success"><Typography sx={{ textTransform: 'capitalize' }}>Lihat Detail</Typography></Button>
 						</div>
 					</div>
 				</div>

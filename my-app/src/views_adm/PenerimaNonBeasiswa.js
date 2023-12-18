@@ -65,14 +65,13 @@ function NonBeasiswa() {
 		setPage(0);
 	};
 	const headers = [
-		{ title: 'NIM/NIP Penerima', id: 'no_identitas_penerima', parentId: 'non_beasiswa_id' },
-		{ title: 'Nama Penerima', id: 'nama_penerima', parentId: 'non_beasiswa_id' },
-		{ title: 'Nomor Telepon Penerima', id: 'no_telepon_penerima', parentId: 'non_beasiswa_id' },
-		{ title: 'NIM/NIP Penanggung Jawab', id: 'no_identitas_pengaju' },
-		{ title: 'Nama Penanggung Jawab', id: 'nama' },
-		{ title: 'No Telepon Penanggung Jawab', id: 'no_telepon' },
-		{ title: 'Nomor Rekening', id: 'nomor_rekening', parentId: 'bank_id' },
-		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id' },
+		{ title: 'Judul Galang Dana', id: 'judul_galang_dana' },
+		{ title: 'NIM/NIP Penerima', id: 'nomor_induk', parentId: 'penerima_non_beasiswa' },
+		{ title: 'Nama Penerima', id: 'nama', parentId: 'penerima_non_beasiswa' },
+		{ title: 'Nomor Telepon Penerima', id: 'nomor_telepon', parentId: 'penerima_non_beasiswa' },
+		{ title: 'NIM/NIP Penanggung Jawab', id: 'nomor_induk', parentId: 'penanggung_jawab_non_beasiswa_id' },
+		{ title: 'Nama Penanggung Jawab', id: 'nama', parentId: 'penanggung_jawab_non_beasiswa_id' },
+		{ title: 'No Telepon Penanggung Jawab', id: 'nomor_telepon', parentId: 'penanggung_jawab_non_beasiswa_id' },
 		{ title: 'Dana yang Dibutuhkan', id: 'dana_yang_dibutuhkan' },
 		{ title: 'Status', id: 'status_pengajuan' }
 	]

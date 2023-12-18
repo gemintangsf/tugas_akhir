@@ -97,12 +97,12 @@ function FormulirBeasiswa() {
 				},
 				body: JSON.stringify({
 					"nama": namaMahasiswa,
-					"no_identitas_pengaju": nimMahasiswa,
-					"no_telepon": noTelepon,
+					"nim": nimMahasiswa,
+					"nomor_telepon": noTelepon,
 					"nomor_rekening": noRekening,
 					"nama_pemilik_rekening": pemilikRekening,
-					"bank": namaBank,
-					"deskripsi": deskripsi,
+					"nama_bank": namaBank,
+					"alasan_butuh_bantuan": deskripsi,
 					"golongan_ukt": golUkt,
 					"kuitansi_pembayaran_ukt": kuitansiPembayaranUkt,
 					"gaji_orang_tua": nominalPenghasilan,
@@ -270,7 +270,7 @@ function FormulirBeasiswa() {
 				<Box sx={{ display: 'flex', flexDirection: 'column', mt: 4 }}>
 					<Typography variant='h4' sx={{ fontWeight: 'bold' }}>Persyaratan Calon Penerima Beasiswa</Typography>
 					<Typography variant='body1' sx={{ mt: 3, color: '#636E72', fontWeight: 'bold' }}>Deksripsi Ajakan Galang Dana</Typography>
-					<TextField variant="outlined" size="small" label='cth: 5000000' onChange={(val) => { handleDeskripsi(val.target.value) }} />
+					<TextField variant="outlined" size="small" label='cth: Alasan membutuhkan biaya bantuan' onChange={(val) => { handleDeskripsi(val.target.value) }} />
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Golongan UKT</Typography>
 					<TextField select variant="outlined" size="small" label='Pilih Golongan UKT' onChange={(val) => { handleGolUkt(val.target.value) }}>
 						{
@@ -284,7 +284,7 @@ function FormulirBeasiswa() {
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Bukti Dokumen Golongan UKT</Typography>
 					<TextField type="file" onChange={(val) => { handleKuitansiPembayaranUkt(val.target.value) }} />
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }}>Biaya Penghasilan Orang Tua /Bulan</Typography>
-					<TextField variant="outlined" size="small" label='cth: 5000000' onChange={(val) => { handleNominalPenghasilan(val.target.value) }} />
+					<TextField variant="outlined" size="small" label='Gaji Orangtua / bulan (Rp)' onChange={(val) => { handleNominalPenghasilan(val.target.value) }} />
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }} >Bukti Dokumen Penghasilan Orang Tua</Typography>
 					<TextField type="file" onChange={(val) => { handleSlipGaji(val.target.value) }} />
 					<Typography variant='body1' sx={{ mt: 2, color: '#636E72', fontWeight: 'bold' }} >Jumlah Tanggungan Anggota Keluarga</Typography>

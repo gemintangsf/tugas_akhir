@@ -149,7 +149,7 @@ function LoginUser() {
 								sx={{backgroundColor: '#698D01'}}
 								onClick={isLoading ? null : handleLogin}
 							>
-								{/* <Typography variant="button">{isLoading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Login"}</Typography> */}
+								<Typography variant="button">{isLoading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Login"}</Typography>
 							</Button>
 						</Stack>
 					</Box>

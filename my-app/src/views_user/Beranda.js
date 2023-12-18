@@ -176,7 +176,6 @@ function Beranda() {
 		)
 			.then((response) => response.json())
 			.then((data) => {
-
 				if (data.response_code === 200) {
 					let arrayData = []
 					arrayData.push(data.data)
@@ -215,7 +214,6 @@ function Beranda() {
 			>
 				<Box sx={styleBox}>
 					{
-
 						<Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
 							<Box>
 								<Typography sx={{ mb: 2 }}> {durasi} </Typography>
@@ -225,12 +223,9 @@ function Beranda() {
 										:
 										<Button variant="contained" href="/form-beasiswa"><Typography>OK</Typography></Button>
 								}
-
 							</Box>
 						</Box>
-
 					}
-
 				</Box>
 			</Modal>
 			<Box sx={{ backgroundColor: '#405600', mt: 2 }}>
@@ -263,7 +258,7 @@ function Beranda() {
 							penggalanganDana.map((info, index) => {
 								return (
 									<SwiperSlide >
-										<Link to="/penggalangan-dana" state={info.penggalangan_dana_beasiswa_id} style={{ textDecoration: 'none' }}>
+										<Link to="/penggalangan-dana" state={info.penggalangan_dana_id} style={{ textDecoration: 'none' }}>
 											<Card>
 												<InfoCarousel
 													title={info.judul}
@@ -284,7 +279,6 @@ function Beranda() {
 					</Swiper>
 				}
 			</Box>
-
 		</Box >
 	)
 }

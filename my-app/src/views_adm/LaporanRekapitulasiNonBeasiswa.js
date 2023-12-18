@@ -69,18 +69,18 @@ function LaporanRekapitulasiNonBeasiswa() {
 	};
 	const headers = [
 		{ title: 'Judul Galang Dana', id: 'judul_galang_dana' },
-		{ title: 'Kategori', id: 'kategori', parentId: 'non_beasiswa_id' },
-		{ title: 'Nama Penerima', id: 'nama_penerima', parentId: 'non_beasiswa_id' },
-		{ title: 'No Telepon Penerima', id: 'no_telepon_penerima', parentId: 'non_beasiswa_id' },
-		{ title: 'Nama Penanggung Jawab', id: 'nama' },
-		{ title: 'No Telepon Penanggung Jawab', id: 'no_telepon' },
+		{ title: 'Kategori', id: 'kategori' },
+		{ title: 'Nama Penerima', id: 'nama', parentId: 'penerima_non_beasiswa' },
+		{ title: 'No Telepon Penerima', id: 'nomor_telepon', parentId: 'penerima_non_beasiswa' },
+		{ title: 'Nama Penanggung Jawab', id: 'nama', parentId: 'penanggung_jawab_non_beasiswa_id' },
+		{ title: 'No Telepon Penanggung Jawab', id: 'nomor_telepon', parentId: 'penanggung_jawab_non_beasiswa_id' },
 		{ title: 'Total Dana Dibutuhkan (Rp)', id: 'dana_yang_dibutuhkan' },
-		{ title: 'Total Dana Disalurkan (Rp)', id: 'total_nominal_terkumpul', parentId: 'penggalangan_dana' },
+		{ title: 'Total Dana Disalurkan (Rp)', id: 'total_nominal_terkumpul' },
 		{ title: 'Status', id: 'status' }
 	]
 	const headersDetails = [
-		{ title: 'Nama Donatur', id: 'donatur', parentId: 'nama' },
-		{ title: 'Nomor Telepon', id: 'nomor_telepon', parentId: 'donatur' },
+		{ title: 'Nama Donatur', id: 'nama', parentId: 'donatur_id' },
+		{ title: 'Nomor Telepon', id: 'nomor_telepon', parentId: 'donatur_id' },
 		{ title: 'Nominal Donasi (Rp)', id: 'nominal_donasi', },
 		{ title: 'Status', id: 'status' }
 	]
@@ -176,7 +176,7 @@ function LaporanRekapitulasiNonBeasiswa() {
 												}</StyledTableCell>
 											))}
 											<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
-												<Button size='small' color='primary' onClick={(val) => { getRekapitulasiNonBeasiswaDetails(row.penggalangan_dana._id.$oid, val.target.value) }} >
+												<Button size='small' color='primary' onClick={(val) => { getRekapitulasiNonBeasiswaDetails(row.bantuan_dana_non_beasiswa_id, val.target.value) }} >
 													<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
 												</Button>
 												<DeleteOutlineIcon sx={{ color: red[500], ml: 1 }} />
@@ -215,7 +215,6 @@ function LaporanRekapitulasiNonBeasiswa() {
 							{headersDetails.map((header) =>
 								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
 							)}
-							<StyledTableCell sx={{ textAlign: 'center' }}>Action</StyledTableCell>
 						</TableHead>
 						<TableBody>
 							{
@@ -232,12 +231,6 @@ function LaporanRekapitulasiNonBeasiswa() {
 													: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
 												}</StyledTableCell>
 											))}
-											<StyledTableCell sx={{ display: 'flex', alignItems: 'center' }}>
-												<Button size='small' color='primary' onClick={handleOpen} >
-													<p style={{ textTransform: "capitalize", fontSize: '12px' }}>Details</p>
-												</Button>
-												<DeleteOutlineIcon sx={{ color: red[500], ml: 1 }} />
-											</StyledTableCell>
 										</StyledTableRow>
 									)
 									)}

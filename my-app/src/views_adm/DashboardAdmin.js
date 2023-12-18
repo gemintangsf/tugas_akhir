@@ -53,6 +53,7 @@ function Dashboard() {
 	const [judulGalangDana, setJudulGalangDana] = React.useState([]);
 	const [targetDana, setTargetDana] = React.useState('');
 	const [targetPenerima, setTargetPenerima] = React.useState('');
+	const [jenis, setJenis] = React.useState('NonBeasiswa');
 
 	const handleJudulGalangDanaChange = (val) => {
 		setJudulGalangDana(val)
@@ -135,30 +136,30 @@ function Dashboard() {
 	const handleCloseModal = () => setOpenModal(false);
 	const handleCloseModalImportData = () => setOpenModalImportData(false);
 
-	// const getTotalCalonPengajuan = async () => {
-	// 	await fetch(
-	// 		'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getTotalCalonPengajuan',
-	// 		{
-	// 			method: 'POST',
-	// 			headers: {
-	// 				Accept: 'application/json',
-	// 				'Content-Type': 'application/json',
-	// 				'Access-Control-Allow-Origin': '*',
-	// 			},
-	// 			body: JSON.stringify({
-	// 				jenis: jenis
-	// 			})
-	// 		}
-	// 	)
-	// 		.then((response) => response.json())
-	// 		.then((data) => {
-	// 			console.log(data.data)
-	// 			let arrayData = []
-	// 			arrayData.push(data.data)
-	// 			setJumlahPengajuan(arrayData)
-	// 		})
+	const getTotalCalonPengajuan = async () => {
+		await fetch(
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getTotalCalonPengajuan',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					jenis: jenis
+				})
+			}
+		)
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data)
+				let arrayData = []
+				arrayData.push(data.data)
+				setJumlahPengajuan(arrayData)
+			})
 
-	// }
+	}
 	const getTotalDanaTerkumpul = async () => {
 		await fetch(
 			'http://localhost:8000/v1/penggalangan/donasi/getTotalAllDonasi',
@@ -219,7 +220,7 @@ function Dashboard() {
 	React.useEffect(() => {
 		getTotalPenerimaBantuan()
 		getTotalNewDonasi()
-		// getTotalCalonPengajuan()
+		getTotalCalonPengajuan()
 		getTotalDanaTerkumpul()
 	}, [])
 	const createPenggalanganDanaBeasiswa = async () => {
@@ -282,6 +283,20 @@ function Dashboard() {
 				console.log(err.message);
 			})
 	}
+	// const importDataCivitasAkademika = async () => {
+	// 	await fetch (
+	// 		'http://localhost:8000/v1/civitas_akademika/importExcelCivitasAkademika',
+	// 		{
+	// 			method: 'POST',
+	// 			headers: {
+	// 				Accept: 'application/json',
+	// 				'Content-Type': 'application/json',
+	// 				'Access-Control-Allow-Origin': '*',
+	// 			},
+	// 			body
+	// 		}
+	// 	)
+	// }
 	const kategoriSelect = [
 		{
 			value: 'Medis',

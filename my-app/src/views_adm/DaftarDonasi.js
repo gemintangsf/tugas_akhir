@@ -105,7 +105,7 @@ function LaporanRekapitulasiDonasi() {
 					'Access-Control-Allow-Origin': '*',
 				},
 				body: JSON.stringify({
-					id: id,
+					nomor_referensi: id,
 					is_approve: status
 				})
 			}
@@ -214,7 +214,7 @@ function LaporanRekapitulasiDonasi() {
 											</StyledTableCell>
 											{Object.entries(headers).map(([key, val]) => (
 												<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'status' ?
-													<Button size='small' variant='outlined' color='success' onClick={(val) => { approvalDonasi(row.donatur.donasi_id._id.$oid, val.target.value) }} sx={{ backgroundColor: '#EBF9F1' }}>
+													<Button size='small' variant='outlined' color='success' onClick={(val) => { approvalDonasi(row.nomor_referensi, val.target.value) }} sx={{ backgroundColor: '#EBF9F1' }}>
 														<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approve!</Typography>
 													</Button>
 													: <span>{val?.grandParentId ? row?.[val.grandParentId]?.[val.parentId]?.[val.id] : val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>

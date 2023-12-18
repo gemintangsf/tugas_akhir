@@ -41,7 +41,6 @@ function InfoCarousel({ image, title, description, dana_terkumpul, dana_dibutuhk
 		}
 		return icon;
 	}
-
 	return (
 		<Box>
 			<CardContent>
@@ -67,7 +66,6 @@ function InfoCarousel({ image, title, description, dana_terkumpul, dana_dibutuhk
 						<Typography sx={{ color: '#616161', ml: 0.5 }}>{jumlah_donatur} Donatur</Typography>
 					</div>
 					<Typography sx={{ color: '#616161' }}>{kategori}</Typography>
-
 					<div style={{ color: 'grey', display: 'flex', justifyContent: 'space-between' }} >
 						<Typography sx={{ fontSize: '14px' }}>View more</Typography>
 						<KeyboardArrowRightIcon />

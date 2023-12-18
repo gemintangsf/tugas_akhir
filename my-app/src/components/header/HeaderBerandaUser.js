@@ -22,8 +22,6 @@ function HeaderBar(props) {
 	const handleClose = () => {
 		setAnchorEl(null);
 	};
-
-
 	return (
 		<Box sx={{ backgroundColor: 'white', display: 'flex', justifyContent: 'space-between', py: 1, boxShadow: '0px 0px 2px 0px', position: 'fixed', width: '100%', zIndex: '999' }}>
 			<Box sx={{ display: 'flex', alignItems: 'center', color: '#9E9E9E' }}>
@@ -44,6 +42,13 @@ function HeaderBar(props) {
 						<KeyboardArrowDownIcon fontSize='small' />
 					</MenuItem>
 				</Box>
+				<Box sx={{ display: 'flex', alignItems: 'center', color: '#9E9E9E' }}>
+					<MenuItem
+						onClick={() => navigate('/rekapitulasi-dana-public')}
+					>
+						<Typography>Rekapitulasi Dana</Typography>
+					</MenuItem>
+				</Box>
 			</Box>
 			<Menu
 				id="basic-menu"
@@ -58,7 +63,7 @@ function HeaderBar(props) {
 					<Typography variant='h5'>Kategori Galang Dana</Typography>
 				</Box>
 				<Divider />
-				<MenuItem><Link to='/penggalangan-dana' style={{ textDecoration: 'none', color: '#616161' }}>Beasiswa</Link></MenuItem>
+				<MenuItem><Link to='/daftar-penggalangan-dana' state={'Beasiswa'} style={{ textDecoration: 'none', color: '#616161' }}>Beasiswa</Link></MenuItem>
 				<MenuItem><Link to='/daftar-penggalangan-dana' state={'Medis'} style={{ textDecoration: 'none', color: '#616161' }}>Medis</Link></MenuItem>
 				<MenuItem ><Link to='/daftar-penggalangan-dana' state={'Bencana'} style={{ textDecoration: 'none', color: '#616161' }}>Bencana</Link></MenuItem>
 			</Menu>

@@ -5,7 +5,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import SidebarAdmin from '../components/molekul/sidebar/SidebarAdmin'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import TableAdmin from '../components/molekul/tabel/Tabel';
@@ -19,7 +18,6 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import * as React from 'react'
 import TablePagination from '@mui/material/TablePagination';
-import { red } from '@mui/material/colors';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -51,7 +49,7 @@ function CalonPenerimaBeasiswa() {
 	const [status, setStatus] = React.useState('true')
 	const [page, setPage] = React.useState(0);
 	const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+	const [kuotaBeasiswa, setKuotaBeasiswa] = React.useState('');
 
 	const handlePenilaianEsaiChange = (val) => {
 		setPenilaianEsai(val)
@@ -66,6 +64,9 @@ function CalonPenerimaBeasiswa() {
 		setPage(0);
 	};
 
+	const handleChangeKuotaBeasiswa = (val) => {
+		setKuotaBeasiswa(val)
+	}
 	React.useEffect(() => {
 		const dataTableCalonBeasiswa = async () => {
 			await fetch(
@@ -116,14 +117,13 @@ function CalonPenerimaBeasiswa() {
 			})
 			.then((response) => response.json())
 			.then((data) => {
-
 				console.log(data.data)
 			})
 	}
 
 	const approvePengajuanBeasiswa = async (id) => {
 		await fetch(
-			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/selectNewPengajuan',
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/approvalPengajuanBeasiswa',
 			{
 				method: 'POST',
 				headers: {
@@ -141,6 +141,41 @@ function CalonPenerimaBeasiswa() {
 				console.log(data.data)
 			})
 	}
+	const createKuotaBeasiswa = async () => {
+		await fetch (
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/createKuotaBeasiswa',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					kuota_beasiswa: kuotaBeasiswa
+				})
+			})
+	}
+	React.useEffect(() => {
+		const getKuotaBeasiswa = async () => {
+			await fetch (
+				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getKuotaBeasiswa',
+				{
+					method: 'GET',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+					},	
+				})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data.data + 'coba')
+				})
+				
+		}
+		getKuotaBeasiswa()
+	}, [])
 	const nilaiEsai = [
 		{
 			label: 'Kurang',
@@ -160,21 +195,21 @@ function CalonPenerimaBeasiswa() {
 		}
 	]
 	const headers = [
-		{ title: 'NIM', id: 'no_identitas_pengaju' },
-		{ title: 'Nama', id: 'nama' },
-		{ title: 'No Telepon', id: 'no_telepon' },
-		{ title: 'Golongan UKT', id: "golongan_ukt", parentId: 'beasiswa_id' },
-		{ title: 'Dokumen Golongan UKT', id: 'kuitansi_pembayaran_ukt', parentId: 'beasiswa_id' },
-		{ title: 'Gaji Orang Tua', id: 'gaji_orang_tua', parentId: 'beasiswa_id' },
-		{ title: 'Dokumen Slip Gaji', id: 'bukti_slip_gaji_orang_tua', parentId: 'beasiswa_id' },
-		{ title: 'Jumlah Tanggungan Keluarga', id: 'jumlah_tanggungan_keluarga', parentId: 'beasiswa_id' },
-		{ title: 'Dokumen Esai', id: 'esai', parentId: 'beasiswa_id' },
+		{ title: 'NIM', id: 'nim', parentId: 'mahasiswa' },
+		{ title: 'Nama', id: 'nama', parentId: 'mahasiswa' },
+		{ title: 'No Telepon', id: 'nomor_telepon', parentId: 'mahasiswa' },
+		{ title: 'Golongan UKT', id: "golongan_ukt" },
+		{ title: 'Dokumen Golongan UKT', id: 'kuitansi_pembayaran_ukt' },
+		{ title: 'Gaji Orang Tua', id: 'gaji_orang_tua' },
+		{ title: 'Dokumen Slip Gaji', id: 'bukti_slip_gaji_orang_tua' },
+		{ title: 'Jumlah Tanggungan Keluarga', id: 'jumlah_tanggungan_keluarga' },
+		{ title: 'Dokumen Esai', id: 'esai'},
 		{ title: 'Penilaian Esai', id: 'penilaian_esai' },
-		{ title: 'Biaya Pengeluaran Keluarga', id: 'total_pengeluaran_keluarga', parentId: 'beasiswa_id' },
-		{ title: 'Biaya Transportasi', id: 'biaya_transportasi', parentId: 'beasiswa_id' },
-		{ title: 'Biaya Konsumsi', id: 'biaya_konsumsi', parentId: 'beasiswa_id' },
-		{ title: 'Biaya Internet', id: 'biaya_internet', parentId: 'beasiswa_id' },
-		{ title: 'Biaya Kos', id: 'biaya_kos', parentId: 'beasiswa_id' },
+		{ title: 'Biaya Pengeluaran Keluarga', id: 'total_pengeluaran_keluarga' },
+		{ title: 'Biaya Transportasi', id: 'biaya_transportasi' },
+		{ title: 'Biaya Konsumsi', id: 'biaya_konsumsi' },
+		{ title: 'Biaya Internet', id: 'biaya_internet' },
+		{ title: 'Biaya Kos', id: 'biaya_kos' },
 		{ title: 'Status', id: 'status_pengajuan' }
 	]
 
@@ -199,12 +234,33 @@ function CalonPenerimaBeasiswa() {
 		boxShadow: 24,
 		borderRadius: '4px 4px 4px 4px'
 	}
-	const [openModal, setOpenModal] = React.useState(false);
-	const handleOpenModal = () => {
-		setOpenModal(true);
+	const [openModalKuota, setOpenModalKuota] = React.useState(false);
+	const handleOpenModalKuota = () => {
+		setOpenModalKuota(true);
+	}
+	const handleCloseModalKuota = () => {
+		setOpenModalKuota(false);
+	}
+	const [openModalUkt, setOpenModalUkt] = React.useState(false);
+	const handleOpenModalUkt = () => {
+		setOpenModalUkt(true);
 	};
-	const handleCloseModal = () => {
-		setOpenModal(false);
+	const handleCloseModalUkt = () => {
+		setOpenModalUkt(false);
+	};
+	const [openModalSlipGaji, setOpenModalSlipGaji] = React.useState(false);
+	const handleOpenModalSlipGaji = () => {
+		setOpenModalSlipGaji(true);
+	};
+	const handleCloseModalSlipGaji = () => {
+		setOpenModalSlipGaji(false);
+	};
+	const [openModalEsai, setOpenModalEsai] = React.useState(false);
+	const handleOpenModalEsai = () => {
+		setOpenModalEsai(true);
+	};
+	const handleCloseModalEesai = () => {
+		setOpenModalEsai(false);
 	};
 	console.log(headers)
 	return (
@@ -230,7 +286,16 @@ function CalonPenerimaBeasiswa() {
 					></TextField>
 				</div>
 				<div>
-					<ButtonBase variant={'contained'} text={'Seleksi Beasiswa'}></ButtonBase>
+					<Button variant={'contained'} onClick={handleOpenModalKuota}>Seleksi Beasiswa</Button>
+					<Modal
+					open={openModalKuota}
+					onClose={handleCloseModalKuota}
+					>
+						<Box sx={style}>
+							<TextField variant='outlined' label='cth: 6' onChange={(val) => { handleChangeKuotaBeasiswa(val.target.value) }}/>
+							<Button onClick={createKuotaBeasiswa}>Submit</Button>
+						</Box>
+					</Modal>	
 				</div>
 			</Box>
 			<Box sx={{ mt: 2 }}>
@@ -256,7 +321,7 @@ function CalonPenerimaBeasiswa() {
 											{Object.entries(headers).map(([key, val]) => (
 												<StyledTableCell sx={{ textAlign: 'center' }}>{
 													val.id === 'penilaian_esai' ?
-														<TextField select variant="outlined" size="small" label='Masukkan nilai' sx={{ width: 150 }} onChange={(val) => { createPenilaianEsai(row._id.$oid, val.target.value) }}>
+														<TextField select variant="outlined" size="small" label='Masukkan nilai' sx={{ width: 150 }} onChange={(val) => { createPenilaianEsai(row.bantuan_dana_beasiswa_id, val.target.value) }}>
 															{
 																nilaiEsai.map((option) => (
 																	<MenuItem key={option.value} value={option.value}>
@@ -266,19 +331,27 @@ function CalonPenerimaBeasiswa() {
 															}
 														</TextField>
 														:
-														val.id === 'kuitansi_pembayaran_ukt' || val.id === 'bukti_slip_gaji_orang_tua' || val.id === 'esai' ?
-															<Button onClick={handleOpenModal}>
+														val.id === 'kuitansi_pembayaran_ukt' ?
+															<Button onClick={handleOpenModalUkt}>
+																<u style={{ textTransform: "capitalize" }}>Details</u>
+															</Button>
+															: val.id === 'bukti_slip_gaji_orang_tua' ? 
+															<Button onClick={handleOpenModalSlipGaji}>
+																<u style={{ textTransform: "capitalize" }}>Details</u>
+															</Button>
+															: val.id === 'esai' ?
+															<Button onClick={handleOpenModalEsai}>
 																<u style={{ textTransform: "capitalize" }}>Details</u>
 															</Button>
 															: val.id === 'status_pengajuan' ?
-																<Button size='small' variant='outlined' color='error' sx={{ backgroundColor: '#CFACAD' }}>
+																<Button size='small' variant='outlined' color='error' disabled sx={{ backgroundColor: '#CFACAD' }}>
 																	<Typography style={{ textTransform: "capitalize", color: '#A30D11', fontSize: '12px' }}>Pending</Typography>
 																</Button> :
 																<span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
 												}
 													<Modal
-														open={openModal}
-														onClose={handleCloseModal}
+														open={openModalUkt}
+														onClose={handleCloseModalUkt}
 														aria-labelledby="modal-modal-title"
 														aria-describedby="modal-modal-description"
 													>
@@ -287,7 +360,37 @@ function CalonPenerimaBeasiswa() {
 																<Typography variant='h3' color={'white'}>Bukti Struk Pembayaran</Typography>
 															</Box>
 															<Box>
-																asd
+																{row.kuitansi_pembayaran_ukt}
+															</Box>
+														</Box>
+													</Modal>
+													<Modal
+														open={openModalSlipGaji}
+														onClose={handleCloseModalSlipGaji}
+														aria-labelledby="modal-modal-title"
+														aria-describedby="modal-modal-description"
+													>
+														<Box sx={styleBox}>
+															<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
+																<Typography variant='h3' color={'white'}>Bukti Slip Gaji Orang Tua</Typography>
+															</Box>
+															<Box>
+																{row.bukti_slip_gaji_orang_tua}
+															</Box>
+														</Box>
+													</Modal>
+													<Modal
+														open={openModalEsai}
+														onClose={handleCloseModalEesai}
+														aria-labelledby="modal-modal-title"
+														aria-describedby="modal-modal-description"
+													>
+														<Box sx={styleBox}>
+															<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
+																<Typography variant='h3' color={'white'}>Dokumen Esai</Typography>
+															</Box>
+															<Box>
+																{row.esai}
 															</Box>
 														</Box>
 													</Modal>
@@ -295,7 +398,7 @@ function CalonPenerimaBeasiswa() {
 											)
 											)}
 											<StyledTableCell sx={{ display: 'flex' }}>
-												<Button onClick={(val) => { approvePengajuanBeasiswa(row._id.$oid, val.target.value) }}>
+												<Button onClick={(val) => { approvePengajuanBeasiswa(row.bantuan_dana_beasiswa_id, val.target.value) }}>
 													<TaskAltIcon sx={{ mr: 1 }} color='primary' />
 												</Button>
 											</StyledTableCell>

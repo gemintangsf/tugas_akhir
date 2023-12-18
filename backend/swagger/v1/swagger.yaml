@@ -1231,8 +1231,11 @@ paths:
         schema:
           type: object
           properties:
-            dokumen_kehadiran_perkuliahan:
+            id:
               type: integer
+              example: '212309'
+            dokumen_kehadiran_perkuliahan:
+              type: string
               example: path
             status_kehadiran_perkuliahan:
               type: string

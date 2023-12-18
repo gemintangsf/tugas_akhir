@@ -31,7 +31,7 @@ class V1::User::PenanggungJawabController < ApplicationController
     end
   end
 
-  def getRekeningBankByPenanggungJawab
+  def getBankByPenanggungJawab
     admin = PenanggungJawab.penanggung_jawab_jtk_berbagi.first
     if not admin.present?
       rekening_bank = []

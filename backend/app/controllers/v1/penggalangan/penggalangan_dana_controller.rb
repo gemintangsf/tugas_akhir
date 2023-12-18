@@ -187,14 +187,18 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       data_penggalangan_dana_beasiswa = []
     else
       penggalangan_dana_beasiswa.each do |data|
-        data_penggalangan_dana_beasiswa << data.attributes.merge({
+        new_data_penggalangan_dana_beasiswa = data.attributes.merge({
           durasi: getDurasiPenggalanganDana(data, "beasiswa"),
           dana_yang_dibutuhkan: data.target_dana * data.target_penerima,
           total_donatur: getTotalDonaturInPenggalanganDana(data, "beasiswa")
         })
+        new_data_penggalangan_dana_beasiswa["penggalangan_dana_id"] = new_data_penggalangan_dana_beasiswa.delete("penggalangan_dana_beasiswa_id")        
+
+        data_penggalangan_dana_beasiswa << new_data_penggalangan_dana_beasiswa
       end
     end
-    return data_penggalangan_dana_beasiswa
+    
+    return data_penggalangan_dana_beasiswa.first
   end
 
   def getPenggalanganDanaNonBeasiswa
@@ -206,17 +210,25 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       data_penggalangan_dana_non_beasiswa = []
       if penggalangan_dana_non_beasiswa.length > 1
         penggalangan_dana_non_beasiswa.each do |data|
-          data_penggalangan_dana_non_beasiswa << data.attributes.merge({
+          new_data_penggalangan_dana_non_beasiswa = data.attributes.merge({
             durasi: getDurasiPenggalanganDana(data.bantuan_dana_non_beasiswa_id, "nonbeasiswa"),
             total_donatur: getTotalDonaturInPenggalanganDana(data.bantuan_dana_non_beasiswa_id, "nonbeasiswa")
           })
+          new_data_penggalangan_dana_non_beasiswa["penggalangan_dana_id"] = new_data_penggalangan_dana_non_beasiswa.delete("bantuan_dana_non_beasiswa_id")
+          new_data_penggalangan_dana_non_beasiswa["judul"] = new_data_penggalangan_dana_non_beasiswa.delete("judul_galang_dana")
+          new_data_penggalangan_dana_non_beasiswa["deskripsi"] = new_data_penggalangan_dana_non_beasiswa.delete("deskripsi_galang_dana")
+          data_penggalangan_dana_non_beasiswa << new_data_penggalangan_dana_non_beasiswa
         end
         data_penggalangan_dana_non_beasiswa = data_penggalangan_dana_non_beasiswa.reverse
       else
-        data_penggalangan_dana_non_beasiswa = penggalangan_dana_non_beasiswa.first.attributes.merge({
+        new_data_penggalangan_dana_non_beasiswa = penggalangan_dana_non_beasiswa.first.attributes.merge({
           durasi: getDurasiPenggalanganDana(penggalangan_dana_non_beasiswa.first.bantuan_dana_non_beasiswa_id, "nonbeasiswa"),
           total_donatur: getTotalDonaturInPenggalanganDana(penggalangan_dana_non_beasiswa.first.bantuan_dana_non_beasiswa_id, "nonbeasiswa")
         })
+        new_data_penggalangan_dana_non_beasiswa["penggalangan_dana_id"] = new_data_penggalangan_dana_non_beasiswa.delete("bantuan_dana_non_beasiswa_id")
+        new_data_penggalangan_dana_non_beasiswa["judul"] = new_data_penggalangan_dana_non_beasiswa.delete("judul_galang_dana")
+        new_data_penggalangan_dana_non_beasiswa["deskripsi"] = new_data_penggalangan_dana_non_beasiswa.delete("deskripsi_galang_dana")
+        data_penggalangan_dana_non_beasiswa = new_data_penggalangan_dana_non_beasiswa
       end
     end
     return data_penggalangan_dana_non_beasiswa
@@ -238,7 +250,6 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
   
     new_data_pengajuan = list_data_penggalangan_dana.flatten
     
-  
     render_success_response(Constants::RESPONSE_SUCCESS, new_data_pengajuan, Constants::STATUS_OK)
   end
 
@@ -322,19 +333,27 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
         })
       end
       selected_penggalangan_dana = penggalangan_dana_beasiswa.attributes.merge({
-        penanggung_jawab_id: PenanggungJawab.penanggung_jawab_jtk_berbagi.first.nama,
-        penerima_beasiswa: array_of_penerima_beasiswa,
-        data_donatur: getDataDonaturInPenggalanganDana(penggalangan_dana_beasiswa.penggalangan_dana_beasiswa_id, "Beasiswa")
+        penanggung_jawab: PenanggungJawab.penanggung_jawab_jtk_berbagi.first.nama,
+        penerima_dana: array_of_penerima_beasiswa,
+        jenis: "Beasiswa",
+        data_donatur: getDataDonaturInPenggalanganDana(penggalangan_dana_beasiswa.penggalangan_dana_beasiswa_id, "Beasiswa"),
+        durasi: getDurasiPenggalanganDana(penggalangan_dana_beasiswa, "beasiswa"),
       })
+      selected_penggalangan_dana["penggalangan_dana_id"] = selected_penggalangan_dana.delete("penggalangan_dana_beasiswa_id")
     else
       penanggung_jawab_non_beasiswa = PenanggungJawabNonBeasiswa.where(nomor_induk: penggalangan_dana_non_beasiswa.penanggung_jawab_non_beasiswa_id).first
       penanggung_jawab_penerima_non_beasiswa = PenanggungJawabNonBeasiswaHasPenerimaNonBeasiswa.where(penanggung_jawab_non_beasiswa_id: penanggung_jawab_non_beasiswa.nomor_induk).first
       penerima_non_beasiswa = PenerimaNonBeasiswa.where(nomor_induk: penanggung_jawab_penerima_non_beasiswa.penerima_non_beasiswa_id).first
       selected_penggalangan_dana = penggalangan_dana_non_beasiswa.attributes.merge({
-        penanggung_jawab_non_beasiswa_id: penanggung_jawab_non_beasiswa,
-        penerima_non_beasiswa: penerima_non_beasiswa,
-        data_donatur: getDataDonaturInPenggalanganDana(penggalangan_dana_non_beasiswa.bantuan_dana_non_beasiswa_id, "NonBeasiswa")
+        penanggung_jawab: penanggung_jawab_non_beasiswa,
+        penerima_dana: penerima_non_beasiswa,
+        jenis: "NonBeasiswa",
+        data_donatur: getDataDonaturInPenggalanganDana(penggalangan_dana_non_beasiswa.bantuan_dana_non_beasiswa_id, "NonBeasiswa"),
+        durasi: getDurasiPenggalanganDana(penggalangan_dana_non_beasiswa, "non_beasiswa"),
       })
+      selected_penggalangan_dana["penggalangan_dana_id"] = selected_penggalangan_dana.delete("bantuan_dana_non_beasiswa_id")
+      selected_penggalangan_dana["judul"] = selected_penggalangan_dana.delete("judul_galang_dana")
+      selected_penggalangan_dana["deskripsi"] = selected_penggalangan_dana.delete("deskripsi_galang_dana")
     end
     render_success_response(Constants::RESPONSE_SUCCESS, selected_penggalangan_dana, Constants::STATUS_OK)
   end
@@ -352,7 +371,7 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
       if !donasi.present?
         total_donatur = 0
       else
-        total_donatur = donasi.pluck(:donatur).length
+        total_donatur = donasi.pluck(:donatur_id).length
       end
     end
     return total_donatur
@@ -385,9 +404,17 @@ class V1::Penggalangan::PenggalanganDanaController < ApplicationController
 
     else
       donasi = Donasi.approved.where(bantuan_dana_non_beasiswa_id: penggalangan_dana_id)
+      
       if !donasi.present?
         sorted_data_donatur = []
+      else
+        donasi.each do |data|
+          donatur = Donatur.donatur_registered.where(nomor_telepon: data.donatur_id).first
+          data_donatur_donasi << {nama: donatur.nama, nominal_donasi: data.nominal_donasi}
+        end
+        sorted_data_donatur = data_donatur_donasi.sort_by { |item| -item[:nominal_donasi] }
       end
+
     end
     return sorted_data_donatur
   end

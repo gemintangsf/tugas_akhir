@@ -59,6 +59,7 @@ function CalonPenerimaNonBeasiswa() {
 	const handleCloseModal = () => {
 		setOpenModal(false);
 	};
+	const [jenisBantuan, setJenisBantuan] = useState('NonBeasiswa');
 	const [kategori, setKategori] = useState('');
 	const handleKategoriChange = (val) => {
 		setKategori(val)
@@ -87,12 +88,12 @@ function CalonPenerimaNonBeasiswa() {
 		{
 			label: 'Bencana',
 			value: 'Bencana'
-		}
-	]
+		},
+	];
 	useEffect(() => {
-		const getDataTableNonBeasiswaByKategori = async () => {
+		const getPengajuanBantuan = async () => {
 			await fetch(
-				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getNonBeasiswaByKategori',
+				'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getPengajuanBantuan',
 				{
 					method: 'POST',
 					headers: {
@@ -101,7 +102,7 @@ function CalonPenerimaNonBeasiswa() {
 						'Access-Control-Allow-Origin': '*',
 					},
 					body: JSON.stringify({
-						kategori: kategori,
+						jenis: jenisBantuan,
 						is_pengajuan: pengajuan
 					})
 				}
@@ -119,12 +120,41 @@ function CalonPenerimaNonBeasiswa() {
 					console.log(err.message);
 				})
 		}
-		getDataTableNonBeasiswaByKategori()
-	}, [kategori])
+		getPengajuanBantuan()
+	}, [jenisBantuan])
 
+	const getPengajuanNonBeasiswaByKategori = async () => {
+		await fetch(
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/getNonBeasiswaByKategori',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					kategori: kategori,
+					is_pengajuan: pengajuan
+				})
+			}
+		)
+		.then((response) => response.json())
+		.then((data) => {
+			let arrayData = []
+			for (let i = 0; i < data.data.length; i++) {
+				arrayData.push(data.data[i])
+			}
+			setDataTable(arrayData)
+			console.log(arrayData)
+		})
+		.catch((err) => {
+			console.log(err.message);
+		})
+	}
 	const approvalPengajuanNonBeasiswa = async (id) => {
 		await fetch(
-			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/selectNewPengajuan',
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/approvalPengajuanNonBeasiswa',
 			{
 				method: 'POST',
 				headers: {
@@ -141,16 +171,16 @@ function CalonPenerimaNonBeasiswa() {
 	}
 
 	const headers = [
-		{ title: 'NIM/NIP Penanggung Jawab', id: 'no_identitas_pengaju' },
-		{ title: 'Nama Penanggung Jawab', id: 'nama' },
-		{ title: 'No Telepon Penanggung Jawab', id: 'no_telepon' },
-		{ title: 'NIM/NIP Penerima Dana Bantuan', id: 'no_identitas_penerima', parentId: 'non_beasiswa_id' },
-		{ title: 'Nama Penerima Dana Bantuan', id: 'nama_penerima', parentId: 'non_beasiswa_id' },
-		{ title: 'No Telepon Penerima Dana Bantuan', id: 'no_telepon_penerima', parentId: 'non_beasiswa_id' },
-		{ title: 'Kategori', id: 'kategori', parentId: 'non_beasiswa_id' },
+		{ title: 'NIM/NIP Penanggung Jawab', id: 'nomor_induk', parentId: 'penanggung_jawab_non_beasiswa_id' },
+		{ title: 'Nama Penanggung Jawab', id: 'nama', parentId: 'penanggung_jawab_non_beasiswa_id' },
+		{ title: 'No Telepon Penanggung Jawab', id: 'nomor_telepon', parentId: 'penanggung_jawab_non_beasiswa_id' },
+		{ title: 'NIM/NIP Penerima Dana Bantuan', id: 'nomor_induk', parentId: 'penerima_non_beasiswa' },
+		{ title: 'Nama Penerima Dana Bantuan', id: 'nama', parentId: 'penerima_non_beasiswa' },
+		{ title: 'No Telepon Penerima Dana Bantuan', id: 'nomor_telepon', parentId: 'penerima_non_beasiswa' },
+		{ title: 'Kategori', id: 'kategori'},
 		{ title: 'Judul Bantuan', id: 'judul_galang_dana' },
 		{ title: 'Dana yang Dibutuhkan', id: 'dana_yang_dibutuhkan' },
-		{ title: 'Bukti Butuh Bantuan', id: 'bukti_butuh_bantuan', parentId: 'non_beasiswa_id' },
+		{ title: 'Bukti Butuh Bantuan', id: 'bukti_butuh_bantuan' },
 	]
 
 	const [page, setPage] = useState(0);
@@ -238,12 +268,12 @@ function CalonPenerimaNonBeasiswa() {
 													<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
 													</Box>
 													<Box>
-														<img src={row.non_beasiswa_id.bukti_butuh_bantuan} alt="" style={{ width: '500px' }} />
+														<img src={row.bukti_butuh_bantuan} alt="" style={{ width: '500px' }} />
 													</Box>
 												</Box>
 											</Modal>
 											<StyledTableCell sx={{ display: 'flex', py: 5 }}>
-												<Button onClick={(val) => { approvalPengajuanNonBeasiswa(row._id.$oid, val.target.value) }}>
+												<Button onClick={(val) => { approvalPengajuanNonBeasiswa(row.bantuan_dana_non_beasiswa_id, val.target.value) }}>
 													<TaskAltIcon sx={{ mr: 1 }} color='primary' />
 												</Button>
 												<DeleteOutlineIcon sx={{ color: red[500] }} />

@@ -352,7 +352,8 @@ describe 'Pengajuan Bantuan API' do
       parameter name: :body, in: :body, schema: {
         type: :object,
         properties: {
-          dokumen_kehadiran_perkuliahan: {type: :integer, example: "path"},
+          id: {type: :integer, example: "212309"},
+          dokumen_kehadiran_perkuliahan: {type: :string, example: "path"},
           status_kehadiran_perkuliahan: {type: :string, example: "TanpaSP"},
         },
         required: []

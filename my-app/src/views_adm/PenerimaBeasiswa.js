@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import TableAdmin from '../components/molekul/tabel/Tabel';
 import { styled } from '@mui/material/styles';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import { Box, Container, Typography } from '@mui/material'
+import { Box, Container, Typography, Modal, MenuItem } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import ButtonBase from '../components/base/Button';
@@ -42,19 +42,43 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	},
 }));
 
+
 function BantuanBeasiswa() {
 	const [jenis, setJenis] = useState('Beasiswa')
 	const [pengajuan, setPengajuan] = useState('false')
-	const [open, setOpen] = useState(false);
 	const [dataTable, setDataTable] = useState([])
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [idPenerima, setIdPenerima] = useState('')
+	const [dokumenKehadiran, setDokumenKehadiran] = useState('')
+	const [statusKehadiran, setStatusKehadiran] = useState('')
+	const [open, setOpen] = useState(false);
+	const [openModal, setOpenModal] = useState(false);
+	const [openModalDataPerkuliahan, setOpenModalDataPerkuliahan] = useState(false)
 	const handleOpen = () => {
 		setOpen(true);
 	};
 	const handleClose = () => {
 		setOpen(false);
 	};
+	const handleOpenModal = () => {
+		setOpenModal(true)
+	}
+	const handleCloseModal = () => {
+		setOpenModal(false)
+	}
+	const handleOpenModalDataPerkuliahan = () => {
+		setOpenModalDataPerkuliahan(true)
+	}
+	const handleCloseModalDataPerkuliahan = () => {
+		setOpenModalDataPerkuliahan(false)
+	}
+	const handleDokumenKehadiranChange = (val) => {
+		setDokumenKehadiran(val)
+	}
+	const handleStatusKehadiranChange = (val) => {
+		setStatusKehadiran(val)
+	}
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
 	};
@@ -62,6 +86,25 @@ function BantuanBeasiswa() {
 		setRowsPerPage(parseInt(event.target.value, 10));
 		setPage(0);
 	};
+
+	const selectStatusKehadiran = [
+        {
+            label: 'Bebas SP',
+            value: 'TanpaSP'
+        },
+        {
+            label: 'SP 1',
+            value: 'SP1'
+        },
+        {
+            label: 'SP 2',
+            value: 'SP2'
+        },
+        {
+            label: 'SP 3',
+            value: 'SP3'
+        },
+    ]
 	useEffect(() => {
 		const getPenerimaBeasiswa = async () => {
 			await fetch(
@@ -93,17 +136,84 @@ function BantuanBeasiswa() {
 		getPenerimaBeasiswa()
 	}, [])
 
+	const createKehadiranPerkuliahan = async (idPenerima) => {
+		await fetch (
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/createKehadiranPerkuliahan',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: idPenerima,
+					dokumen_kehadiran_perkuliahan: dokumenKehadiran,
+					status_kehadiran_perkuliahan: statusKehadiran 
+				})
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data)
+			})
+	}
+	const selectLanjutBeasiswa = async (id) => {
+		await fetch (
+			'http://localhost:8000/v1/pengajuan/pengajuan_bantuan/selectLanjutBeasiswa',
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				},
+				body: JSON.stringify({
+					id: id
+				})
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data.data)
+			})
+	}
+	const styleBox = {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		transform: 'translate(-50%, -50%)',
+		width: 500,
+		bgcolor: 'background.paper',
+		boxShadow: 24,
+		borderRadius: '4px 4px 4px 4px',
+	
+	}
 	const headers = [
-		{ title: 'NIM', id: 'no_identitas_pengaju' },
-		{ title: 'Nama', id: 'nama' },
-		{ title: 'No Telepon Mahasiswa', id: 'no_telepon' },
-		{ title: 'Nomor Rekening', id: 'nomor_rekening', parentId: 'bank_id' },
-		{ title: 'Nama Bank', id: 'nama_bank', parentId: 'bank_id' },
-		{ title: 'Nama Pemilik Rekening', id: 'nama_pemilik_rekening', parentId: 'bank_id' },
-		{ title: 'Dokumen Kehadiran Perkuliahan', id: 'dokumen_kehadiran' },
-		{ title: 'Status', id: 'status_pengajuan' }
-	]
+		{ title: 'NIM', id: 'nim', parentId: 'mahasiswa' },
+		{ title: 'Nama', id: 'nama', parentId: 'mahasiswa' },
+		{ title: 'No Telepon Mahasiswa', id: 'nomor_telepon', parentId: 'mahasiswa' },
+		{ title: 'Status Kehadiran Perkuliahan', id: 'status_kehadiran_perkuliahan' },
+		{ title: 'Dokumen Kehadiran Perkuliahan', id: 'dokumen_kehadiran_perkuliahan' },
+		{ title: 'Status Pengajuan', id: 'status_pengajuan' }
+	];
 
+	const statusKehadiranPerkuliahan = [
+        {
+            label: 'Bebas SP',
+            value: 0
+        },
+        {
+            label: 'SP 1',
+            value: 1
+        },
+        {
+            label: 'SP 2',
+            value: 2
+        },
+        {
+            label: 'SP 3',
+            value: 3
+        },
+    ];
 	return (
 		<Container
 			disableGutters
@@ -133,7 +243,7 @@ function BantuanBeasiswa() {
 							{headers.map((header) =>
 								<StyledTableCell sx={{ textAlign: 'center' }}>{header.title}</StyledTableCell>
 							)}
-
+							<StyledTableCell sx={{textAlign: 'center'}}>Action</StyledTableCell>
 						</TableHead>
 						<TableBody>
 							{
@@ -149,16 +259,84 @@ function BantuanBeasiswa() {
 													<StyledTableCell sx={{ textAlign: 'center' }}>{val.id === 'dokumen_kehadiran' ? <Button onClick={handleOpen}>
 														<u style={{ textTransform: "capitalize" }}>Lihat Dokumen</u>
 													</Button>
-														: val.id === 'status_pengajuan' ?
-
-															<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
-																<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approved!</Typography>
-															</Button>
-															: <span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
-													}</StyledTableCell>
+													: val.id === 'status_pengajuan' ?
+													<Button size='small' variant='outlined' color='success' sx={{ backgroundColor: '#EBF9F1' }}>
+														<Typography style={{ textTransform: "capitalize", color: '#1F9254', fontSize: '12px' }}>Approved!</Typography>
+													</Button> 
+													: 
+													val.id === 'dokumen_kehadiran_perkuliahan' ?
+													<Box>
+														<Button  onClick={handleOpenModalDataPerkuliahan}>Open</Button>
+														<Modal
+														open={openModalDataPerkuliahan}
+														onClose={handleCloseModalDataPerkuliahan}
+														>
+															<Box sx={styleBox}>
+																{row.dokumen_kehadiran_perkuliahan}
+															</Box>
+														</Modal>
+													</Box>
+													// : val.id === 'status_kehadiran_perkuliahan' ?
+													// <Typography>{statusKehadiranPerkuliahan.find((val) => val.value === val.status_kehadiran_perkuliahan).label}</Typography>
+													:
+													<span>{val?.parentId ? row?.[val.parentId]?.[val.id] : row?.[val.id]}</span>
+													}
+													</StyledTableCell>
 												))
 											}
-
+											<StyledTableCell>
+												<Box sx={{display:'flex'}}>
+													{
+														row.status_kehadiran_perkuliahan === null ?
+														<Button onClick={handleOpen}><AddIcon></AddIcon></Button>
+														:
+														<Button onClick={handleOpenModal}><AddIcon></AddIcon></Button>
+													}								
+													<Button onClick={(val) => selectLanjutBeasiswa(row.bantuan_dana_beasiswa_id, val.target.value)}><TaskAltIcon></TaskAltIcon></Button>
+												</Box>
+												<Modal
+												open={openModal}
+												onClose={handleCloseModal}
+												>
+													<Box sx={styleBox}>
+														<Box sx={{p: 2}}>
+															<Typography>Dokumen kehadiran sudah tersedia, silahkan cek kembali!</Typography>
+														</Box>
+													</Box>
+												</Modal>
+												<Modal
+													open={open}
+													onClose={handleClose}
+													>		
+														<Box sx={styleBox}>
+															<Box sx={{ backgroundColor: '#1559E6', borderRadius: '4px 4px 0 0', p: 2 }}>
+																<Typography sx={{color: 'white'}}>Formulir Kehadiran Perkuliahan Penerima Beasiswa</Typography>
+															</Box>
+															<Box sx={{p: 2, display: 'flex'}}>
+																<Box sx={{width: '100%'}}>
+																	<Typography variant="body1">Status Kehadiran</Typography>
+																	<TextField select variant='outlined' label='Pilih Status' sx={{width: '100%'}} onChange={(val) => {handleStatusKehadiranChange(val.target.value)}}>
+																		{
+																			selectStatusKehadiran
+																			.map((option) => (
+																				<MenuItem key={option.value} value={option.value}>
+																					{option.label}
+																				</MenuItem>
+																			))
+																		}
+																	</TextField>
+																</Box>
+																<Box sx={{width: '100%', ml: 2}}>
+																	<Typography variant="body1">Dokumen Kehadiran</Typography>
+																	<TextField type='file' sx={{width: '100%'}} onChange={(val) => {handleDokumenKehadiranChange(val.target.value)}}/>
+																</Box>
+															</Box>
+															<Box sx={{display: 'flex', justifyContent: 'flex-end', mr: 2, mb: 2, mt: 4}}>
+																<Button variant='contained' onClick={(val) => {createKehadiranPerkuliahan(row.bantuan_dana_beasiswa_id, val.target.value)}}>Submit</Button>
+															</Box>
+														</Box>
+													</Modal>
+											</StyledTableCell>
 										</StyledTableRow>
 									)
 									)}

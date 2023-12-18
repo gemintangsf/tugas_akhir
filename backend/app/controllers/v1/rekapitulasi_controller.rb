@@ -133,7 +133,10 @@ class V1::RekapitulasiController < ApplicationController
 
     list_bulan_rekap = getBulanRekapitulasiBeasiswa(bantuan_dana_beasiswa.penggalangan_dana_beasiswa_id, return_json:false)
     index_bulan = list_bulan_rekap.index(DateTime.now.strftime('%B'))
-    if params[:bulan_penyaluran] != index_bulan - 6
+    puts params[:bulan_penyaluran] 
+    puts"khhjk" 
+    puts index_bulan
+    if params[:bulan_penyaluran] != index_bulan - 5
       return render_error_response("Bulan Penyaluran yang diinputkan berbeda dengan bulan sekarang!")
     end
     
@@ -302,60 +305,4 @@ class V1::RekapitulasiController < ApplicationController
       return array_of_donasi_approved
     end
   end
-
-  # def getApprovedDonasiByPenggalanganDana(penggalangan_dana_id = nil, month = nil, return_json: true)
-  #   if penggalangan_dana_id == nil
-  #     id_penggalangan_dana = params[:id]
-  #   else
-  #     id_penggalangan_dana = penggalangan_dana_id
-  #   end
-  #   penggalangan_dana_non_beasiswa = BantuanDanaNonBeasiswa.where(bantuan_dana_non_beasiswa_id: id_penggalangan_dana).first
-    
-  #   unless penggalangan_dana.present?
-  #     response_data = "Data Penggalangan Dana tidak ditemukan!"
-  #     return return_json ? render_error_response(response_data) : response_data
-  #   end
-  
-  #   unless penggalangan_dana.donasi_id.present?
-  #     response_data = "Belum ada donasi pada penggalangan dana ini!"
-  #     return return_json ? render_error_response(response_data) : response_data
-  #   end
-  
-  #   if penggalangan_dana.pengajuan_bantuan_id.kind_of?(Array)
-  #     pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: penggalangan_dana.pengajuan_bantuan_id[0]).first
-  #   else
-  #     pengajuan_bantuan = Pengajuan::PengajuanBantuan.where(id: penggalangan_dana.pengajuan_bantuan_id).first
-  #   end
-  
-  #   donasi = Penggalangan::Donasi.approved.where(:id.in => penggalangan_dana.donasi_id)
-  #   unless donasi.present?
-  #     response_data = "Tidak ada data donasi pada penggalangan dana ini!"
-  #     return return_json ? render_error_response(response_data) : response_data
-  #   end
-  
-  #   data_donasi = donasi.map do |data_donation|
-  #     donatur = User::Donatur.donatur_registered.where(donasi_id: data_donation.id).first
-  #     bank = Bank.where(id: donatur.bank_id).first
-  #     object_data_donasi = penggalangan_dana.attributes.merge({
-  #       pengajuan_bantuan_id: pengajuan_bantuan,
-  #       donasi_id: donatur.attributes.merge({
-  #         donasi_id: data_donation,
-  #         bank_id: bank,
-  #       })
-  #     })
-  #     object_data_donasi["donatur"] = object_data_donasi.delete("donasi_id")
-  #     object_data_donasi
-  #   end
-    
-  #   params_month = return_json ? params[:month] : month
-  #   if params[:month].present?
-  #     # Filter the response by the specified month
-  #     month_filter = data_donasi.select { |donasi| donasi["donatur"]["donasi_id"]["waktu_berakhir"].strftime('%B') == params_month }
-  #     response_data =  month_filter
-  #   else
-  #     response_data = data_donasi
-  #   end
-  
-  #   return return_json ? render_success_response(Constants::RESPONSE_SUCCESS, response_data, Constants::STATUS_OK) : month_filter
-  # end
 end
