@@ -229,8 +229,8 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 [React-url]: https://reactjs.org/
 [Ruby-on-Rails]: https://img.shields.io/badge/Ruby%20on%20Rails-20232A?style=for-the-badge&logo=ruby-on-rails&logoColor=CC0000
 [Ruby-on-Rails-url]: https://rubyonrails.org/
-[MySQL]: https://img.shields.io/badge/MySQL-20232A?style=for-the-badge&logo=mysql&logoColor=white
+[MySQL]: https://img.shields.io/badge/MySQL-20232A?style=for-the-badge&logo=mysql&logoColor=00758F
 [MySQL-url]: https://www.mysql.com/
-[MUI]: https://img.shields.io/badge/MUI-20232A?style=for-the-badge&logo=react&logoColor=white
+[MUI]: https://img.shields.io/badge/MUI-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [MUI-url]: https://mui.com/
 
