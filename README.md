@@ -236,4 +236,5 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 [MySQL-url]: https://www.mysql.com/
 [MUI]: https://img.shields.io/badge/MUI-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [MUI-url]: https://mui.com/
+[product-screenshot]: image/Screenshot_1.png
 
