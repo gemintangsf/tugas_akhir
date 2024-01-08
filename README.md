@@ -113,7 +113,14 @@ This is an example of how to list things you need to use the software and how to
   ```sh
   npm install npm@latest -g
   ```
-
+* ruby version
+  ```sh
+  ruby 2.6.10
+  ```
+* rails version
+  ```sh
+  ruby 6.1.7
+  ```
 ### Installation
 
 1. Clone the repo
