@@ -191,7 +191,7 @@ Project Link: [https://github.com/gemintangsf/tugas_akhir](https://github.com/ge
 [issues-shield]: https://img.shields.io/github/issues/gemintangsf/tugas_akhir.svg?style=for-the-badge
 [issues-url]: https://github.com/gemintangsf/tugas_akhir/issues
 [license-shield]: https://img.shields.io/github/license/gemintangsf/tugas_akhir.svg?style=for-the-badge
-[license-url]: https://github.com/gemintangsf/tugas_akhir/blob/master/LICENSE.txt
+[license-url]: https://github.com/gemintangsf/tugas_akhir/blob/main/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url-gemintang]: https://www.linkedin.com/in/gemintang-sangkaji-furqon-0a8807248/
 [linkedin-url-hasbi]: https://www.linkedin.com/in/hasbiishlahyazm/
