@@ -84,8 +84,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://github.com/gemintangsf/tugas_akhir/tree/main/image/Screenshot_1.png)
-)
+[![Admin Side][product-screenshot-1]](https://example.com)
+[![User Side][product-screenshot-2]](https://example.com)
+
 
 Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`
 
@@ -236,5 +237,7 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 [MySQL-url]: https://www.mysql.com/
 [MUI]: https://img.shields.io/badge/MUI-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [MUI-url]: https://mui.com/
-[product-screenshot]: image/Screenshot_1.png
+[product-screenshot-1]: image/Screenshot_1.png
+[product-screenshot-2]: image/Screenshot_2.png
+
 
