@@ -231,7 +231,7 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 [product-screenshot]: images/screenshot.png
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
-[Bootstrap.com]: https://img.shields.io/badge/ruby-on-rails
+[Bootstrap.com]: https://img.shields.io/badge/Ruby%20on%20Rails-v6.0.0-red
 [Bootstrap-url]: https://getbootstrap.com
 
 
