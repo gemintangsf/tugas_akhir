@@ -213,9 +213,9 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/gemintangsf/tugas_akhir.svg?style=for-the-badge
 [contributors-url]: https://github.com/gemintangsf/tugas_akhir/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/gemintangsf/tugas_akhir.svg?style=for-the-badge
 [forks-url]: https://github.com/gemintangsf/tugas_akhir/network/members
 [stars-shield]: https://img.shields.io/github/stars/gemitangsf/tugas_akhir.svg?style=for-the-badge
 [stars-url]: https://github.com/gemintangsf/tugas_akhir/stargazers
