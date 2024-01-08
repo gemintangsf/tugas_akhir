@@ -84,7 +84,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](![image](https://github.com/gemintangsf/tugas_akhir/assets/61396350/8ca7df29-dfe6-4037-8246-3807a71367ce)
+[![Product Name Screen Shot][product-screenshot]](https://github.com/gemintangsf/tugas_akhir/tree/main/image/Screenshot_1.png)
 )
 
 Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`
