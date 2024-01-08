@@ -93,14 +93,10 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 
 ### Built With
 
-* [![Next][Next.js]][Next-url]
 * [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+* [![RubyonRails][Ruby-on-Rails]][Ruby-on-Rails-url]
+* [![MySQL][MySQL]][MySQL-url]
+* [![MUI][MUI]][MUI-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -231,7 +227,10 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 [product-screenshot]: images/screenshot.png
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
-[Bootstrap.com]: https://img.shields.io/badge/Ruby%20on%20Rails-20232A?style=for-the-badge&logo=ruby-on-rails&logoColor=CC0000
-[Bootstrap-url]: https://getbootstrap.com
-
+[Ruby-on-Rails]: https://img.shields.io/badge/Ruby%20on%20Rails-20232A?style=for-the-badge&logo=ruby-on-rails&logoColor=CC0000
+[Ruby-on-Rails-url]: https://rubyonrails.org/
+[MySQL]: https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white
+[MySQL-url]: https://www.mysql.com/
+[MUI]: https://img.shields.io/badge/MUI-0081CB?style=for-the-badge&logo=react&logoColor=white
+[MUI-url]: https://mui.com/
 
