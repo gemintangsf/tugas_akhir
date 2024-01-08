@@ -118,12 +118,11 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Clone the repo
    ```sh
    git clone https://github.com/gemintangsf/tugas_akhir.git
    ```
-3. Running Server Side
+2. Running Server Side
    ```sh
    cd backend
    ```
@@ -133,7 +132,7 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    rails s
    ```
-4. Running Client Side
+3. Running Client Side
    ```sh
    cd my-app
    ```
@@ -143,11 +142,11 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    npm start
    ```
-5. To see API Documentation
+4. To see API Documentation
    ```sh
    http://localhost:8000/api-docs/index.html
    ```
-6. To see Application at Port
+5. To see Application at Port
    ```sh
    http://localhost:3000/
    http://localhost:3000/beranda
