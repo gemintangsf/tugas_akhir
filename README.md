@@ -71,11 +71,9 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -87,8 +85,7 @@
 [![Admin Side][product-screenshot-1]](https://example.com)
 [![User Side][product-screenshot-2]](https://example.com)
 
-
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`
+JTK Berbagi is A web-based application for JTK POLBAN residents to raise funds and make online donations.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -124,17 +121,37 @@ This is an example of how to list things you need to use the software and how to
 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/gemintangsf/tugas_akhir.git
    ```
-3. Install NPM packages
+3. Running Server Side
+   ```sh
+   cd backend
+   ```
+   ```sh
+   bundle install
+   ```
+   ```sh
+   rails s
+   ```
+4. Running Client Side
+   ```sh
+   cd my-app
+   ```
    ```sh
    npm install
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+   ```sh
+   npm start
    ```
-
+5. To see API Documentation
+   ```sh
+   http://localhost:8000/api-docs/index.html
+   ```
+6. To see Application at Port
+   ```sh
+   http://localhost:3000/
+   http://localhost:3000/beranda
+   ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -147,21 +164,6 @@ Use this space to show useful examples of how a project can be used. Additional 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
-
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- CONTRIBUTING -->
@@ -199,15 +201,6 @@ Project Link: [https://github.com/gemintangsf/tugas_kahir](https://github.com/ge
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-* []()
-* []()
-* []()
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
